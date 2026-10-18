@@ -1,0 +1,17 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="#C5C5C5">
+    <defs>
+        <style>
+            .c-plus-plus-logo_letter {
+                font: 80px sans-serif;
+                fill: #C5C5C5;
+            }
+            .c-plus-plus-logo_plus {
+                font: 60px sans-serif;
+                fill: #C5C5C5;
+            }
+        </style>
+    </defs>
+    <text x="0" y="75" class="c-plus-plus-logo_letter">C</text>
+    <text x="50" y="45" class="c-plus-plus-logo_plus">+</text>
+    <text x="50" y="85" class="c-plus-plus-logo_plus">+</text>
+</svg>

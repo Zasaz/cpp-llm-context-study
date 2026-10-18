@@ -25,3 +25,6 @@ uploads/
 
 # Early development/test campaigns (not cited in thesis)
 results/campaign_20260820T*/
+
+# Extension dependencies
+vscode-extension/node_modules/
