@@ -1,0 +1,9 @@
+Starting Report test suite...
+Test test_report_default_constructor: PASS
+Test test_report_parameterized_constructor: PASS
+Test test_report_isEmpty: PASS
+Test test_report_summaryLine: PASS
+Test test_report_averageItemValue: PASS
+Test test_report_outOfStockCount: PASS
+Test test_report_source_mutation: PASS
+All Report tests passed successfully!

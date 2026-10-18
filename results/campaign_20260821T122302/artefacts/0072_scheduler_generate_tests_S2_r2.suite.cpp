@@ -1,0 +1,235 @@
+#include <iostream>
+#include <cassert>
+#include <vector>
+#include "TaskQueue.h"
+
+// Test Policy subclasses to verify policy-driven behavior
+class RejectAllPolicy : public Policy {
+public:
+    bool accepts(const Task&) const { return false; }
+    bool accepts(const Task&) { return false; }
+    int rank(const Task&) const { return 0; }
+    int rank(const Task&) { return 0; }
+};
+
+class AcceptAllPolicy : public Policy {
+public:
+    bool accepts(const Task&) const { return true; }
+    bool accepts(const Task&) { return true; }
+    int rank(const Task&) const { return 10; }
+    int rank(const Task&) { return 10; }
+};
+
+class CustomRankPolicy : public Policy {
+public:
+    bool accepts(const Task&) const { return true; }
+    bool accepts(const Task&) { return true; }
+    int rank(const Task& t) const { return t.remaining(); }
+    int rank(const Task& t) { return t.remaining(); }
+};
+
+void test_default_constructor() {
+    TaskQueue q;
+    assert(q.size() == 0);
+    assert(q.isEmpty());
+    assert(!q.isFull());
+    assert(q.rejectedCount() == 0);
+    assert(q.bestIndex() == -1);
+    assert(q.totalRemaining() == 0);
+    assert(q.pendingCount() == 0);
+
+    std::cout << "Test test_default_constructor: PASS" << std::endl;
+}
+
+void test_custom_capacity_constructor() {
+    // Standard positive capacity
+    TaskQueue q1(3);
+    assert(q1.size() == 0);
+    assert(!q1.isFull());
+    assert(q1.rejectedCount() == 0);
+
+    // Non-positive limits should fall back to capacity 1
+    TaskQueue qZero(0);
+    Task t1;
+    assert(qZero.enqueue(t1) == 1);
+    assert(qZero.isFull());
+    assert(qZero.enqueue(t1) == -1);
+    assert(qZero.rejectedCount() == 1);
+
+    TaskQueue qNeg(-5);
+    assert(qNeg.enqueue(t1) == 1);
+    assert(qNeg.isFull());
+    assert(qNeg.enqueue(t1) == -1);
+    assert(qNeg.rejectedCount() == 1);
+
+    std::cout << "Test test_custom_capacity_constructor: PASS" << std::endl;
+}
+
+void test_enqueue_and_capacity_limits() {
+    TaskQueue q(3);
+    Task t1, t2, t3, t4;
+
+    assert(q.enqueue(t1) == 1);
+    assert(q.size() == 1);
+    assert(!q.isEmpty());
+    assert(!q.isFull());
+
+    assert(q.enqueue(t2) == 2);
+    assert(q.size() == 2);
+
+    assert(q.enqueue(t3) == 3);
+    assert(q.size() == 3);
+    assert(q.isFull());
+    assert(q.rejectedCount() == 0);
+
+    // Enqueue beyond capacity should fail and increment rejectedCount
+    assert(q.enqueue(t4) == -1);
+    assert(q.size() == 3);
+    assert(q.rejectedCount() == 1);
+
+    assert(q.enqueue(t4) == -1);
+    assert(q.rejectedCount() == 2);
+
+    std::cout << "Test test_enqueue_and_capacity_limits: PASS" << std::endl;
+}
+
+void test_best_and_dequeue() {
+    TaskQueue q(4);
+    Task t1, t2;
+
+    q.enqueue(t1);
+    q.enqueue(t2);
+
+    assert(q.size() == 2);
+    assert(q.bestIndex() == 0 || q.bestIndex() == 1);
+
+    // best() returns the best task without removing it
+    Task b = q.best();
+    (void)b;
+    assert(q.size() == 2);
+
+    // dequeue() removes the best task
+    Task d1 = q.dequeue();
+    (void)d1;
+    assert(q.size() == 1);
+
+    Task d2 = q.dequeue();
+    (void)d2;
+    assert(q.size() == 0);
+    assert(q.isEmpty());
+
+    std::cout << "Test test_best_and_dequeue: PASS" << std::endl;
+}
+
+void test_policy_filtering() {
+    TaskQueue q(5);
+    RejectAllPolicy rejectPolicy;
+    AcceptAllPolicy acceptPolicy;
+
+    int res = q.usePolicy(&rejectPolicy);
+    assert(res == 0);
+
+    Task t1;
+    assert(q.enqueue(t1) == -1);
+    assert(q.rejectedCount() == 1);
+    assert(q.size() == 0);
+
+    // Switch to accepting policy
+    q.usePolicy(&acceptPolicy);
+    assert(q.enqueue(t1) == 1);
+    assert(q.size() == 1);
+    assert(q.rejectedCount() == 1);
+
+    // Switch policy back to nullptr (no policy)
+    q.usePolicy(0);
+    Task t2;
+    assert(q.enqueue(t2) == 2);
+    assert(q.size() == 2);
+
+    std::cout << "Test test_policy_filtering: PASS" << std::endl;
+}
+
+void test_policy_ranking() {
+    TaskQueue q(5);
+    CustomRankPolicy rankPolicy;
+    q.usePolicy(&rankPolicy);
+
+    Task t1, t2;
+    q.enqueue(t1);
+    q.enqueue(t2);
+
+    assert(q.bestIndex() >= 0 && q.bestIndex() < q.size());
+
+    Task chosen = q.dequeue();
+    (void)chosen;
+    assert(q.size() == 1);
+
+    std::cout << "Test test_policy_ranking: PASS" << std::endl;
+}
+
+void test_total_remaining_and_pending_count() {
+    TaskQueue q(4);
+    Task t1, t2;
+    q.enqueue(t1);
+    q.enqueue(t2);
+
+    int remaining = q.totalRemaining();
+    assert(remaining >= 0);
+
+    int pending = q.pendingCount();
+    assert(pending >= 0 && pending <= q.size());
+
+    std::cout << "Test test_total_remaining_and_pending_count: PASS" << std::endl;
+}
+
+void test_advance_all_and_purge_complete() {
+    TaskQueue q(4);
+    Task t1, t2;
+    q.enqueue(t1);
+    q.enqueue(t2);
+
+    int completed = q.advanceAll(100);
+    assert(completed >= 0 && completed <= 2);
+
+    int purged = q.purgeComplete();
+    assert(purged == completed);
+    assert(q.size() == 2 - purged);
+
+    std::cout << "Test test_advance_all_and_purge_complete: PASS" << std::endl;
+}
+
+void test_empty_queue_operations() {
+    TaskQueue q;
+
+    assert(q.bestIndex() == -1);
+
+    Task b = q.best();
+    (void)b;
+
+    Task d = q.dequeue();
+    (void)d;
+    assert(q.isEmpty());
+    assert(q.size() == 0);
+
+    assert(q.advanceAll(10) == 0);
+    assert(q.purgeComplete() == 0);
+    assert(q.totalRemaining() == 0);
+    assert(q.pendingCount() == 0);
+
+    std::cout << "Test test_empty_queue_operations: PASS" << std::endl;
+}
+
+int main() {
+    test_default_constructor();
+    test_custom_capacity_constructor();
+    test_enqueue_and_capacity_limits();
+    test_best_and_dequeue();
+    test_policy_filtering();
+    test_policy_ranking();
+    test_total_remaining_and_pending_count();
+    test_advance_all_and_purge_complete();
+    test_empty_queue_operations();
+
+    std::cout << "All TaskQueue tests passed successfully!" << std::endl;
+    return 0;
+}

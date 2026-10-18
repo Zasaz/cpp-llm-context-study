@@ -1,0 +1,9 @@
+Test test_constructors_and_initial_state: PASS
+Test test_filter_management: PASS
+Test test_process_and_stage: PASS
+Test test_would_reject: PASS
+Test test_ingest_and_quality_control: PASS
+Test test_ingest_batch: PASS
+Test test_statistics_and_scaling: PASS
+Test test_describe_and_flush: PASS
+All SamplePipeline tests passed successfully!

@@ -1,0 +1,8 @@
+--- Running Report Class Unit Tests ---
+Test test_default_constructor: PASS
+Test test_parameterized_constructor_empty_warehouse: PASS
+Test test_averageItemValue_single_and_multiple_items: PASS
+Test test_outOfStockCount: PASS
+Test test_summaryLine_and_isEmpty: PASS
+Test test_report_after_warehouse_modifications: PASS
+All Report unit tests passed successfully!

@@ -1,0 +1,8 @@
+--- Preparing user code (renaming main() to user_code_main) ---
+12 source files: Canvas.cpp, Pad1.cpp, Pad2.cpp, Pad3.cpp, Pad4.cpp, Pad5.cpp, Pad6.cpp, Pad7.cpp, Pad8.cpp, Pad9.cpp, Shape.cpp, Vector2.cpp
+
+--- Test Suite Compilation & Linking ---
+Command: g++ -I /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpf8ha1uhf/build /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpf8ha1uhf/build/Canvas.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpf8ha1uhf/build/Pad1.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpf8ha1uhf/build/Pad2.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpf8ha1uhf/build/Pad3.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpf8ha1uhf/build/Pad4.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpf8ha1uhf/build/Pad5.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpf8ha1uhf/build/Pad6.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpf8ha1uhf/build/Pad7.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpf8ha1uhf/build/Pad8.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpf8ha1uhf/build/Pad9.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpf8ha1uhf/build/Shape.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpf8ha1uhf/build/Vector2.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpf8ha1uhf/build/test_suite.cpp -o /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpf8ha1uhf/test_executable -std=c++17 -Wall
+STDOUT:
+
+STDERR:

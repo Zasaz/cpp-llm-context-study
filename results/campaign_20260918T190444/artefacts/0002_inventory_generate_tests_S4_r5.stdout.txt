@@ -1,0 +1,8 @@
+Starting Report class unit tests...
+Test test_defaultConstructor_and_isEmpty: PASS
+Test test_parameterizedConstructor_emptyWarehouse: PASS
+Test test_averageItemValue_withItems: PASS
+Test test_outOfStockCount: PASS
+Test test_summaryLine_nonEmpty: PASS
+Test test_summaryLine_emptyWithLabelSet: PASS
+All Report tests passed successfully!

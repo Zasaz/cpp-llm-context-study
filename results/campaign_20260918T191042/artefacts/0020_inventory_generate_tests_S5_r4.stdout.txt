@@ -1,0 +1,9 @@
+--- Starting Report Unit Tests ---
+Test test_defaultConstructor: PASS
+Test test_parameterizedConstructor: PASS
+Test test_isEmpty: PASS
+Test test_summaryLine: PASS
+Test test_averageItemValue_emptyWarehouse: PASS
+Test test_averageItemValue_withItems: PASS
+Test test_outOfStockCount: PASS
+--- All Report Unit Tests Passed Successfully ---

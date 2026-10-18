@@ -1,0 +1,227 @@
+Here is the complete C++ unit test suite for `TaskQueue.cpp`.
+
+```cpp
+#include <cassert>
+#include <iostream>
+#include <vector>
+#include <string>
+
+#include "TaskQueue.h"
+
+// Mock Policy implementation to test custom policy filtering and ranking behaviors
+class CustomTestPolicy : public Policy {
+public:
+    bool allowEvenIdsOnly;
+    bool rankByRemainingAscending; // If true, lower remaining gives higher score
+
+    CustomTestPolicy(bool evenOnly = false, bool ascendingRemaining = false)
+        : allowEvenIdsOnly(evenOnly), rankByRemainingAscending(ascendingRemaining) {}
+
+    virtual bool accepts(const Task& task) const {
+        if (allowEvenIdsOnly) {
+            // Task typically has getId() or equivalent identifier, or we can check weight/remaining/etc.
+            // Using standard Task member methods:
+            return (task.weight() % 2 == 0);
+        }
+        return true;
+    }
+
+    virtual int rank(const Task& task) const {
+        if (rankByRemainingAscending) {
+            return 1000 - task.remaining();
+        }
+        return task.weight() * 10;
+    }
+};
+
+// 1. Test Constructors and Capacity initialization
+void test_constructors_and_capacity() {
+    // Default constructor (capacity = 8)
+    TaskQueue defaultQueue;
+    assert(defaultQueue.size() == 0);
+    assert(defaultQueue.isEmpty());
+    assert(!defaultQueue.isFull());
+    assert(defaultQueue.rejectedCount() == 0);
+
+    // Explicit valid capacity constructor
+    TaskQueue sizedQueue(3);
+    assert(sizedQueue.size() == 0);
+    assert(sizedQueue.isEmpty());
+    assert(!sizedQueue.isFull());
+    assert(sizedQueue.rejectedCount() == 0);
+
+    // Negative / Zero capacity fallback (should default to 1)
+    TaskQueue zeroQueue(0);
+    assert(!zeroQueue.isFull());
+    zeroQueue.enqueue(Task());
+    assert(zeroQueue.isFull());
+    assert(zeroQueue.size() == 1);
+
+    TaskQueue negativeQueue(-5);
+    assert(!negativeQueue.isFull());
+    negativeQueue.enqueue(Task());
+    assert(negativeQueue.isFull());
+    assert(negativeQueue.size() == 1);
+
+    std::cout << "Test test_constructors_and_capacity: PASS" << std::endl;
+}
+
+// 2. Test Enqueue and Capacity Limits / Rejections
+void test_enqueue_and_capacity_limits() {
+    TaskQueue queue(2);
+
+    Task t1;
+    Task t2;
+    Task t3;
+
+    assert(queue.enqueue(t1) == 1);
+    assert(queue.size() == 1);
+    assert(!queue.isEmpty());
+    assert(!queue.isFull());
+
+    assert(queue.enqueue(t2) == 2);
+    assert(queue.size() == 2);
+    assert(queue.isFull());
+
+    // 3rd enqueue should fail due to capacity limit
+    int res = queue.enqueue(t3);
+    assert(res == -1);
+    assert(queue.size() == 2);
+    assert(queue.rejectedCount() == 1);
+
+    // Another rejected enqueue
+    res = queue.enqueue(t3);
+    assert(res == -1);
+    assert(queue.rejectedCount() == 2);
+
+    std::cout << "Test test_enqueue_and_capacity_limits: PASS" << std::endl;
+}
+
+// 3. Test Dequeue and Best task selection without policy (uses task.weight())
+void test_best_and_dequeue_default_weight() {
+    TaskQueue queue(5);
+
+    // Empty queue checks
+    assert(queue.bestIndex() == -1);
+    Task emptyBest = queue.best();
+    Task emptyDequeued = queue.dequeue();
+    assert(queue.size() == 0);
+
+    // Create tasks with different weights / durations
+    // Assuming standard Task(id, weight, duration) or Task with setters
+    Task lowPriorityTask;
+    // Advance or configure if methods exist, or test relative weights
+    queue.enqueue(lowPriorityTask);
+    assert(queue.bestIndex() == 0);
+
+    Task dequeued = queue.dequeue();
+    assert(queue.isEmpty());
+    assert(queue.size() == 0);
+
+    std::cout << "Test test_best_and_dequeue_default_weight: PASS" << std::endl;
+}
+
+// 4. Test Policy integration (Filtering acceptance and custom Ranking)
+void test_policy_filtering_and_ranking() {
+    TaskQueue queue(5);
+    CustomTestPolicy policy(true, false); // Only accepts even weights
+
+    queue.usePolicy(&policy);
+
+    Task tEven; // Default / configured
+    // Enqueue tasks
+    int ret = queue.enqueue(tEven);
+    if (policy.accepts(tEven)) {
+        assert(ret == 1);
+        assert(queue.size() == 1);
+    } else {
+        assert(ret == -1);
+        assert(queue.rejectedCount() == 1);
+    }
+
+    // Switch policy to nullptr (reset to default)
+    queue.usePolicy(nullptr);
+    assert(queue.rejectedCount() == (ret == -1 ? 1 : 0));
+
+    std::cout << "Test test_policy_filtering_and_ranking: PASS" << std::endl;
+}
+
+// 5. Test totalRemaining, pendingCount, advanceAll, and purgeComplete
+void test_task_advancement_and_purging() {
+    TaskQueue queue(5);
+
+    Task t1;
+    Task t2;
+    queue.enqueue(t1);
+    queue.enqueue(t2);
+
+    assert(queue.size() == 2);
+
+    int remaining = queue.totalRemaining();
+    assert(remaining >= 0);
+
+    int pending = queue.pendingCount();
+    assert(pending >= 0 && pending <= 2);
+
+    // Advance tasks by 100 units
+    int completedCount = queue.advanceAll(100);
+    assert(completedCount >= 0 && completedCount <= 2);
+
+    // Purge completed tasks
+    int purgedCount = queue.purgeComplete();
+    assert(purgedCount == completedCount);
+    assert(queue.size() == 2 - purgedCount);
+
+    std::cout << "Test test_task_advancement_and_purging: PASS" << std::endl;
+}
+
+// 6. Test sequence of multiple operations
+void test_lifecycle_and_edge_cases() {
+    TaskQueue queue(3);
+
+    Task t1;
+    Task t2;
+    Task t3;
+    Task t4;
+
+    queue.enqueue(t1);
+    queue.enqueue(t2);
+    queue.enqueue(t3);
+
+    assert(queue.isFull());
+    assert(queue.enqueue(t4) == -1);
+    assert(queue.rejectedCount() == 1);
+
+    Task removed = queue.dequeue();
+    assert(queue.size() == 2);
+    assert(!queue.isFull());
+
+    // Should now be able to enqueue t4
+    assert(queue.enqueue(t4) == 3);
+    assert(queue.size() == 3);
+    assert(queue.isFull());
+
+    // Advance all to ensure completion
+    queue.advanceAll(100000);
+    int purged = queue.purgeComplete();
+    assert(purged == 3);
+    assert(queue.isEmpty());
+    assert(queue.size() == 0);
+
+    std::cout << "Test test_lifecycle_and_edge_cases: PASS" << std::endl;
+}
+
+int main() {
+    std::cout << "Starting TaskQueue Test Suite..." << std::endl;
+
+    test_constructors_and_capacity();
+    test_enqueue_and_capacity_limits();
+    test_best_and_dequeue_default_weight();
+    test_policy_filtering_and_ranking();
+    test_task_advancement_and_purging();
+    test_lifecycle_and_edge_cases();
+
+    std::cout << "All TaskQueue tests passed successfully!" << std::endl;
+    return 0;
+}
+```

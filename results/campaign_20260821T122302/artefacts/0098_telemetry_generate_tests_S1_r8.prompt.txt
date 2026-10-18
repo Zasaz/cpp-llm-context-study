@@ -1,0 +1,1516 @@
+
+    You are an expert C++ unit testing assistant.
+    Given the following C++ code project, generate a complete, compilable C++ unit test suite in a single code block.
+    Your primary goal is to generate comprehensive tests for the functions and classes defined in the file `SamplePipeline.cpp`. Use the other provided files for context to understand dependencies and usage.
+
+    The test suite you generate MUST:
+    1.  Include necessary standard headers (like `<cassert>`, `<iostream>`, `<vector>`, `<string>`, etc., as needed for the tests).
+    2.  Create several distinct test functions. Each test function should focus on testing a specific aspect, function, or edge case. Name test functions clearly (e.g., `test_functionName_caseDescription()`).
+    3.  Each test function MUST use `assert()` for checks.
+    4.  Each test function should print a distinct success message to `std::cout` if all its assertions pass (e.g., `std::cout << "Test test_functionName_caseDescription: PASS" << std::endl;`).
+    5.  Include YOUR OWN `main()` function in the test suite. This `main()` function will be the ONLY entry point for the test executable. It should call all the individual test functions you defined.
+    6.  The test suite should be self-contained in terms of test logic.
+
+    **Important for Compilation & Usability:**
+    -   The user's C++ code (provided below) will be compiled first, and then this test suite will be compiled and linked against it. The test suite is compiled inside the project directory, so the project's own headers are on the include path.
+    -   Therefore, you MUST obtain the declarations you need by including the project's own headers by name, for example `#include "Canvas.h"`.
+    -   Do NOT re-declare or re-define any class, struct or function that the project's own headers already declare. A hand-written declaration that does not match the real one compiles and links without any diagnostic and then corrupts memory at run time.
+    -   Do NOT attempt to call or interact with any `main()` function that might be present in the User's C++ Code.
+
+    User's C++ Project Code:
+    ```cpp
+    //--- file: AlertRule.h ---
+#ifndef ALERTRULE_H
+#define ALERTRULE_H
+
+#include <string>
+
+class AlertRule {
+public:
+    std::string subject;
+    int fired;
+    bool muted;
+
+    AlertRule();
+    AlertRule(const std::string& target);
+    virtual ~AlertRule();
+
+    virtual bool triggers(double reading) const;
+    virtual std::string message() const;
+    virtual int severity() const;
+    int evaluate(double reading);
+    int firedCount() const;
+    bool mute();
+    bool isMuted() const;
+    std::string target() const;
+};
+
+class HighWaterRule : public AlertRule {
+public:
+    double ceiling;
+
+    HighWaterRule();
+    HighWaterRule(const std::string& target, double limit);
+    bool triggers(double reading) const;
+    std::string message() const;
+    int severity() const;
+    double headroom(double reading) const;
+};
+
+class LowWaterRule : public AlertRule {
+public:
+    double floorValue;
+
+    LowWaterRule();
+    LowWaterRule(const std::string& target, double limit);
+    bool triggers(double reading) const;
+    std::string message() const;
+    int severity() const;
+};
+
+class BandRule : public AlertRule {
+public:
+    double low;
+    double high;
+
+    BandRule();
+    BandRule(const std::string& target, double lowBound, double highBound);
+    bool triggers(double reading) const;
+    std::string message() const;
+    int severity() const;
+    double width() const;
+};
+
+#endif
+
+
+//--- file: Channel.h ---
+#ifndef CHANNEL_H
+#define CHANNEL_H
+
+#include "Sample.h"
+#include "UnitScale.h"
+#include <string>
+#include <vector>
+
+class Channel {
+public:
+    std::string name;
+    std::vector<Sample> samples;
+    UnitScale scale;
+    int capacity;
+    int dropped;
+
+    Channel();
+    Channel(const std::string& channelName, int limit);
+
+    int append(const Sample& sample);
+    int count() const;
+    int validCount() const;
+    int droppedCount() const;
+    bool isFull() const;
+    bool isEmpty() const;
+    double sum() const;
+    double mean() const;
+    double peak() const;
+    double trough() const;
+    double range() const;
+    double meanInBase() const;
+    Sample sampleAt(int position) const;
+    Sample newest() const;
+    int purgeDegraded();
+    std::string channelName() const;
+    int rescale(const UnitScale& replacement);
+};
+
+#endif
+
+
+//--- file: Dashboard.h ---
+#ifndef DASHBOARD_H
+#define DASHBOARD_H
+
+#include "AlertRule.h"
+#include "Channel.h"
+#include <string>
+#include <vector>
+
+class Dashboard {
+public:
+    std::vector<Channel> panels;
+    std::vector<AlertRule*> rules;
+    std::string title;
+    int checks;
+
+    Dashboard();
+    Dashboard(const std::string& heading);
+
+    int addPanel(const Channel& panel);
+    int addRule(AlertRule* rule);
+    int panelCount() const;
+    int ruleCount() const;
+    int checkCount() const;
+    int sweep();
+    int alertsFor(double reading) const;
+    int worstSeverity() const;
+    double panelMean(int index) const;
+    double overallMean() const;
+    std::string heading() const;
+    std::string status() const;
+    int reset();
+};
+
+#endif
+
+
+//--- file: Filter.h ---
+#ifndef FILTER_H
+#define FILTER_H
+
+#include <string>
+
+class Filter {
+public:
+    int applied;
+    bool enabled;
+
+    Filter();
+    virtual ~Filter();
+
+    virtual double apply(double reading);
+    virtual std::string label() const;
+    virtual bool rejects(double reading) const;
+    int appliedCount() const;
+    int resetCount();
+    bool toggle();
+};
+
+class PassFilter : public Filter {
+public:
+    PassFilter();
+    double apply(double reading);
+    std::string label() const;
+};
+
+class ClampFilter : public Filter {
+public:
+    double low;
+    double high;
+
+    ClampFilter();
+    ClampFilter(double lowBound, double highBound);
+    double apply(double reading);
+    std::string label() const;
+    bool rejects(double reading) const;
+    double width() const;
+};
+
+class SmoothFilter : public Filter {
+public:
+    double previous;
+    double weight;
+    bool primed;
+
+    SmoothFilter();
+    SmoothFilter(double smoothing);
+    double apply(double reading);
+    std::string label() const;
+    double lastValue() const;
+    bool isPrimed() const;
+};
+
+#endif
+
+
+//--- file: QueryEngine.h ---
+#ifndef QUERYENGINE_H
+#define QUERYENGINE_H
+
+#include "SeriesStore.h"
+#include <string>
+#include <vector>
+
+class QueryEngine {
+public:
+    SeriesStore store;
+    int queries;
+
+    QueryEngine();
+    QueryEngine(int bufferDepth);
+
+    int define(const std::string& series);
+    int feed(const std::string& series, double value);
+    double last(const std::string& series);
+    double first(const std::string& series);
+    double average(const std::string& series);
+    double delta(const std::string& series);
+    double sumOver(const std::vector<std::string>& series);
+    double maximumOf(const std::vector<std::string>& series);
+    int queryCount() const;
+    int knownSeries() const;
+    bool exists(const std::string& series) const;
+};
+
+#endif
+
+
+//--- file: RingBuffer.h ---
+#ifndef RINGBUFFER_H
+#define RINGBUFFER_H
+
+#include <vector>
+
+class RingBuffer {
+public:
+    std::vector<double> cells;
+    int head;
+    int filled;
+    int overwrites;
+
+    RingBuffer();
+    RingBuffer(int slots);
+
+    int push(double value);
+    double oldest() const;
+    double newest() const;
+    double at(int offset) const;
+    int occupancy() const;
+    int slots() const;
+    bool isFull() const;
+    bool isEmpty() const;
+    int overwriteCount() const;
+    double total() const;
+    double average() const;
+    int drain();
+};
+
+#endif
+
+
+//--- file: Sample.h ---
+#ifndef SAMPLE_H
+#define SAMPLE_H
+
+class Sample {
+public:
+    int sequence;
+    double raw;
+    int quality;
+    bool flagged;
+
+    Sample();
+    Sample(int position, double reading, int qualityScore);
+
+    int position() const;
+    double value() const;
+    int score() const;
+    bool isValid() const;
+    bool isDegraded() const;
+    double weighted() const;
+    double deviationFrom(double reference) const;
+    double bounded(double low, double high) const;
+    int flag();
+    int promote(int amount);
+};
+
+#endif
+
+
+//--- file: SamplePipeline.h ---
+#ifndef SAMPLEPIPELINE_H
+#define SAMPLEPIPELINE_H
+
+#include "Channel.h"
+#include "Filter.h"
+#include "Sample.h"
+#include "UnitScale.h"
+#include <string>
+#include <vector>
+
+class SamplePipeline {
+public:
+    Channel channel;
+    std::vector<Filter*> filters;
+    UnitScale scale;
+    int accepted;
+    int rejected;
+    int minimumQuality;
+
+    SamplePipeline();
+    SamplePipeline(const std::string& channelName, int limit);
+
+    int addFilter(Filter* filter);
+    int filterCount() const;
+    int clearFilters();
+    double process(double reading);
+    double stage(double reading, int index);
+    bool wouldReject(double reading) const;
+    int ingest(int sequence, double reading, int quality);
+    int ingestBatch(const std::vector<double>& readings, int quality);
+    int acceptedCount() const;
+    int rejectedCount() const;
+    int requireQuality(int minimum);
+    double channelMean() const;
+    double channelPeak() const;
+    double normalised(double reading) const;
+    double denormalised(double reading) const;
+    int validSamples() const;
+    bool isSaturated() const;
+    Sample latest() const;
+    int flush();
+    std::string describe() const;
+};
+
+#endif
+
+
+//--- file: SeriesStore.h ---
+#ifndef SERIESSTORE_H
+#define SERIESSTORE_H
+
+#include "RingBuffer.h"
+#include <string>
+#include <vector>
+
+class SeriesStore {
+public:
+    std::vector<std::string> names;
+    std::vector<RingBuffer> buffers;
+    int depth;
+    int unknownWrites;
+
+    SeriesStore();
+    SeriesStore(int bufferDepth);
+
+    int declare(const std::string& series);
+    int indexOf(const std::string& series) const;
+    bool knows(const std::string& series) const;
+    int seriesCount() const;
+    int write(const std::string& series, double value);
+    double latest(const std::string& series) const;
+    double earliest(const std::string& series) const;
+    double averageOf(const std::string& series) const;
+    int samplesIn(const std::string& series) const;
+    int totalSamples() const;
+    int rejectedWrites() const;
+    int drop(const std::string& series);
+};
+
+#endif
+
+
+//--- file: UnitScale.h ---
+#ifndef UNITSCALE_H
+#define UNITSCALE_H
+
+#include <string>
+
+class UnitScale {
+public:
+    double factor;
+    double offset;
+    std::string unit;
+
+    UnitScale();
+    UnitScale(double scaleFactor, double scaleOffset, const std::string& unitName);
+
+    double toBase(double reading) const;
+    double fromBase(double reading) const;
+    double spanOf(double low, double high) const;
+    std::string unitName() const;
+    bool isIdentity() const;
+    double quantised(double reading, int digits) const;
+    UnitScale inverted() const;
+};
+
+#endif
+
+
+//--- file: AlertRule.cpp ---
+#include "AlertRule.h"
+
+AlertRule::AlertRule() {
+    subject = "any";
+    fired = 0;
+    muted = false;
+}
+
+AlertRule::AlertRule(const std::string& watched) {
+    subject = watched;
+    fired = 0;
+    muted = false;
+}
+
+AlertRule::~AlertRule() {
+}
+
+bool AlertRule::triggers(double reading) const {
+    return reading != 0.0 && !muted;
+}
+
+std::string AlertRule::message() const {
+    return "alert on " + subject;
+}
+
+int AlertRule::severity() const {
+    return 1;
+}
+
+int AlertRule::evaluate(double reading) {
+    if (muted) {
+        return fired;
+    }
+    if (triggers(reading)) {
+        fired = fired + 1;
+    }
+    return fired;
+}
+
+int AlertRule::firedCount() const {
+    return fired;
+}
+
+bool AlertRule::mute() {
+    muted = !muted;
+    return muted;
+}
+
+bool AlertRule::isMuted() const {
+    return muted;
+}
+
+std::string AlertRule::target() const {
+    return subject;
+}
+
+HighWaterRule::HighWaterRule() {
+    ceiling = 1.0;
+}
+
+HighWaterRule::HighWaterRule(const std::string& watched, double limit) {
+    subject = watched;
+    ceiling = limit;
+}
+
+bool HighWaterRule::triggers(double reading) const {
+    return reading > ceiling;
+}
+
+std::string HighWaterRule::message() const {
+    return subject + " above ceiling";
+}
+
+int HighWaterRule::severity() const {
+    return 3;
+}
+
+double HighWaterRule::headroom(double reading) const {
+    return ceiling - reading;
+}
+
+LowWaterRule::LowWaterRule() {
+    floorValue = 0.0;
+}
+
+LowWaterRule::LowWaterRule(const std::string& watched, double limit) {
+    subject = watched;
+    floorValue = limit;
+}
+
+bool LowWaterRule::triggers(double reading) const {
+    return reading < floorValue;
+}
+
+std::string LowWaterRule::message() const {
+    return subject + " below floor";
+}
+
+int LowWaterRule::severity() const {
+    return 2;
+}
+
+BandRule::BandRule() {
+    low = 0.0;
+    high = 1.0;
+}
+
+BandRule::BandRule(const std::string& watched, double lowBound, double highBound) {
+    subject = watched;
+    if (lowBound <= highBound) {
+        low = lowBound;
+        high = highBound;
+    } else {
+        low = highBound;
+        high = lowBound;
+    }
+}
+
+bool BandRule::triggers(double reading) const {
+    return reading < low || reading > high;
+}
+
+std::string BandRule::message() const {
+    return subject + " outside band";
+}
+
+int BandRule::severity() const {
+    return 4;
+}
+
+double BandRule::width() const {
+    return high - low;
+}
+
+
+//--- file: Channel.cpp ---
+#include "Channel.h"
+
+Channel::Channel() {
+    name = "unnamed";
+    capacity = 16;
+    dropped = 0;
+}
+
+Channel::Channel(const std::string& channelName, int limit) {
+    name = channelName;
+    capacity = limit > 0 ? limit : 1;
+    dropped = 0;
+}
+
+int Channel::append(const Sample& sample) {
+    if (isFull()) {
+        dropped = dropped + 1;
+        return -1;
+    }
+    samples.push_back(sample);
+    return count();
+}
+
+int Channel::count() const {
+    return static_cast<int>(samples.size());
+}
+
+int Channel::validCount() const {
+    int total = 0;
+    for (unsigned int i = 0; i < samples.size(); ++i) {
+        if (samples[i].isValid()) {
+            total = total + 1;
+        }
+    }
+    return total;
+}
+
+int Channel::droppedCount() const {
+    return dropped;
+}
+
+bool Channel::isFull() const {
+    return count() >= capacity;
+}
+
+bool Channel::isEmpty() const {
+    return samples.empty();
+}
+
+double Channel::sum() const {
+    double total = 0.0;
+    for (unsigned int i = 0; i < samples.size(); ++i) {
+        total = total + samples[i].value();
+    }
+    return total;
+}
+
+double Channel::mean() const {
+    int n = count();
+    if (n == 0) {
+        return 0.0;
+    }
+    return sum() / static_cast<double>(n);
+}
+
+double Channel::peak() const {
+    if (samples.empty()) {
+        return 0.0;
+    }
+    double best = samples[0].value();
+    for (unsigned int i = 1; i < samples.size(); ++i) {
+        double current = samples[i].value();
+        if (current > best) {
+            best = current;
+        }
+    }
+    return best;
+}
+
+double Channel::trough() const {
+    if (samples.empty()) {
+        return 0.0;
+    }
+    double best = samples[0].value();
+    for (unsigned int i = 1; i < samples.size(); ++i) {
+        double current = samples[i].value();
+        if (current < best) {
+            best = current;
+        }
+    }
+    return best;
+}
+
+double Channel::range() const {
+    return peak() - trough();
+}
+
+double Channel::meanInBase() const {
+    return scale.toBase(mean());
+}
+
+Sample Channel::sampleAt(int position) const {
+    if (position < 0 || position >= count()) {
+        return Sample();
+    }
+    return samples[static_cast<unsigned int>(position)];
+}
+
+Sample Channel::newest() const {
+    return sampleAt(count() - 1);
+}
+
+int Channel::purgeDegraded() {
+    std::vector<Sample> kept;
+    int removed = 0;
+    for (unsigned int i = 0; i < samples.size(); ++i) {
+        if (samples[i].isDegraded()) {
+            removed = removed + 1;
+        } else {
+            kept.push_back(samples[i]);
+        }
+    }
+    samples = kept;
+    return removed;
+}
+
+std::string Channel::channelName() const {
+    return name;
+}
+
+int Channel::rescale(const UnitScale& replacement) {
+    scale = replacement;
+    return count();
+}
+
+
+//--- file: Dashboard.cpp ---
+#include "Dashboard.h"
+
+Dashboard::Dashboard() {
+    title = "dashboard";
+    checks = 0;
+}
+
+Dashboard::Dashboard(const std::string& heading) {
+    title = heading;
+    checks = 0;
+}
+
+int Dashboard::addPanel(const Channel& panel) {
+    panels.push_back(panel);
+    return panelCount();
+}
+
+int Dashboard::addRule(AlertRule* rule) {
+    if (rule == 0) {
+        return ruleCount();
+    }
+    rules.push_back(rule);
+    return ruleCount();
+}
+
+int Dashboard::panelCount() const {
+    return static_cast<int>(panels.size());
+}
+
+int Dashboard::ruleCount() const {
+    return static_cast<int>(rules.size());
+}
+
+int Dashboard::checkCount() const {
+    return checks;
+}
+
+int Dashboard::sweep() {
+    int raised = 0;
+    for (unsigned int i = 0; i < panels.size(); ++i) {
+        double reading = panels[i].mean();
+        for (unsigned int r = 0; r < rules.size(); ++r) {
+            int before = rules[r]->firedCount();
+            if (rules[r]->evaluate(reading) > before) {
+                raised = raised + 1;
+            }
+        }
+    }
+    checks = checks + 1;
+    return raised;
+}
+
+int Dashboard::alertsFor(double reading) const {
+    int total = 0;
+    for (unsigned int r = 0; r < rules.size(); ++r) {
+        if (rules[r]->triggers(reading)) {
+            total = total + 1;
+        }
+    }
+    return total;
+}
+
+int Dashboard::worstSeverity() const {
+    int worst = 0;
+    for (unsigned int r = 0; r < rules.size(); ++r) {
+        int current = rules[r]->severity();
+        if (current > worst) {
+            worst = current;
+        }
+    }
+    return worst;
+}
+
+double Dashboard::panelMean(int index) const {
+    if (index < 0 || index >= panelCount()) {
+        return 0.0;
+    }
+    return panels[static_cast<unsigned int>(index)].mean();
+}
+
+double Dashboard::overallMean() const {
+    if (panels.empty()) {
+        return 0.0;
+    }
+    double total = 0.0;
+    for (unsigned int i = 0; i < panels.size(); ++i) {
+        total = total + panels[i].mean();
+    }
+    return total / static_cast<double>(panels.size());
+}
+
+std::string Dashboard::heading() const {
+    return title;
+}
+
+std::string Dashboard::status() const {
+    if (rules.empty()) {
+        return "idle";
+    }
+    if (worstSeverity() >= 3) {
+        return "critical";
+    }
+    return "nominal";
+}
+
+int Dashboard::reset() {
+    int previous = checks;
+    checks = 0;
+    return previous;
+}
+
+
+//--- file: Filter.cpp ---
+#include "Filter.h"
+
+Filter::Filter() {
+    applied = 0;
+    enabled = true;
+}
+
+Filter::~Filter() {
+}
+
+double Filter::apply(double reading) {
+    applied = applied + 1;
+    return reading;
+}
+
+std::string Filter::label() const {
+    return "filter";
+}
+
+bool Filter::rejects(double reading) const {
+    return !enabled && reading != 0.0;
+}
+
+int Filter::appliedCount() const {
+    return applied;
+}
+
+int Filter::resetCount() {
+    int previous = applied;
+    applied = 0;
+    return previous;
+}
+
+bool Filter::toggle() {
+    enabled = !enabled;
+    return enabled;
+}
+
+PassFilter::PassFilter() {
+}
+
+double PassFilter::apply(double reading) {
+    applied = applied + 1;
+    return reading;
+}
+
+std::string PassFilter::label() const {
+    return "pass";
+}
+
+ClampFilter::ClampFilter() {
+    low = 0.0;
+    high = 1.0;
+}
+
+ClampFilter::ClampFilter(double lowBound, double highBound) {
+    if (lowBound <= highBound) {
+        low = lowBound;
+        high = highBound;
+    } else {
+        low = highBound;
+        high = lowBound;
+    }
+}
+
+double ClampFilter::apply(double reading) {
+    applied = applied + 1;
+    if (reading < low) {
+        return low;
+    }
+    if (reading > high) {
+        return high;
+    }
+    return reading;
+}
+
+std::string ClampFilter::label() const {
+    return "clamp";
+}
+
+bool ClampFilter::rejects(double reading) const {
+    return reading < low || reading > high;
+}
+
+double ClampFilter::width() const {
+    return high - low;
+}
+
+SmoothFilter::SmoothFilter() {
+    previous = 0.0;
+    weight = 0.5;
+    primed = false;
+}
+
+SmoothFilter::SmoothFilter(double smoothing) {
+    previous = 0.0;
+    primed = false;
+    weight = smoothing;
+    if (weight < 0.0) {
+        weight = 0.0;
+    }
+    if (weight > 1.0) {
+        weight = 1.0;
+    }
+}
+
+double SmoothFilter::apply(double reading) {
+    applied = applied + 1;
+    if (!primed) {
+        previous = reading;
+        primed = true;
+        return reading;
+    }
+    previous = weight * reading + (1.0 - weight) * previous;
+    return previous;
+}
+
+std::string SmoothFilter::label() const {
+    return "smooth";
+}
+
+double SmoothFilter::lastValue() const {
+    return previous;
+}
+
+bool SmoothFilter::isPrimed() const {
+    return primed;
+}
+
+
+//--- file: QueryEngine.cpp ---
+#include "QueryEngine.h"
+
+QueryEngine::QueryEngine() {
+    queries = 0;
+}
+
+QueryEngine::QueryEngine(int bufferDepth) {
+    store = SeriesStore(bufferDepth);
+    queries = 0;
+}
+
+int QueryEngine::define(const std::string& series) {
+    return store.declare(series);
+}
+
+int QueryEngine::feed(const std::string& series, double value) {
+    return store.write(series, value);
+}
+
+double QueryEngine::last(const std::string& series) {
+    queries = queries + 1;
+    return store.latest(series);
+}
+
+double QueryEngine::first(const std::string& series) {
+    queries = queries + 1;
+    return store.earliest(series);
+}
+
+double QueryEngine::average(const std::string& series) {
+    queries = queries + 1;
+    return store.averageOf(series);
+}
+
+double QueryEngine::delta(const std::string& series) {
+    queries = queries + 1;
+    return store.latest(series) - store.earliest(series);
+}
+
+double QueryEngine::sumOver(const std::vector<std::string>& series) {
+    double total = 0.0;
+    for (unsigned int i = 0; i < series.size(); ++i) {
+        total = total + average(series[i]);
+    }
+    return total;
+}
+
+double QueryEngine::maximumOf(const std::vector<std::string>& series) {
+    if (series.empty()) {
+        return 0.0;
+    }
+    double best = last(series[0]);
+    for (unsigned int i = 1; i < series.size(); ++i) {
+        double current = last(series[i]);
+        if (current > best) {
+            best = current;
+        }
+    }
+    return best;
+}
+
+int QueryEngine::queryCount() const {
+    return queries;
+}
+
+int QueryEngine::knownSeries() const {
+    return store.seriesCount();
+}
+
+bool QueryEngine::exists(const std::string& series) const {
+    return store.knows(series);
+}
+
+
+//--- file: RingBuffer.cpp ---
+#include "RingBuffer.h"
+
+RingBuffer::RingBuffer() {
+    cells.resize(8, 0.0);
+    head = 0;
+    filled = 0;
+    overwrites = 0;
+}
+
+RingBuffer::RingBuffer(int slotCount) {
+    int size = slotCount > 0 ? slotCount : 1;
+    cells.resize(static_cast<unsigned int>(size), 0.0);
+    head = 0;
+    filled = 0;
+    overwrites = 0;
+}
+
+int RingBuffer::push(double value) {
+    if (isFull()) {
+        overwrites = overwrites + 1;
+    }
+    cells[static_cast<unsigned int>(head)] = value;
+    head = (head + 1) % slots();
+    if (filled < slots()) {
+        filled = filled + 1;
+    }
+    return filled;
+}
+
+double RingBuffer::oldest() const {
+    if (isEmpty()) {
+        return 0.0;
+    }
+    int index = (head - filled + slots()) % slots();
+    return cells[static_cast<unsigned int>(index)];
+}
+
+double RingBuffer::newest() const {
+    if (isEmpty()) {
+        return 0.0;
+    }
+    int index = (head - 1 + slots()) % slots();
+    return cells[static_cast<unsigned int>(index)];
+}
+
+double RingBuffer::at(int offset) const {
+    if (offset < 0 || offset >= filled) {
+        return 0.0;
+    }
+    int index = (head - filled + offset + slots()) % slots();
+    return cells[static_cast<unsigned int>(index)];
+}
+
+int RingBuffer::occupancy() const {
+    return filled;
+}
+
+int RingBuffer::slots() const {
+    return static_cast<int>(cells.size());
+}
+
+bool RingBuffer::isFull() const {
+    return filled >= slots();
+}
+
+bool RingBuffer::isEmpty() const {
+    return filled == 0;
+}
+
+int RingBuffer::overwriteCount() const {
+    return overwrites;
+}
+
+double RingBuffer::total() const {
+    double sum = 0.0;
+    for (int i = 0; i < filled; ++i) {
+        sum = sum + at(i);
+    }
+    return sum;
+}
+
+double RingBuffer::average() const {
+    if (filled == 0) {
+        return 0.0;
+    }
+    return total() / static_cast<double>(filled);
+}
+
+int RingBuffer::drain() {
+    int previous = filled;
+    head = 0;
+    filled = 0;
+    for (unsigned int i = 0; i < cells.size(); ++i) {
+        cells[i] = 0.0;
+    }
+    return previous;
+}
+
+
+//--- file: Sample.cpp ---
+#include "Sample.h"
+
+Sample::Sample() {
+    sequence = 0;
+    raw = 0.0;
+    quality = 0;
+    flagged = true;
+}
+
+Sample::Sample(int position, double reading, int qualityScore) {
+    sequence = position;
+    raw = reading;
+    quality = qualityScore;
+    if (quality < 0) {
+        quality = 0;
+    }
+    if (quality > 100) {
+        quality = 100;
+    }
+    flagged = false;
+}
+
+int Sample::position() const {
+    return sequence;
+}
+
+double Sample::value() const {
+    return raw;
+}
+
+int Sample::score() const {
+    return quality;
+}
+
+bool Sample::isValid() const {
+    return !flagged && quality > 0;
+}
+
+bool Sample::isDegraded() const {
+    return quality < 50;
+}
+
+double Sample::weighted() const {
+    if (!isValid()) {
+        return 0.0;
+    }
+    return raw * static_cast<double>(quality) / 100.0;
+}
+
+double Sample::deviationFrom(double reference) const {
+    double delta = raw - reference;
+    return delta < 0.0 ? -delta : delta;
+}
+
+double Sample::bounded(double low, double high) const {
+    if (low > high) {
+        return raw;
+    }
+    if (raw < low) {
+        return low;
+    }
+    if (raw > high) {
+        return high;
+    }
+    return raw;
+}
+
+int Sample::flag() {
+    int previous = quality;
+    flagged = true;
+    return previous;
+}
+
+int Sample::promote(int amount) {
+    quality = quality + amount;
+    if (quality < 0) {
+        quality = 0;
+    }
+    if (quality > 100) {
+        quality = 100;
+    }
+    return quality;
+}
+
+
+//--- file: SamplePipeline.cpp ---
+#include "SamplePipeline.h"
+
+SamplePipeline::SamplePipeline() {
+    accepted = 0;
+    rejected = 0;
+    minimumQuality = 1;
+}
+
+SamplePipeline::SamplePipeline(const std::string& channelName, int limit) {
+    channel = Channel(channelName, limit);
+    accepted = 0;
+    rejected = 0;
+    minimumQuality = 1;
+}
+
+int SamplePipeline::addFilter(Filter* filter) {
+    if (filter == 0) {
+        return filterCount();
+    }
+    filters.push_back(filter);
+    return filterCount();
+}
+
+int SamplePipeline::filterCount() const {
+    return static_cast<int>(filters.size());
+}
+
+int SamplePipeline::clearFilters() {
+    int previous = filterCount();
+    filters.clear();
+    return previous;
+}
+
+double SamplePipeline::process(double reading) {
+    double current = reading;
+    for (unsigned int i = 0; i < filters.size(); ++i) {
+        current = filters[i]->apply(current);
+    }
+    return current;
+}
+
+double SamplePipeline::stage(double reading, int index) {
+    if (index < 0 || index >= filterCount()) {
+        return reading;
+    }
+    return filters[static_cast<unsigned int>(index)]->apply(reading);
+}
+
+bool SamplePipeline::wouldReject(double reading) const {
+    for (unsigned int i = 0; i < filters.size(); ++i) {
+        if (filters[i]->rejects(reading)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+int SamplePipeline::ingest(int sequence, double reading, int quality) {
+    if (quality < minimumQuality || wouldReject(reading)) {
+        rejected = rejected + 1;
+        return -1;
+    }
+    double filtered = process(reading);
+    Sample sample(sequence, filtered, quality);
+    if (!sample.isValid()) {
+        rejected = rejected + 1;
+        return -1;
+    }
+    if (channel.append(sample) < 0) {
+        rejected = rejected + 1;
+        return -1;
+    }
+    accepted = accepted + 1;
+    return accepted;
+}
+
+int SamplePipeline::ingestBatch(const std::vector<double>& readings, int quality) {
+    int taken = 0;
+    for (unsigned int i = 0; i < readings.size(); ++i) {
+        if (ingest(static_cast<int>(i), readings[i], quality) > 0) {
+            taken = taken + 1;
+        }
+    }
+    return taken;
+}
+
+int SamplePipeline::acceptedCount() const {
+    return accepted;
+}
+
+int SamplePipeline::rejectedCount() const {
+    return rejected;
+}
+
+int SamplePipeline::requireQuality(int minimum) {
+    int previous = minimumQuality;
+    if (minimum >= 0) {
+        minimumQuality = minimum;
+    }
+    return previous;
+}
+
+double SamplePipeline::channelMean() const {
+    return channel.mean();
+}
+
+double SamplePipeline::channelPeak() const {
+    return channel.peak();
+}
+
+double SamplePipeline::normalised(double reading) const {
+    return scale.fromBase(reading);
+}
+
+double SamplePipeline::denormalised(double reading) const {
+    return scale.toBase(reading);
+}
+
+int SamplePipeline::validSamples() const {
+    return channel.validCount();
+}
+
+bool SamplePipeline::isSaturated() const {
+    return channel.isFull();
+}
+
+Sample SamplePipeline::latest() const {
+    return channel.newest();
+}
+
+int SamplePipeline::flush() {
+    int previous = channel.count();
+    channel = Channel(channel.channelName(), channel.capacity);
+    accepted = 0;
+    rejected = 0;
+    return previous;
+}
+
+std::string SamplePipeline::describe() const {
+    if (channel.isEmpty()) {
+        return "empty";
+    }
+    return channel.channelName() + ":" + scale.unitName();
+}
+
+
+//--- file: SeriesStore.cpp ---
+#include "SeriesStore.h"
+
+SeriesStore::SeriesStore() {
+    depth = 8;
+    unknownWrites = 0;
+}
+
+SeriesStore::SeriesStore(int bufferDepth) {
+    depth = bufferDepth > 0 ? bufferDepth : 1;
+    unknownWrites = 0;
+}
+
+int SeriesStore::declare(const std::string& series) {
+    int existing = indexOf(series);
+    if (existing >= 0) {
+        return existing;
+    }
+    names.push_back(series);
+    buffers.push_back(RingBuffer(depth));
+    return seriesCount() - 1;
+}
+
+int SeriesStore::indexOf(const std::string& series) const {
+    for (unsigned int i = 0; i < names.size(); ++i) {
+        if (names[i] == series) {
+            return static_cast<int>(i);
+        }
+    }
+    return -1;
+}
+
+bool SeriesStore::knows(const std::string& series) const {
+    return indexOf(series) >= 0;
+}
+
+int SeriesStore::seriesCount() const {
+    return static_cast<int>(names.size());
+}
+
+int SeriesStore::write(const std::string& series, double value) {
+    int index = indexOf(series);
+    if (index < 0) {
+        unknownWrites = unknownWrites + 1;
+        return -1;
+    }
+    return buffers[static_cast<unsigned int>(index)].push(value);
+}
+
+double SeriesStore::latest(const std::string& series) const {
+    int index = indexOf(series);
+    if (index < 0) {
+        return 0.0;
+    }
+    return buffers[static_cast<unsigned int>(index)].newest();
+}
+
+double SeriesStore::earliest(const std::string& series) const {
+    int index = indexOf(series);
+    if (index < 0) {
+        return 0.0;
+    }
+    return buffers[static_cast<unsigned int>(index)].oldest();
+}
+
+double SeriesStore::averageOf(const std::string& series) const {
+    int index = indexOf(series);
+    if (index < 0) {
+        return 0.0;
+    }
+    return buffers[static_cast<unsigned int>(index)].average();
+}
+
+int SeriesStore::samplesIn(const std::string& series) const {
+    int index = indexOf(series);
+    if (index < 0) {
+        return 0;
+    }
+    return buffers[static_cast<unsigned int>(index)].occupancy();
+}
+
+int SeriesStore::totalSamples() const {
+    int total = 0;
+    for (unsigned int i = 0; i < buffers.size(); ++i) {
+        total = total + buffers[i].occupancy();
+    }
+    return total;
+}
+
+int SeriesStore::rejectedWrites() const {
+    return unknownWrites;
+}
+
+int SeriesStore::drop(const std::string& series) {
+    int index = indexOf(series);
+    if (index < 0) {
+        return -1;
+    }
+    names.erase(names.begin() + index);
+    buffers.erase(buffers.begin() + index);
+    return seriesCount();
+}
+
+
+//--- file: UnitScale.cpp ---
+#include "UnitScale.h"
+#include <cmath>
+
+UnitScale::UnitScale() {
+    factor = 1.0;
+    offset = 0.0;
+    unit = "raw";
+}
+
+UnitScale::UnitScale(double scaleFactor, double scaleOffset, const std::string& unitName) {
+    factor = scaleFactor != 0.0 ? scaleFactor : 1.0;
+    offset = scaleOffset;
+    unit = unitName;
+}
+
+double UnitScale::toBase(double reading) const {
+    return reading * factor + offset;
+}
+
+double UnitScale::fromBase(double reading) const {
+    return (reading - offset) / factor;
+}
+
+double UnitScale::spanOf(double low, double high) const {
+    double a = toBase(low);
+    double b = toBase(high);
+    double delta = b - a;
+    return delta < 0.0 ? -delta : delta;
+}
+
+std::string UnitScale::unitName() const {
+    return unit;
+}
+
+bool UnitScale::isIdentity() const {
+    return factor == 1.0 && offset == 0.0;
+}
+
+double UnitScale::quantised(double reading, int digits) const {
+    if (digits < 0) {
+        return reading;
+    }
+    double step = std::pow(10.0, static_cast<double>(digits));
+    double shifted = reading * step;
+    if (shifted < 0.0) {
+        return -std::floor(-shifted + 0.5) / step;
+    }
+    return std::floor(shifted + 0.5) / step;
+}
+
+UnitScale UnitScale::inverted() const {
+    return UnitScale(1.0 / factor, -offset / factor, unit);
+}
+
+    ```
+
+    Generate the complete C++ unit test suite now as a single C++ code block.
+    

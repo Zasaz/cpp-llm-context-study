@@ -1,0 +1,87 @@
+
+    You are an expert C++ unit testing assistant.
+    Given the following C++ code project, generate a complete, compilable C++ unit test suite in a single code block.
+    Your primary goal is to generate comprehensive tests for the functions and classes defined in the file `Report.cpp`. Use the other provided files for context to understand dependencies and usage.
+
+    The test suite you generate MUST:
+    1.  Include necessary standard headers (like `<cassert>`, `<iostream>`, `<vector>`, `<string>`, etc., as needed for the tests).
+    2.  Create several distinct test functions. Each test function should focus on testing a specific aspect, function, or edge case. Name test functions clearly (e.g., `test_functionName_caseDescription()`).
+    3.  Each test function MUST use `assert()` for checks.
+    4.  Each test function should print a distinct success message to `std::cout` if all its assertions pass (e.g., `std::cout << "Test test_functionName_caseDescription: PASS" << std::endl;`).
+    5.  Include YOUR OWN `main()` function in the test suite. This `main()` function will be the ONLY entry point for the test executable. It should call all the individual test functions you defined.
+    6.  The test suite should be self-contained in terms of test logic.
+
+    **Important for Compilation & Usability:**
+    -   The user's C++ code (provided below) will be compiled first, and then this test suite will be compiled and linked against it. The test suite is compiled inside the project directory, so the project's own headers are on the include path.
+    -   Therefore, you MUST obtain the declarations you need by including the project's own headers by name, for example `#include "Canvas.h"`.
+    -   Do NOT re-declare or re-define any class, struct or function that the project's own headers already declare. A hand-written declaration that does not match the real one compiles and links without any diagnostic and then corrupts memory at run time.
+    -   Do NOT attempt to call or interact with any `main()` function that might be present in the User's C++ Code.
+
+    User's C++ Project Code:
+    ```cpp
+    //--- file: Report.h ---
+#ifndef REPORT_H
+#define REPORT_H
+
+#include "Warehouse.h"
+#include <string>
+
+class Report {
+public:
+    Warehouse source;
+
+    Report();
+    Report(const Warehouse& warehouse);
+
+    double averageItemValue() const;
+    int outOfStockCount() const;
+    std::string summaryLine() const;
+    bool isEmpty() const;
+};
+
+#endif
+
+
+//--- file: Report.cpp ---
+#include "Report.h"
+
+Report::Report() {
+}
+
+Report::Report(const Warehouse& warehouse) {
+    source = warehouse;
+}
+
+double Report::averageItemValue() const {
+    int count = source.itemCount();
+    if (count == 0) {
+        return 0.0;
+    }
+    return source.inventoryValue() / static_cast<double>(count);
+}
+
+int Report::outOfStockCount() const {
+    int total = 0;
+    for (unsigned int i = 0; i < source.items.size(); ++i) {
+        if (!source.items[i].isInStock()) {
+            total = total + 1;
+        }
+    }
+    return total;
+}
+
+bool Report::isEmpty() const {
+    return source.itemCount() == 0;
+}
+
+std::string Report::summaryLine() const {
+    if (isEmpty()) {
+        return "empty";
+    }
+    return source.label;
+}
+
+    ```
+
+    Generate the complete C++ unit test suite now as a single C++ code block.
+    

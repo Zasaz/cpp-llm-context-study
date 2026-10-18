@@ -1,0 +1,33 @@
+--- Preparing user code (renaming main() to user_code_main) ---
+6 source files: Policy.cpp, ResourceLedger.cpp, RunStatistics.cpp, Scheduler.cpp, Task.cpp, TaskQueue.cpp
+
+--- Test Suite Compilation & Linking ---
+Command: g++ -I /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpc4q3_r_z/build /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpc4q3_r_z/build/Policy.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpc4q3_r_z/build/ResourceLedger.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpc4q3_r_z/build/RunStatistics.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpc4q3_r_z/build/Scheduler.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpc4q3_r_z/build/Task.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpc4q3_r_z/build/TaskQueue.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpc4q3_r_z/build/test_suite.cpp -o /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpc4q3_r_z/test_executable -std=c++17 -Wall
+STDOUT:
+
+STDERR:
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpc4q3_r_z/build/test_suite.cpp:17:36: error: non-virtual member function marked 'override' hides virtual member function
+   17 |     bool accepts(const Task& task) override {
+      |                                    ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpc4q3_r_z/build/Policy.h:16:18: note: hidden overloaded virtual function 'Policy::accepts' declared here: different qualifiers ('const' vs unqualified)
+   16 |     virtual bool accepts(const Task& task) const;
+      |                  ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpc4q3_r_z/build/test_suite.cpp:22:32: error: non-virtual member function marked 'override' hides virtual member function
+   22 |     int rank(const Task& task) override {
+      |                                ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpc4q3_r_z/build/Policy.h:14:17: note: hidden overloaded virtual function 'Policy::rank' declared here: different qualifiers ('const' vs unqualified)
+   14 |     virtual int rank(const Task& task) const;
+      |                 ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpc4q3_r_z/build/test_suite.cpp:31:36: error: non-virtual member function marked 'override' hides virtual member function
+   31 |     bool accepts(const Task& task) override {
+      |                                    ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpc4q3_r_z/build/Policy.h:16:18: note: hidden overloaded virtual function 'Policy::accepts' declared here: different qualifiers ('const' vs unqualified)
+   16 |     virtual bool accepts(const Task& task) const;
+      |                  ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpc4q3_r_z/build/test_suite.cpp:36:32: error: non-virtual member function marked 'override' hides virtual member function
+   36 |     int rank(const Task& task) override {
+      |                                ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpc4q3_r_z/build/Policy.h:14:17: note: hidden overloaded virtual function 'Policy::rank' declared here: different qualifiers ('const' vs unqualified)
+   14 |     virtual int rank(const Task& task) const;
+      |                 ^
+4 errors generated.

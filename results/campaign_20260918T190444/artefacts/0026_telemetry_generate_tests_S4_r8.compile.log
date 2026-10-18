@@ -1,0 +1,27 @@
+--- Preparing user code (renaming main() to user_code_main) ---
+10 source files: AlertRule.cpp, Channel.cpp, Dashboard.cpp, Filter.cpp, QueryEngine.cpp, RingBuffer.cpp, Sample.cpp, SamplePipeline.cpp, SeriesStore.cpp, UnitScale.cpp
+
+--- Test Suite Compilation & Linking ---
+Command: g++ -I /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp2w4w94lz/build /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp2w4w94lz/build/AlertRule.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp2w4w94lz/build/Channel.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp2w4w94lz/build/Dashboard.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp2w4w94lz/build/Filter.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp2w4w94lz/build/QueryEngine.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp2w4w94lz/build/RingBuffer.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp2w4w94lz/build/Sample.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp2w4w94lz/build/SamplePipeline.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp2w4w94lz/build/SeriesStore.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp2w4w94lz/build/UnitScale.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp2w4w94lz/build/test_suite.cpp -o /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp2w4w94lz/test_executable -std=c++17 -Wall
+STDOUT:
+
+STDERR:
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp2w4w94lz/build/test_suite.cpp:27:12: warning: 'OffsetFilter::apply' hides overloaded virtual function [-Woverloaded-virtual]
+   27 |     double apply(double value) const {
+      |            ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp2w4w94lz/build/Filter.h:14:20: note: hidden overloaded virtual function 'Filter::apply' declared here: different qualifiers (unqualified vs 'const')
+   14 |     virtual double apply(double reading);
+      |                    ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp2w4w94lz/build/test_suite.cpp:42:12: warning: 'GainFilter::apply' hides overloaded virtual function [-Woverloaded-virtual]
+   42 |     double apply(double value) const {
+      |            ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp2w4w94lz/build/Filter.h:14:20: note: hidden overloaded virtual function 'Filter::apply' declared here: different qualifiers (unqualified vs 'const')
+   14 |     virtual double apply(double reading);
+      |                    ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp2w4w94lz/build/test_suite.cpp:161:42: error: reference to non-static member function must be called; did you mean to call it with no arguments?
+  161 |     assert(approxEqual(pipeline.latest().value, 12.0));
+      |                        ~~~~~~~~~~~~~~~~~~^~~~~
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/assert.h:72:25: note: expanded from macro 'assert'
+   72 |     (__builtin_expect(!(e), 0) ? __assert_rtn(__func__, __ASSERT_FILE_NAME, __LINE__, #e) : (void)0)
+      |                         ^
+2 warnings and 1 error generated.

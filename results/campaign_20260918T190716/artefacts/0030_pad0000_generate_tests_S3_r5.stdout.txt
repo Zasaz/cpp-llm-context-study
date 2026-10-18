@@ -1,0 +1,9 @@
+================ Running Canvas Unit Tests ================
+Test test_Canvas_constructor_initialState: PASS
+Test test_Canvas_add_validShapes: PASS
+Test test_Canvas_add_nullPointer: PASS
+Test test_Canvas_totalArea: PASS
+Test test_Canvas_largestArea: PASS
+Test test_Canvas_clear: PASS
+Test test_Canvas_destructor_deallocatesShapes: PASS
+================ All Tests Passed Successfully! ================

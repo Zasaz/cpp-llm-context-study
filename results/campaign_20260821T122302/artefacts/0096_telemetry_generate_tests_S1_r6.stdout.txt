@@ -1,0 +1,4 @@
+Starting SamplePipeline Test Suite...
+Test test_SamplePipeline_constructorsAndDefaults: PASS
+Test test_SamplePipeline_filterManagement: PASS
+Test test_SamplePipeline_processAndStage: PASS

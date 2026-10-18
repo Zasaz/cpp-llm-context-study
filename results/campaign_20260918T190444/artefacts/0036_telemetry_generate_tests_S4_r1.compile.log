@@ -1,0 +1,21 @@
+--- Preparing user code (renaming main() to user_code_main) ---
+10 source files: AlertRule.cpp, Channel.cpp, Dashboard.cpp, Filter.cpp, QueryEngine.cpp, RingBuffer.cpp, Sample.cpp, SamplePipeline.cpp, SeriesStore.cpp, UnitScale.cpp
+
+--- Test Suite Compilation & Linking ---
+Command: g++ -I /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmplhyj5vdi/build /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmplhyj5vdi/build/AlertRule.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmplhyj5vdi/build/Channel.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmplhyj5vdi/build/Dashboard.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmplhyj5vdi/build/Filter.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmplhyj5vdi/build/QueryEngine.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmplhyj5vdi/build/RingBuffer.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmplhyj5vdi/build/Sample.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmplhyj5vdi/build/SamplePipeline.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmplhyj5vdi/build/SeriesStore.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmplhyj5vdi/build/UnitScale.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmplhyj5vdi/build/test_suite.cpp -o /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmplhyj5vdi/test_executable -std=c++17 -Wall
+STDOUT:
+
+STDERR:
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmplhyj5vdi/build/test_suite.cpp:23:12: warning: 'MockFilter::apply' hides overloaded virtual function [-Woverloaded-virtual]
+   23 |     double apply(double value) const {
+      |            ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmplhyj5vdi/build/Filter.h:14:20: note: hidden overloaded virtual function 'Filter::apply' declared here: different qualifiers (unqualified vs 'const')
+   14 |     virtual double apply(double reading);
+      |                    ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmplhyj5vdi/build/test_suite.cpp:169:43: error: reference to non-static member function must be called; did you mean to call it with no arguments?
+  169 |     assert(doubleEquals(pipeline.latest().value, 20.0)); // 10.0 * 2.0
+      |                         ~~~~~~~~~~~~~~~~~~^~~~~
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/assert.h:72:25: note: expanded from macro 'assert'
+   72 |     (__builtin_expect(!(e), 0) ? __assert_rtn(__func__, __ASSERT_FILE_NAME, __LINE__, #e) : (void)0)
+      |                         ^
+1 warning and 1 error generated.

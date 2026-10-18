@@ -1,0 +1,10 @@
+=== Running SamplePipeline Test Suite ===
+Test test_constructors: PASS
+Test test_filterManagement: PASS
+Test test_processAndStage: PASS
+Test test_ingestAndQuality: PASS
+Test test_ingestBatchAndSaturation: PASS
+Test test_channelAnalytics: PASS
+Test test_scalingAndNormalisation: PASS
+Test test_flushAndDescribe: PASS
+=== All SamplePipeline Tests Passed Successfully! ===

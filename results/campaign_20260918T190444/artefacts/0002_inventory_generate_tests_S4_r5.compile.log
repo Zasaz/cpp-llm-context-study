@@ -1,0 +1,15 @@
+--- Preparing user code (renaming main() to user_code_main) ---
+3 source files: Item.cpp, Report.cpp, Warehouse.cpp
+
+--- Test Suite Compilation & Linking ---
+Command: g++ -I /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpqwzpz7yj/build /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpqwzpz7yj/build/Item.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpqwzpz7yj/build/Report.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpqwzpz7yj/build/Warehouse.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpqwzpz7yj/build/test_suite.cpp -o /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpqwzpz7yj/test_executable -std=c++17 -Wall
+STDOUT:
+
+STDERR:
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpqwzpz7yj/build/test_suite.cpp:64:26: warning: implicit conversion from 'double' to 'int' changes value from 0.5 to 0 [-Wliteral-conversion]
+   64 |     Item item2("Banana", 0.5, 0);  // out of stock
+      |          ~~~~~           ^~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpqwzpz7yj/build/test_suite.cpp:65:26: warning: implicit conversion from 'double' to 'int' changes value from 0.8 to 0 [-Wliteral-conversion]
+   65 |     Item item3("Orange", 0.8, -1); // out of stock (quantity <= 0)
+      |          ~~~~~           ^~~
+2 warnings generated.

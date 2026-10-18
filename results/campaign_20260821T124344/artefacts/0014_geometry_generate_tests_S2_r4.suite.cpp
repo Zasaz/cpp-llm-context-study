@@ -1,0 +1,134 @@
+#include <iostream>
+#include <cassert>
+#include <cmath>
+#include "Canvas.h"
+#include "Shape.h"
+
+// Helper constant for floating-point comparisons
+const double EPSILON = 1e-6;
+
+bool areAlmostEqual(double a, double b) {
+    return std::abs(a - b) < EPSILON;
+}
+
+// Concrete mock implementation of Shape to test Canvas behavior and verify memory management
+class MockShape : public Shape {
+public:
+    explicit MockShape(double areaVal, int* destructionCounter = 0)
+        : m_area(areaVal), m_destructionCounter(destructionCounter) {}
+
+    virtual ~MockShape() {
+        if (m_destructionCounter != 0) {
+            (*m_destructionCounter)++;
+        }
+    }
+
+    virtual double area() const {
+        return m_area;
+    }
+
+private:
+    double m_area;
+    int* m_destructionCounter;
+};
+
+// Test 1: Initial state of an empty Canvas
+void test_Canvas_initialState() {
+    Canvas canvas;
+    assert(canvas.count() == 0);
+    assert(areAlmostEqual(canvas.totalArea(), 0.0));
+    assert(areAlmostEqual(canvas.largestArea(), 0.0));
+    std::cout << "Test test_Canvas_initialState: PASS" << std::endl;
+}
+
+// Test 2: Adding valid shapes increases count and correctly tracks totalArea and largestArea
+void test_Canvas_addShapes() {
+    Canvas canvas;
+    
+    canvas.add(new MockShape(10.5));
+    assert(canvas.count() == 1);
+    assert(areAlmostEqual(canvas.totalArea(), 10.5));
+    assert(areAlmostEqual(canvas.largestArea(), 10.5));
+
+    canvas.add(new MockShape(25.0));
+    assert(canvas.count() == 2);
+    assert(areAlmostEqual(canvas.totalArea(), 35.5));
+    assert(areAlmostEqual(canvas.largestArea(), 25.0));
+
+    canvas.add(new MockShape(5.2));
+    assert(canvas.count() == 3);
+    assert(areAlmostEqual(canvas.totalArea(), 40.7));
+    assert(areAlmostEqual(canvas.largestArea(), 25.0));
+
+    std::cout << "Test test_Canvas_addShapes: PASS" << std::endl;
+}
+
+// Test 3: Null pointer check when adding to Canvas
+void test_Canvas_addNullPointer() {
+    Canvas canvas;
+    canvas.add(0);
+    assert(canvas.count() == 0);
+    assert(areAlmostEqual(canvas.totalArea(), 0.0));
+    assert(areAlmostEqual(canvas.largestArea(), 0.0));
+
+    canvas.add(new MockShape(15.0));
+    canvas.add(0); // Should be ignored
+    assert(canvas.count() == 1);
+    assert(areAlmostEqual(canvas.totalArea(), 15.0));
+
+    std::cout << "Test test_Canvas_addNullPointer: PASS" << std::endl;
+}
+
+// Test 4: Verify clear() method resets state and deletes all contained shapes
+void test_Canvas_clear() {
+    int deleteCount = 0;
+    Canvas canvas;
+
+    canvas.add(new MockShape(10.0, &deleteCount));
+    canvas.add(new MockShape(20.0, &deleteCount));
+    canvas.add(new MockShape(30.0, &deleteCount));
+
+    assert(canvas.count() == 3);
+    assert(deleteCount == 0);
+
+    canvas.clear();
+
+    assert(canvas.count() == 0);
+    assert(areAlmostEqual(canvas.totalArea(), 0.0));
+    assert(areAlmostEqual(canvas.largestArea(), 0.0));
+    assert(deleteCount == 3);
+
+    // Calling clear again on an empty canvas should be safe
+    canvas.clear();
+    assert(canvas.count() == 0);
+    assert(deleteCount == 3);
+
+    std::cout << "Test test_Canvas_clear: PASS" << std::endl;
+}
+
+// Test 5: Verify destructor deletes all contained shapes
+void test_Canvas_destructor() {
+    int deleteCount = 0;
+    {
+        Canvas canvas;
+        canvas.add(new MockShape(5.0, &deleteCount));
+        canvas.add(new MockShape(15.0, &deleteCount));
+        assert(canvas.count() == 2);
+    } // canvas goes out of scope here; destructor should be invoked
+
+    assert(deleteCount == 2);
+    std::cout << "Test test_Canvas_destructor: PASS" << std::endl;
+}
+
+int main() {
+    std::cout << "=== Running Canvas Unit Tests ===" << std::endl;
+
+    test_Canvas_initialState();
+    test_Canvas_addShapes();
+    test_Canvas_addNullPointer();
+    test_Canvas_clear();
+    test_Canvas_destructor();
+
+    std::cout << "=== All Canvas Tests Passed Successfully! ===" << std::endl;
+    return 0;
+}

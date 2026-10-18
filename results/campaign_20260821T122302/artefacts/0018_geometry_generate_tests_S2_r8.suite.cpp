@@ -1,0 +1,149 @@
+#include <iostream>
+#include <cassert>
+#include <cmath>
+#include "Canvas.h"
+
+// Helper class inheriting from Shape to supply controllable area values for testing
+class MockShape : public Shape {
+private:
+    double m_area;
+
+public:
+    explicit MockShape(double a = 0.0) : m_area(a) {}
+    virtual ~MockShape() {}
+
+    virtual double area() const {
+        return m_area;
+    }
+
+    // Overload in case Shape::area() is non-const in the base class definition
+    virtual double area() {
+        return m_area;
+    }
+};
+
+// Helper function for floating point comparisons
+static bool areClose(double a, double b, double epsilon = 1e-7) {
+    return std::fabs(a - b) < epsilon;
+}
+
+void test_canvas_initialState() {
+    Canvas canvas;
+    assert(canvas.count() == 0);
+    assert(areClose(canvas.totalArea(), 0.0));
+    assert(areClose(canvas.largestArea(), 0.0));
+
+    std::cout << "Test test_canvas_initialState: PASS" << std::endl;
+}
+
+void test_canvas_addNull() {
+    Canvas canvas;
+    canvas.add(0);
+    canvas.add(nullptr);
+
+    assert(canvas.count() == 0);
+    assert(areClose(canvas.totalArea(), 0.0));
+    assert(areClose(canvas.largestArea(), 0.0));
+
+    std::cout << "Test test_canvas_addNull: PASS" << std::endl;
+}
+
+void test_canvas_addSingleShape() {
+    Canvas canvas;
+    canvas.add(new MockShape(42.5));
+
+    assert(canvas.count() == 1);
+    assert(areClose(canvas.totalArea(), 42.5));
+    assert(areClose(canvas.largestArea(), 42.5));
+
+    std::cout << "Test test_canvas_addSingleShape: PASS" << std::endl;
+}
+
+void test_canvas_addMultipleShapes() {
+    Canvas canvas;
+    canvas.add(new MockShape(10.0));
+    canvas.add(new MockShape(25.5));
+    canvas.add(new MockShape(5.25));
+
+    assert(canvas.count() == 3);
+    assert(areClose(canvas.totalArea(), 10.0 + 25.5 + 5.25));
+    assert(areClose(canvas.largestArea(), 25.5));
+
+    std::cout << "Test test_canvas_addMultipleShapes: PASS" << std::endl;
+}
+
+void test_canvas_largestAreaPositions() {
+    // Largest at the first position
+    {
+        Canvas canvas;
+        canvas.add(new MockShape(100.0));
+        canvas.add(new MockShape(20.0));
+        canvas.add(new MockShape(50.0));
+        assert(areClose(canvas.largestArea(), 100.0));
+    }
+
+    // Largest at the middle position
+    {
+        Canvas canvas;
+        canvas.add(new MockShape(20.0));
+        canvas.add(new MockShape(100.0));
+        canvas.add(new MockShape(50.0));
+        assert(areClose(canvas.largestArea(), 100.0));
+    }
+
+    // Largest at the last position
+    {
+        Canvas canvas;
+        canvas.add(new MockShape(20.0));
+        canvas.add(new MockShape(50.0));
+        canvas.add(new MockShape(100.0));
+        assert(areClose(canvas.largestArea(), 100.0));
+    }
+
+    std::cout << "Test test_canvas_largestAreaPositions: PASS" << std::endl;
+}
+
+void test_canvas_clearAndReuse() {
+    Canvas canvas;
+    canvas.add(new MockShape(15.0));
+    canvas.add(new MockShape(30.0));
+    assert(canvas.count() == 2);
+
+    canvas.clear();
+    assert(canvas.count() == 0);
+    assert(areClose(canvas.totalArea(), 0.0));
+    assert(areClose(canvas.largestArea(), 0.0));
+
+    // Reuse after clear
+    canvas.add(new MockShape(8.0));
+    assert(canvas.count() == 1);
+    assert(areClose(canvas.totalArea(), 8.0));
+    assert(areClose(canvas.largestArea(), 8.0));
+
+    std::cout << "Test test_canvas_clearAndReuse: PASS" << std::endl;
+}
+
+void test_canvas_destructor() {
+    // Verify that destroying a Canvas containing heap-allocated shapes does not crash/leak
+    Canvas* canvas = new Canvas();
+    canvas->add(new MockShape(12.0));
+    canvas->add(new MockShape(34.0));
+    delete canvas;
+
+    std::cout << "Test test_canvas_destructor: PASS" << std::endl;
+}
+
+int main() {
+    std::cout << "--- Starting Canvas Unit Tests ---" << std::endl;
+
+    test_canvas_initialState();
+    test_canvas_addNull();
+    test_canvas_addSingleShape();
+    test_canvas_addMultipleShapes();
+    test_canvas_largestAreaPositions();
+    test_canvas_clearAndReuse();
+    test_canvas_destructor();
+
+    std::cout << "--- All Canvas Unit Tests Passed Successfully ---" << std::endl;
+    return 0;
+}

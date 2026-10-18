@@ -1,0 +1,29 @@
+{
+  "projects": [
+    {
+      "name": "pad0000",
+      "dir": "pad0000",
+      "active_file": "Canvas.cpp"
+    },
+    {
+      "name": "pad0250",
+      "dir": "pad0250",
+      "active_file": "Canvas.cpp"
+    },
+    {
+      "name": "pad0500",
+      "dir": "pad0500",
+      "active_file": "Canvas.cpp"
+    },
+    {
+      "name": "pad1000",
+      "dir": "pad1000",
+      "active_file": "Canvas.cpp"
+    },
+    {
+      "name": "pad2000",
+      "dir": "pad2000",
+      "active_file": "Canvas.cpp"
+    }
+  ]
+}

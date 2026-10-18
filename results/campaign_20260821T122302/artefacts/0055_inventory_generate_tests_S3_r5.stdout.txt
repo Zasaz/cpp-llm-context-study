@@ -1,0 +1,8 @@
+Starting Report test suite...
+Test test_defaultConstructor: PASS
+Test test_parametrizedConstructor_emptyWarehouse: PASS
+Test test_averageItemValue_populatedWarehouse: PASS
+Test test_outOfStockCount_mixedStock: PASS
+Test test_summaryLine_labeledWarehouse: PASS
+Test test_isEmpty: PASS
+All Report tests passed successfully!

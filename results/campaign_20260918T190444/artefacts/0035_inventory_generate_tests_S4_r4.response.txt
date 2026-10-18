@@ -1,0 +1,133 @@
+```cpp
+#include <cassert>
+#include <iostream>
+#include <cmath>
+#include "Report.h"
+#include "Warehouse.h"
+
+// Helper for comparing floating point values
+bool areFloatsClose(double a, double b, double epsilon = 1e-6) {
+    return std::fabs(a - b) < epsilon;
+}
+
+void test_defaultConstructor() {
+    Report report;
+    assert(report.isEmpty() == true);
+    assert(report.averageItemValue() == 0.0);
+    assert(report.outOfStockCount() == 0);
+    assert(report.summaryLine() == "empty");
+    std::cout << "Test test_defaultConstructor: PASS" << std::endl;
+}
+
+void test_parameterizedConstructor_emptyWarehouse() {
+    Warehouse w;
+    w.label = "Empty Warehouse";
+    Report report(w);
+
+    assert(report.isEmpty() == true);
+    assert(report.averageItemValue() == 0.0);
+    assert(report.outOfStockCount() == 0);
+    assert(report.summaryLine() == "empty");
+    std::cout << "Test test_parameterizedConstructor_emptyWarehouse: PASS" << std::endl;
+}
+
+void test_averageItemValue_populatedWarehouse() {
+    Warehouse w;
+    w.label = "Main Hub";
+    
+    // Add items assuming standard Item properties (or add via warehouse methods/items vector)
+    // Depending on Warehouse implementation, items can be added to the items vector or via methods.
+    // Setting up items:
+    Item item1;
+    item1.price = 10.0;
+    item1.quantity = 2; // Value = 20.0
+    
+    Item item2;
+    item2.price = 5.0;
+    item2.quantity = 4; // Value = 20.0
+
+    w.items.push_back(item1);
+    w.items.push_back(item2);
+
+    Report report(w);
+    
+    assert(!report.isEmpty());
+    // itemCount is total distinct items or total quantity depending on Warehouse::itemCount()
+    // averageItemValue() returns inventoryValue() / itemCount()
+    double expectedAvg = w.inventoryValue() / static_cast<double>(w.itemCount());
+    assert(areFloatsClose(report.averageItemValue(), expectedAvg));
+    
+    std::cout << "Test test_averageItemValue_populatedWarehouse: PASS" << std::endl;
+}
+
+void test_outOfStockCount() {
+    Warehouse w;
+    w.label = "Storage";
+
+    Item inStockItem;
+    inStockItem.quantity = 5;
+
+    Item outOfStockItem1;
+    outOfStockItem1.quantity = 0;
+
+    Item outOfStockItem2;
+    outOfStockItem2.quantity = 0;
+
+    w.items.push_back(inStockItem);
+    w.items.push_back(outOfStockItem1);
+    w.items.push_back(outOfStockItem2);
+
+    Report report(w);
+
+    assert(report.outOfStockCount() == 2);
+    std::cout << "Test test_outOfStockCount: PASS" << std::endl;
+}
+
+void test_summaryLine() {
+    Warehouse emptyW;
+    emptyW.label = "Should Be Ignored When Empty";
+    Report emptyReport(emptyW);
+    assert(emptyReport.summaryLine() == "empty");
+
+    Warehouse populatedW;
+    populatedW.label = "North Facility";
+    Item item;
+    item.quantity = 1;
+    item.price = 15.0;
+    populatedW.items.push_back(item);
+
+    Report populatedReport(populatedW);
+    assert(populatedReport.summaryLine() == "North Facility");
+    
+    std::cout << "Test test_summaryLine: PASS" << std::endl;
+}
+
+void test_isEmpty() {
+    Warehouse w;
+    Report report(w);
+    assert(report.isEmpty() == true);
+
+    Item item;
+    item.quantity = 1;
+    w.items.push_back(item);
+
+    Report report2(w);
+    assert(report2.isEmpty() == false);
+
+    std::cout << "Test test_isEmpty: PASS" << std::endl;
+}
+
+int main() {
+    std::cout << "Starting Report test suite..." << std::endl;
+
+    test_defaultConstructor();
+    test_parameterizedConstructor_emptyWarehouse();
+    test_averageItemValue_populatedWarehouse();
+    test_outOfStockCount();
+    test_summaryLine();
+    test_isEmpty();
+
+    std::cout << "All Report tests passed successfully!" << std::endl;
+    return 0;
+}
+```

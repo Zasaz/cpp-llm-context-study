@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis Results - Project {{ project_id }}{% endblock %}
+
+{% block content %}
+<form method="post" id="analysis-form" class="main-layout"
+    action="{{ url_for('analyze_page', project_id=project_id, file=active_file) }}">
+
+    <div class="panel file-browser-panel">
+        <div class="panel-header">Project Files</div>
+        <ul id="file-list">
+            {% for file_data in project_files %}
+            <li data-filename="{{ file_data.name }}"
+                class="{{ 'active' if file_data.name == active_file else '' }} {{ 'disabled' if file_data.disabled else '' }}"
+                title="{{ file_data.name }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+                <span>{{ file_data.name }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="panel editor-panel">
+        <div class="controls">
+            <button type="submit" name="action" value="run_project" class="submit-button button-success">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M5.536 21.886a1.004 1.004 0 0 0 1.033-.064l13-9a1 1 0 0 0 0-1.644l-13-9A1 1 0 0 0 5 3v18a1 1 0 0 0 .536.886z">
+                    </path>
+                </svg>
+                <span>Run Project</span>
+            </button>
+            <div style="display: flex; align-items: center; gap: 8px; margin-left: auto;">
+                <div class="select-wrapper">
+                    <select name="feature" id="feature-select">
+                        <option value="">-- Analyze --</option>
+                        <option value="explain">Explain Code</option>
+                        <option value="generate_tests">Generate Tests</option>
+                        <option value="generate_docs">Generate Docs</option>
+                        <option value="analyze_performance">Check Performance</option>
+                        <option value="simulate_logic">Simulate Logic</option>
+                        <option value="optimize">Find Optimizations</option>
+                    </select>
+                </div>
+                <div id="docs-format-selector" class="modern-radio-group" style="display: none;">
+                    <input type="radio" name="doc_format" value="doxygen" id="doc-doxygen" checked>
+                    <label for="doc-doxygen">Doxygen</label>
+
+                    <input type="radio" name="doc_format" value="markdown" id="doc-markdown">
+                    <label for="doc-markdown">Markdown</label>
+                </div>
+                <input type="submit" value="Go" class="submit-button button-primary" name="action" value="run_feature">
+            </div>
+            <button type="button" id="explainSelectionButton" class="button" disabled>Explain Selection</button>
+        </div>
+        <textarea id="code-editor" name="code_content">{{ code }}</textarea>
+    </div>
+
+    <div class="panel output-panel">
+        <div class="output-content-wrapper">
+            <div id="snippet-explanation-area" class="output-card" style="display: none;"></div>
+            {% set feature_map = {
+            'execute': ('Execution Output', '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="4 17 10 11 4 5"></polyline>
+                <line x1="12" x2="20" y1="19" y2="19"></line>
+            </svg>'),
+            'explain': ('Natural Language Explanation', '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 20h9"></path>
+                <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+            </svg>'),
+            'generate_docs': ('Generated Documentation', '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" x2="8" y1="13" y2="13"></line>
+                <line x1="16" x2="8" y1="17" y2="17"></line>
+                <line x1="10" x2="8" y1="9" y2="9"></line>
+            </svg>'),
+            'generate_tests': ('Unit Test Suite', '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path
+                    d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z">
+                </path>
+            </svg>'),
+            'analyze_performance': ('Performance Report', '<svg xmlns="http://www.w3.org/2000/svg" width="18"
+                height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
+                <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
+            </svg>'),
+            'simulate_logic': ('Game Logic Simulation', '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path
+                    d="m15.16 12.82-3.32 3.32a.5.5 0 0 1-.71 0l-3.32-3.32a.5.5 0 0 1 0-.71l3.32-3.32a.5.5 0 0 1 .71 0l3.32 3.32a.5.5 0 0 1 0 .71z">
+                </path>
+                <path d="M9 12H2"></path>
+                <path d="M15 12h7"></path>
+                <path
+                    d="m12 9-3.32-3.32a.5.5 0 0 1 0-.71l3.32-3.32a.5.5 0 0 1 .71 0L16.03 5c.13.13.2.3.2.5s-.07.37-.2.5L12 9z">
+                </path>
+                <path
+                    d="m12 15-3.32 3.32a.5.5 0 0 0 0 .71l3.32 3.32a.5.5 0 0 0 .71 0l3.32-3.32a.5.5 0 0 0 0-.71L12 15z">
+                </path>
+            </svg>'),
+            'optimize': ('Code Optimization Insights', '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 3v2.35"></path>
+                <path d="m16.24 7.76.1.1"></path>
+                <path d="M19.07 12.93h-2.35"></path>
+                <path d="m16.34 16.24.1.1"></path>
+                <path d="M12.07 19.07v-2.35"></path>
+                <path d="m7.76 16.34-.1.1"></path>
+                <path d="M4.93 12.07h2.35"></path>
+                <path d="m7.76 7.86-.1.1"></path>
+                <path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12z"></path>
+            </svg>')
+            } %}
+
+            {% set title, icon = feature_map.get(selected_feature, ('Output', '')) %}
+
+            {% if selected_feature or test_run_result %}
+            <div class="output-card">
+                <div class="output-card-header">{{ (feature_map.get('generate_tests' if test_run_result else
+                    selected_feature)[1]) | safe }} <span>{{ 'Unit Test Result' if test_run_result else title }}</span>
+                </div>
+                <div class="output-card-body">
+                    {% if selected_feature == 'generate_tests' or test_run_result %}{% include 'output_tests.html' %}
+                    {% elif result %}
+                    {% if selected_feature == 'execute' %}{% include 'output_execute.html' %}
+                    {% elif selected_feature == 'analyze_performance' %}{% include 'output_performance.html' %}
+                    {% elif selected_feature == 'explain' %}{% include 'output_explain.html' %}
+                    {% elif selected_feature == 'simulate_logic' %}{% include 'output_simulate.html' %}
+                    {% elif selected_feature == 'optimize' %}{% include 'output_optimize.html' %}
+                    {% elif selected_feature == 'generate_docs' %}{% include 'output_docs.html' %}
+                    {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            {% include 'output_placeholder.html' %}
+            {% endif %}
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block page_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const fileList = document.getElementById('file-list');
+        let currentActiveFile = '{{ active_file }}';
+        if (fileList) {
+            fileList.addEventListener('click', function (e) {
+                const li = e.target.closest('li');
+                if (li && !li.classList.contains('disabled')) {
+                    const filename = li.dataset.filename;
+                    if (filename === currentActiveFile) return;
+                    fetch(`{{ url_for('api_get_file', project_id=project_id, filename='FILE_PLACEHOLDER') }}`.replace('FILE_PLACEHOLDER', filename))
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.content !== undefined && window.mainCodeEditorInstance) {
+                                window.mainCodeEditorInstance.setValue(data.content);
+                                document.querySelector('#file-list .active')?.classList.remove('active');
+                                li.classList.add('active');
+                                currentActiveFile = filename;
+                                const newUrl = `{{ url_for('analyze_page', project_id=project_id) }}?file=${filename}`;
+                                history.pushState({ path: newUrl }, '', newUrl);
+                                document.getElementById('analysis-form').action = newUrl;
+                            } else { flashMessage(data.error || 'Could not load file.', 'error'); }
+                        }).catch(err => flashMessage('Error loading file.', 'error'));
+                }
+            });
+        }
+
+        const featureSelect = document.getElementById('feature-select');
+        const docsFormatSelector = document.getElementById('docs-format-selector');
+
+        function toggleDocSelector() {
+            if (featureSelect.value === 'generate_docs') {
+                docsFormatSelector.style.display = 'flex';
+            } else {
+                // CORRECTED TYPO HERE
+                docsFormatSelector.style.display = 'none';
+            }
+        }
+
+        featureSelect.addEventListener('change', toggleDocSelector);
+
+        // Run on page load to set initial state
+        toggleDocSelector();
+    });
+
+    function flashMessage(message, category = 'info') {
+        const flashesContainer = document.querySelector('.flashes');
+        if (flashesContainer) {
+            const flashDiv = document.createElement('div');
+            flashDiv.className = `flash-message ${category}`;
+            flashDiv.textContent = message;
+            flashesContainer.prepend(flashDiv);
+            setTimeout(() => {
+                flashDiv.style.opacity = '0';
+                setTimeout(() => flashDiv.remove(), 300);
+            }, 3000);
+        } else { alert(message); }
+    }
+
+    if (!window.mainCodeEditorInstance && document.getElementById("code-editor")) {
+        document.addEventListener("DOMContentLoaded", function () {
+            if (window.mainCodeEditorInstance || !document.getElementById("code-editor")) return;
+            window.mainCodeEditorInstance = CodeMirror.fromTextArea(document.getElementById("code-editor"), {
+                lineNumbers: true, mode: "text/x-c++src", theme: "material-darker",
+                matchBrackets: true, indentUnit: 4, smartIndent: true, lineWrapping: true
+            });
+            window.mainCodeEditorInstance.setSize(null, "100%");
+            const explainSelectionBtn = document.getElementById('explainSelectionButton');
+            const snippetExplanationArea = document.getElementById('snippet-explanation-area');
+            const snippetExplanationContent = document.getElementById('snippet-explanation-content');
+            const closeSnippetBtn = document.getElementById('closeSnippetExplanation');
+            if (window.mainCodeEditorInstance && explainSelectionBtn) {
+                window.mainCodeEditorInstance.on('cursorActivity', (editor) => { explainSelectionBtn.disabled = !editor.somethingSelected(); });
+                explainSelectionBtn.addEventListener('click', function () {
+                    const selectedCode = window.mainCodeEditorInstance.getSelection();
+                    if (!selectedCode.trim()) return;
+                    snippetExplanationContent.innerHTML = "<p><i>Explaining selected code...</i></p>";
+                    snippetExplanationArea.style.display = 'block';
+                    fetch("{{ url_for('api_explain_snippet', project_id=project_id, filename=currentActiveFile) }}", {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ snippet: selectedCode })
+                    }).then(response => response.json())
+                        .then(data => { snippetExplanationContent.innerHTML = data.explanation_html || `<p class="error-text">Error: ${data.error}</p>`; })
+                        .catch(error => { snippetExplanationContent.innerHTML = "<p class='error-text'>An error occurred.</p>"; });
+                });
+                if (closeSnippetBtn) {
+                    closeSnippetBtn.addEventListener('click', () => { snippetExplanationArea.style.display = 'none'; });
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

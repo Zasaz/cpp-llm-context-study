@@ -1,0 +1,9 @@
+=== Running Canvas Unit Tests ===
+Test test_initial_state: PASS
+Test test_add_null_pointer: PASS
+Test test_add_and_count: PASS
+Test test_totalArea: PASS
+Test test_largestArea: PASS
+Test test_clear: PASS
+Test test_destructor_deletes_shapes: PASS
+=== All Canvas tests passed successfully! ===

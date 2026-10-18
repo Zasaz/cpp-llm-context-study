@@ -1,0 +1,8 @@
+--- Preparing user code (renaming main() to user_code_main) ---
+6 source files: Policy.cpp, ResourceLedger.cpp, RunStatistics.cpp, Scheduler.cpp, Task.cpp, TaskQueue.cpp
+
+--- Test Suite Compilation & Linking ---
+Command: g++ -I /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpt4r0mc3i/build /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpt4r0mc3i/build/Policy.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpt4r0mc3i/build/ResourceLedger.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpt4r0mc3i/build/RunStatistics.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpt4r0mc3i/build/Scheduler.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpt4r0mc3i/build/Task.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpt4r0mc3i/build/TaskQueue.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpt4r0mc3i/build/test_suite.cpp -o /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpt4r0mc3i/test_executable -std=c++17 -Wall
+STDOUT:
+
+STDERR:

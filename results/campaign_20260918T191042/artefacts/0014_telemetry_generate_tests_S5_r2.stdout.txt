@@ -1,0 +1,11 @@
+Test test_pipeline_constructors: PASS
+Test test_pipeline_filter_management: PASS
+Test test_pipeline_process_and_stage: PASS
+Test test_pipeline_wouldReject: PASS
+Test test_pipeline_ingest_and_quality: PASS
+Test test_pipeline_saturation_and_channel_limits: PASS
+Test test_pipeline_ingestBatch: PASS
+Test test_pipeline_statistics_and_scaling: PASS
+Test test_pipeline_flush_and_describe: PASS
+
+All SamplePipeline unit tests passed successfully!

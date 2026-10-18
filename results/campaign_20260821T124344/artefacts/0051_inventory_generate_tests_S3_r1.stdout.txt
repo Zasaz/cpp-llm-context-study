@@ -1,0 +1,8 @@
+--- Running Report Unit Tests ---
+Test test_defaultConstructor: PASS
+Test test_parameterizedConstructor: PASS
+Test test_isEmpty: PASS
+Test test_summaryLine: PASS
+Test test_averageItemValue: PASS
+Test test_outOfStockCount: PASS
+--- All Report Tests Passed Successfully ---

@@ -1,0 +1,187 @@
+#include <iostream>
+#include <cassert>
+#include <cmath>
+#include <string>
+#include <vector>
+
+#include "Report.h"
+#include "Warehouse.h"
+#include "Item.h"
+
+// Helper function for floating point comparisons
+static bool isClose(double a, double b, double epsilon = 1e-6) {
+    return std::abs(a - b) < epsilon;
+}
+
+void test_defaultConstructor() {
+    Report report;
+    assert(report.isEmpty());
+    assert(report.outOfStockCount() == 0);
+    assert(isClose(report.averageItemValue(), 0.0));
+    assert(report.summaryLine() == "empty");
+    assert(report.source.label == "unnamed");
+    assert(report.source.itemCount() == 0);
+
+    std::cout << "Test test_defaultConstructor: PASS" << std::endl;
+}
+
+void test_parameterizedConstructor() {
+    Warehouse wh("North Facility");
+    wh.addItem(Item("Widget", 10, 2.50));
+
+    Report report(wh);
+    assert(!report.isEmpty());
+    assert(report.source.label == "North Facility");
+    assert(report.source.itemCount() == 1);
+    assert(report.source.items[0].name == "Widget");
+
+    std::cout << "Test test_parameterizedConstructor: PASS" << std::endl;
+}
+
+void test_isEmpty() {
+    // Empty warehouse
+    Warehouse emptyWh("Empty Depot");
+    Report emptyReport(emptyWh);
+    assert(emptyReport.isEmpty() == true);
+
+    // Non-empty warehouse
+    Warehouse nonEmptWh("Stocked Depot");
+    nonEmptWh.addItem(Item("Screw", 100, 0.05));
+    Report nonEmptReport(nonEmptWh);
+    assert(nonEmptReport.isEmpty() == false);
+
+    // Default constructed report
+    Report defReport;
+    assert(defReport.isEmpty() == true);
+
+    std::cout << "Test test_isEmpty: PASS" << std::endl;
+}
+
+void test_averageItemValue_emptyWarehouse() {
+    Warehouse wh("Empty Storage");
+    Report report(wh);
+
+    assert(isClose(report.averageItemValue(), 0.0));
+
+    Report defReport;
+    assert(isClose(defReport.averageItemValue(), 0.0));
+
+    std::cout << "Test test_averageItemValue_emptyWarehouse: PASS" << std::endl;
+}
+
+void test_averageItemValue_singleAndMultipleItems() {
+    Warehouse wh("Main Warehouse");
+    // Item 1: 10 * 5.00 = 50.00
+    wh.addItem(Item("Box", 10, 5.0));
+    Report report1(wh);
+    // itemCount = 1, inventoryValue = 50.0 -> averageItemValue = 50.0
+    assert(isClose(report1.averageItemValue(), 50.0));
+
+    // Item 2: 20 * 2.50 = 50.00
+    wh.addItem(Item("Tape", 20, 2.5));
+    Report report2(wh);
+    // itemCount = 2, inventoryValue = 100.0 -> averageItemValue = 50.0
+    assert(isClose(report2.averageItemValue(), 50.0));
+
+    // Item 3: 0 * 100.0 = 0.00
+    wh.addItem(Item("Pallet", 0, 100.0));
+    Report report3(wh);
+    // itemCount = 3, inventoryValue = 100.0 -> averageItemValue = 100.0 / 3 = 33.333333
+    assert(isClose(report3.averageItemValue(), 100.0 / 3.0));
+
+    std::cout << "Test test_averageItemValue_singleAndMultipleItems: PASS" << std::endl;
+}
+
+void test_outOfStockCount_allInStock() {
+    Warehouse wh("All In Stock");
+    wh.addItem(Item("Apples", 50, 0.50));
+    wh.addItem(Item("Oranges", 25, 0.75));
+    wh.addItem(Item("Bananas", 10, 0.30));
+
+    Report report(wh);
+    assert(report.outOfStockCount() == 0);
+
+    std::cout << "Test test_outOfStockCount_allInStock: PASS" << std::endl;
+}
+
+void test_outOfStockCount_someAndAllOutOfStock() {
+    Warehouse wh("Mixed Stock");
+    wh.addItem(Item("ItemA", 0, 10.0));   // Out of stock
+    wh.addItem(Item("ItemB", 5, 2.0));    // In stock
+    wh.addItem(Item("ItemC", 0, 5.0));    // Out of stock
+    wh.addItem(Item("ItemD", -1, 1.0));   // Out of stock (edge case quantity <= 0)
+
+    Report report(wh);
+    assert(report.outOfStockCount() == 3);
+
+    // Warehouse where all are out of stock
+    Warehouse emptyStockWh("Zero Stock");
+    emptyStockWh.addItem(Item("ItemX", 0, 1.0));
+    emptyStockWh.addItem(Item("ItemY", 0, 2.0));
+    Report allOutReport(emptyStockWh);
+    assert(allOutReport.outOfStockCount() == 2);
+
+    std::cout << "Test test_outOfStockCount_someAndAllOutOfStock: PASS" << std::endl;
+}
+
+void test_summaryLine_empty() {
+    // Empty warehouse with custom label
+    Warehouse wh("Custom Facility");
+    Report report(wh);
+    // When warehouse has no items, summaryLine() must return "empty"
+    assert(report.summaryLine() == "empty");
+
+    // Default constructed report
+    Report defReport;
+    assert(defReport.summaryLine() == "empty");
+
+    std::cout << "Test test_summaryLine_empty: PASS" << std::endl;
+}
+
+void test_summaryLine_nonEmpty() {
+    Warehouse wh("Central Logistics Hub");
+    wh.addItem(Item("Cables", 100, 1.50));
+
+    Report report(wh);
+    // When warehouse has items, summaryLine() returns the label
+    assert(report.summaryLine() == "Central Logistics Hub");
+
+    std::cout << "Test test_summaryLine_nonEmpty: PASS" << std::endl;
+}
+
+void test_reportAfterWarehouseModifications() {
+    Warehouse wh("Dynamic Warehouse");
+    wh.addItem(Item("Gears", 10, 4.0)); // total: 40.0
+    wh.addItem(Item("Belts", 5, 6.0));  // total: 30.0
+
+    // Withdraw all Belts so it becomes out of stock
+    bool withdrawn = wh.withdraw("Belts", 5);
+    assert(withdrawn == true);
+
+    Report report(wh);
+    assert(report.source.itemCount() == 2);
+    assert(report.outOfStockCount() == 1);
+    // inventoryValue = 40.0 + 0.0 = 40.0, count = 2 -> average = 20.0
+    assert(isClose(report.averageItemValue(), 20.0));
+    assert(report.summaryLine() == "Dynamic Warehouse");
+
+    std::cout << "Test test_reportAfterWarehouseModifications: PASS" << std::endl;
+}
+
+int main() {
+    std::cout << "Starting Report test suite..." << std::endl;
+
+    test_defaultConstructor();
+    test_parameterizedConstructor();
+    test_isEmpty();
+    test_averageItemValue_emptyWarehouse();
+    test_averageItemValue_singleAndMultipleItems();
+    test_outOfStockCount_allInStock();
+    test_outOfStockCount_someAndAllOutOfStock();
+    test_summaryLine_empty();
+    test_summaryLine_nonEmpty();
+    test_reportAfterWarehouseModifications();
+
+    std::cout << "All Report tests passed successfully!" << std::endl;
+    return 0;
+}

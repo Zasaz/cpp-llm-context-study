@@ -1,0 +1,21 @@
+--- Preparing user code (renaming main() to user_code_main) ---
+10 source files: AlertRule.cpp, Channel.cpp, Dashboard.cpp, Filter.cpp, QueryEngine.cpp, RingBuffer.cpp, Sample.cpp, SamplePipeline.cpp, SeriesStore.cpp, UnitScale.cpp
+
+--- Test Suite Compilation & Linking ---
+Command: g++ -I /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpent7kde8/build /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpent7kde8/build/AlertRule.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpent7kde8/build/Channel.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpent7kde8/build/Dashboard.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpent7kde8/build/Filter.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpent7kde8/build/QueryEngine.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpent7kde8/build/RingBuffer.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpent7kde8/build/Sample.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpent7kde8/build/SamplePipeline.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpent7kde8/build/SeriesStore.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpent7kde8/build/UnitScale.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpent7kde8/build/test_suite.cpp -o /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpent7kde8/test_executable -std=c++17 -Wall
+STDOUT:
+
+STDERR:
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpent7kde8/build/test_suite.cpp:212:25: error: no member named 'sequenceNumber' in 'Sample'
+  212 |     assert(latestSample.sequenceNumber() == 3);
+      |            ~~~~~~~~~~~~ ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/assert.h:72:25: note: expanded from macro 'assert'
+   72 |     (__builtin_expect(!(e), 0) ? __assert_rtn(__func__, __ASSERT_FILE_NAME, __LINE__, #e) : (void)0)
+      |                         ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpent7kde8/build/test_suite.cpp:214:32: error: called object type 'int' is not a function or function pointer
+  214 |     assert(latestSample.quality() == 2);
+      |            ~~~~~~~~~~~~~~~~~~~~^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/assert.h:72:25: note: expanded from macro 'assert'
+   72 |     (__builtin_expect(!(e), 0) ? __assert_rtn(__func__, __ASSERT_FILE_NAME, __LINE__, #e) : (void)0)
+      |                         ^
+2 errors generated.

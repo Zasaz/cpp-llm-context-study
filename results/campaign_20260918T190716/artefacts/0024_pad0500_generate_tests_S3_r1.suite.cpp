@@ -1,0 +1,135 @@
+#include <iostream>
+#include <cassert>
+#include <cmath>
+#include "Canvas.h"
+#include "Shape.h"
+
+// Helper function for floating point comparison
+static bool approxEqual(double a, double b, double epsilon = 1e-6) {
+    return std::fabs(a - b) < epsilon;
+}
+
+// Custom mock shape to test custom areas and polymorphism
+class MockShape : public Shape {
+public:
+    double customArea;
+    MockShape(double a) : customArea(a) {}
+    double area() const override {
+        return customArea;
+    }
+};
+
+void test_Canvas_initialState() {
+    Canvas canvas;
+    assert(canvas.count() == 0);
+    assert(approxEqual(canvas.totalArea(), 0.0));
+    assert(approxEqual(canvas.largestArea(), 0.0));
+    assert(canvas.shapes.empty());
+
+    std::cout << "Test test_Canvas_initialState: PASS" << std::endl;
+}
+
+void test_Canvas_addNullPointer() {
+    Canvas canvas;
+    canvas.add(nullptr);
+    assert(canvas.count() == 0);
+    assert(canvas.shapes.empty());
+
+    std::cout << "Test test_Canvas_addNullPointer: PASS" << std::endl;
+}
+
+void test_Canvas_addValidShapes() {
+    Canvas canvas;
+    canvas.add(new Rectangle(4.0, 5.0));
+    assert(canvas.count() == 1);
+
+    canvas.add(new Circle(3.0));
+    assert(canvas.count() == 2);
+
+    canvas.add(new MockShape(15.0));
+    assert(canvas.count() == 3);
+
+    std::cout << "Test test_Canvas_addValidShapes: PASS" << std::endl;
+}
+
+void test_Canvas_totalArea() {
+    Canvas canvas;
+    // Rectangle area: 4.0 * 5.0 = 20.0
+    canvas.add(new Rectangle(4.0, 5.0));
+    // Circle area: PI * 2.0 * 2.0 = 4.0 * PI approx 12.566370614
+    canvas.add(new Circle(2.0));
+    // MockShape area: 17.5
+    canvas.add(new MockShape(17.5));
+
+    double expectedArea = 20.0 + (3.14159265358979323846 * 4.0) + 17.5;
+    assert(approxEqual(canvas.totalArea(), expectedArea));
+
+    std::cout << "Test test_Canvas_totalArea: PASS" << std::endl;
+}
+
+void test_Canvas_largestArea() {
+    Canvas canvas;
+    assert(approxEqual(canvas.largestArea(), 0.0));
+
+    // Add shapes with areas: 10.0, 50.0, 25.0
+    canvas.add(new Rectangle(2.0, 5.0));   // area = 10.0
+    assert(approxEqual(canvas.largestArea(), 10.0));
+
+    canvas.add(new Rectangle(10.0, 5.0));  // area = 50.0
+    assert(approxEqual(canvas.largestArea(), 50.0));
+
+    canvas.add(new Circle(2.0));           // area ~ 12.566
+    assert(approxEqual(canvas.largestArea(), 50.0));
+
+    canvas.add(new MockShape(75.0));       // area = 75.0
+    assert(approxEqual(canvas.largestArea(), 75.0));
+
+    std::cout << "Test test_Canvas_largestArea: PASS" << std::endl;
+}
+
+void test_Canvas_clear() {
+    Canvas canvas;
+    canvas.add(new Rectangle(3.0, 3.0));
+    canvas.add(new Circle(1.5));
+    canvas.add(new MockShape(5.0));
+
+    assert(canvas.count() == 3);
+
+    canvas.clear();
+
+    assert(canvas.count() == 0);
+    assert(canvas.shapes.empty());
+    assert(approxEqual(canvas.totalArea(), 0.0));
+    assert(approxEqual(canvas.largestArea(), 0.0));
+
+    // Calling clear again on an empty canvas should be safe
+    canvas.clear();
+    assert(canvas.count() == 0);
+
+    std::cout << "Test test_Canvas_clear: PASS" << std::endl;
+}
+
+void test_Canvas_destructor() {
+    // Test that dynamically allocating and deleting a Canvas cleans up properly
+    Canvas* canvas = new Canvas();
+    canvas->add(new Rectangle(2.0, 2.0));
+    canvas->add(new Circle(1.0));
+    delete canvas; // Invokes ~Canvas() which calls clear()
+
+    std::cout << "Test test_Canvas_destructor: PASS" << std::endl;
+}
+
+int main() {
+    std::cout << "=== Running Canvas Unit Tests ===" << std::endl;
+
+    test_Canvas_initialState();
+    test_Canvas_addNullPointer();
+    test_Canvas_addValidShapes();
+    test_Canvas_totalArea();
+    test_Canvas_largestArea();
+    test_Canvas_clear();
+    test_Canvas_destructor();
+
+    std::cout << "=== All Canvas Tests Passed Successfully ===" << std::endl;
+    return 0;
+}

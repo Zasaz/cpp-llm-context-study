@@ -1,0 +1,10 @@
+Starting SamplePipeline Test Suite...
+Test test_constructors_and_defaults: PASS
+Test test_filter_management: PASS
+Test test_process_and_stage: PASS
+Test test_wouldReject: PASS
+Test test_ingest_and_quality: PASS
+Test test_ingestBatch_and_saturation: PASS
+Test test_normalisation_and_scale: PASS
+Test test_flush_and_describe: PASS
+All SamplePipeline tests passed successfully!

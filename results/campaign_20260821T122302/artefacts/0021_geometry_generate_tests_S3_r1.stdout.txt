@@ -1,0 +1,10 @@
+Starting Canvas unit tests...
+Test test_initial_state: PASS
+Test test_add_null_pointer: PASS
+Test test_add_single_shape: PASS
+Test test_add_multiple_shapes_and_total_area: PASS
+Test test_largest_area_orderings: PASS
+Test test_clear_method: PASS
+Test test_destructor_invokes_cleanup: PASS
+Test test_zero_and_empty_dimensions: PASS
+All Canvas unit tests passed successfully!

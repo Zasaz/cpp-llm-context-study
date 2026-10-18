@@ -1,0 +1,8 @@
+Starting Canvas test suite...
+Test test_Canvas_initialization: PASS
+Test test_Canvas_add: PASS
+Test test_Canvas_totalArea: PASS
+Test test_Canvas_largestArea: PASS
+Test test_Canvas_clear: PASS
+Test test_Canvas_destructor: PASS
+All Canvas tests passed successfully!

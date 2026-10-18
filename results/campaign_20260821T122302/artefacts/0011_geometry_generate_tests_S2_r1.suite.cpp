@@ -1,0 +1,157 @@
+#include <iostream>
+#include <cassert>
+#include <cmath>
+#include "Canvas.h"
+
+// Helper constant for floating-point comparison
+static const double EPSILON = 1e-9;
+
+static bool approxEqual(double a, double b) {
+    return std::abs(a - b) < EPSILON;
+}
+
+// Mock shape implementation to test Canvas independently of concrete Shape subclasses.
+// Provides both const and non-const area() overloads to match whatever signature Shape declares.
+class MockShape : public Shape {
+private:
+    double m_area;
+    bool* m_destructorFlag;
+
+public:
+    explicit MockShape(double areaValue, bool* destructorFlag = nullptr)
+        : m_area(areaValue), m_destructorFlag(destructorFlag) {}
+
+    virtual ~MockShape() {
+        if (m_destructorFlag != nullptr) {
+            *m_destructorFlag = true;
+        }
+    }
+
+    virtual double area() const {
+        return m_area;
+    }
+
+    virtual double area() {
+        return m_area;
+    }
+};
+
+void test_initialState() {
+    Canvas canvas;
+    assert(canvas.count() == 0);
+    assert(approxEqual(canvas.totalArea(), 0.0));
+    assert(approxEqual(canvas.largestArea(), 0.0));
+
+    std::cout << "Test test_initialState: PASS" << std::endl;
+}
+
+void test_addNullShape() {
+    Canvas canvas;
+    canvas.add(nullptr);
+    assert(canvas.count() == 0);
+    assert(approxEqual(canvas.totalArea(), 0.0));
+    assert(approxEqual(canvas.largestArea(), 0.0));
+
+    std::cout << "Test test_addNullShape: PASS" << std::endl;
+}
+
+void test_addSingleShape() {
+    Canvas canvas;
+    canvas.add(new MockShape(42.5));
+
+    assert(canvas.count() == 1);
+    assert(approxEqual(canvas.totalArea(), 42.5));
+    assert(approxEqual(canvas.largestArea(), 42.5));
+
+    std::cout << "Test test_addSingleShape: PASS" << std::endl;
+}
+
+void test_multipleShapes_totalAndLargestArea() {
+    Canvas canvas;
+    canvas.add(new MockShape(10.0));
+    canvas.add(new MockShape(35.5));
+    canvas.add(new MockShape(5.25));
+    canvas.add(new MockShape(20.0));
+
+    assert(canvas.count() == 4);
+    assert(approxEqual(canvas.totalArea(), 10.0 + 35.5 + 5.25 + 20.0));
+    assert(approxEqual(canvas.largestArea(), 35.5));
+
+    std::cout << "Test test_multipleShapes_totalAndLargestArea: PASS" << std::endl;
+}
+
+void test_clear() {
+    bool shape1Deleted = false;
+    bool shape2Deleted = false;
+
+    Canvas canvas;
+    canvas.add(new MockShape(10.0, &shape1Deleted));
+    canvas.add(new MockShape(20.0, &shape2Deleted));
+
+    assert(canvas.count() == 2);
+    assert(!shape1Deleted);
+    assert(!shape2Deleted);
+
+    canvas.clear();
+
+    assert(canvas.count() == 0);
+    assert(approxEqual(canvas.totalArea(), 0.0));
+    assert(approxEqual(canvas.largestArea(), 0.0));
+    assert(shape1Deleted);
+    assert(shape2Deleted);
+
+    // Calling clear on an already empty canvas should be safe
+    canvas.clear();
+    assert(canvas.count() == 0);
+
+    std::cout << "Test test_clear: PASS" << std::endl;
+}
+
+void test_destructorCleanup() {
+    bool shape1Deleted = false;
+    bool shape2Deleted = false;
+
+    {
+        Canvas canvas;
+        canvas.add(new MockShape(15.0, &shape1Deleted));
+        canvas.add(new MockShape(25.0, &shape2Deleted));
+        assert(canvas.count() == 2);
+    } // canvas goes out of scope here; its destructor should trigger clear()
+
+    assert(shape1Deleted);
+    assert(shape2Deleted);
+
+    std::cout << "Test test_destructorCleanup: PASS" << std::endl;
+}
+
+void test_reuseAfterClear() {
+    Canvas canvas;
+    canvas.add(new MockShape(10.0));
+    canvas.add(new MockShape(20.0));
+    assert(canvas.count() == 2);
+
+    canvas.clear();
+    assert(canvas.count() == 0);
+
+    canvas.add(new MockShape(50.0));
+    assert(canvas.count() == 1);
+    assert(approxEqual(canvas.totalArea(), 50.0));
+    assert(approxEqual(canvas.largestArea(), 50.0));
+
+    std::cout << "Test test_reuseAfterClear: PASS" << std::endl;
+}
+
+int main() {
+    std::cout << "Running Canvas unit tests..." << std::endl;
+
+    test_initialState();
+    test_addNullShape();
+    test_addSingleShape();
+    test_multipleShapes_totalAndLargestArea();
+    test_clear();
+    test_destructorCleanup();
+    test_reuseAfterClear();
+
+    std::cout << "All Canvas unit tests passed successfully!" << std::endl;
+    return 0;
+}

@@ -1,0 +1,27 @@
+--- Preparing user code (renaming main() to user_code_main) ---
+10 source files: AlertRule.cpp, Channel.cpp, Dashboard.cpp, Filter.cpp, QueryEngine.cpp, RingBuffer.cpp, Sample.cpp, SamplePipeline.cpp, SeriesStore.cpp, UnitScale.cpp
+
+--- Test Suite Compilation & Linking ---
+Command: g++ -I /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6stm1d_n/build /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6stm1d_n/build/AlertRule.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6stm1d_n/build/Channel.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6stm1d_n/build/Dashboard.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6stm1d_n/build/Filter.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6stm1d_n/build/QueryEngine.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6stm1d_n/build/RingBuffer.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6stm1d_n/build/Sample.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6stm1d_n/build/SamplePipeline.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6stm1d_n/build/SeriesStore.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6stm1d_n/build/UnitScale.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6stm1d_n/build/test_suite.cpp -o /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6stm1d_n/test_executable -std=c++17 -Wall
+STDOUT:
+
+STDERR:
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6stm1d_n/build/test_suite.cpp:181:27: error: called object type 'int' is not a function or function pointer
+  181 |     assert(latest.sequence() == 2 || latest.getSequence() == 2 || approxEqual(latest.value(), 25.0) || approxEqual(latest.getValue(), 25.0));
+      |            ~~~~~~~~~~~~~~~^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/assert.h:72:25: note: expanded from macro 'assert'
+   72 |     (__builtin_expect(!(e), 0) ? __assert_rtn(__func__, __ASSERT_FILE_NAME, __LINE__, #e) : (void)0)
+      |                         ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6stm1d_n/build/test_suite.cpp:181:45: error: no member named 'getSequence' in 'Sample'
+  181 |     assert(latest.sequence() == 2 || latest.getSequence() == 2 || approxEqual(latest.value(), 25.0) || approxEqual(latest.getValue(), 25.0));
+      |                                      ~~~~~~ ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/assert.h:72:25: note: expanded from macro 'assert'
+   72 |     (__builtin_expect(!(e), 0) ? __assert_rtn(__func__, __ASSERT_FILE_NAME, __LINE__, #e) : (void)0)
+      |                         ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6stm1d_n/build/test_suite.cpp:181:123: error: no member named 'getValue' in 'Sample'
+  181 |     assert(latest.sequence() == 2 || latest.getSequence() == 2 || approxEqual(latest.value(), 25.0) || approxEqual(latest.getValue(), 25.0));
+      |                                                                                                                    ~~~~~~ ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/assert.h:72:25: note: expanded from macro 'assert'
+   72 |     (__builtin_expect(!(e), 0) ? __assert_rtn(__func__, __ASSERT_FILE_NAME, __LINE__, #e) : (void)0)
+      |                         ^
+3 errors generated.

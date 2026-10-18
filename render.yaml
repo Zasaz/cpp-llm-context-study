@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: cpp-helper-api
+    env: docker
+    plan: free # Use the free tier
+    healthCheckPath: /api/health # We will add this route in main.py
+    envVars:
+      - key: GOOGLE_API_KEY
+        sync: false # IMPORTANT: We will set this in the Render dashboard

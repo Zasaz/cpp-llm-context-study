@@ -1,0 +1,13 @@
+Starting SamplePipeline Test Suite...
+Test test_SamplePipeline_constructors: PASS
+Test test_SamplePipeline_filterManagement: PASS
+Test test_SamplePipeline_processAndStage: PASS
+Test test_SamplePipeline_wouldReject: PASS
+Test test_SamplePipeline_ingest: PASS
+Test test_SamplePipeline_ingestBatch: PASS
+Test test_SamplePipeline_requireQuality: PASS
+Test test_SamplePipeline_channelQueries: PASS
+Test test_SamplePipeline_scaling: PASS
+Test test_SamplePipeline_flush: PASS
+Test test_SamplePipeline_describe: PASS
+All SamplePipeline tests passed successfully!

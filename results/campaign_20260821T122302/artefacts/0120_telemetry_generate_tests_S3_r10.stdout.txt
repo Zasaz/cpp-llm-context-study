@@ -1,0 +1,5 @@
+Test test_constructors_and_defaults: PASS
+Test test_add_and_clear_filters: PASS
+Test test_process_and_stage: PASS
+Test test_wouldReject: PASS
+Test test_requireQuality: PASS

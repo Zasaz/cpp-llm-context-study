@@ -1,0 +1,10 @@
+--- Running Report Unit Tests ---
+Test test_defaultConstructor: PASS
+Test test_parameterizedConstructor_emptyWarehouse: PASS
+Test test_averageItemValue_calculation: PASS
+Test test_averageItemValue_withZeroQuantitiesAndPrices: PASS
+Test test_outOfStockCount_mixedStock: PASS
+Test test_outOfStockCount_allInStock_and_allOutOfStock: PASS
+Test test_isEmpty_and_summaryLine: PASS
+Test test_sourceMutationReflectedInReport: PASS
+--- All Report Unit Tests Passed Successfully! ---

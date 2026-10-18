@@ -1,0 +1,153 @@
+#include <iostream>
+#include <cassert>
+#include <cmath>
+#include "Canvas.h"
+#include "Shape.h"
+
+// Helper function for floating point comparisons
+bool approxEqual(double a, double b, double epsilon = 1e-6) {
+    return std::fabs(a - b) < epsilon;
+}
+
+// Custom shape to verify deletion in destructor / clear()
+class TrackedShape : public Shape {
+public:
+    static int deleteCount;
+    double customArea;
+
+    explicit TrackedShape(double a = 0.0) : customArea(a) {}
+    ~TrackedShape() override {
+        deleteCount++;
+    }
+
+    double area() const override {
+        return customArea;
+    }
+};
+int TrackedShape::deleteCount = 0;
+
+void test_Canvas_initialState() {
+    Canvas canvas;
+    assert(canvas.count() == 0);
+    assert(canvas.shapes.empty());
+    assert(approxEqual(canvas.totalArea(), 0.0));
+    assert(approxEqual(canvas.largestArea(), 0.0));
+    std::cout << "Test test_Canvas_initialState: PASS" << std::endl;
+}
+
+void test_Canvas_addNullPointer() {
+    Canvas canvas;
+    canvas.add(nullptr);
+    assert(canvas.count() == 0);
+    assert(canvas.shapes.empty());
+    assert(approxEqual(canvas.totalArea(), 0.0));
+    assert(approxEqual(canvas.largestArea(), 0.0));
+    std::cout << "Test test_Canvas_addNullPointer: PASS" << std::endl;
+}
+
+void test_Canvas_addAndCount() {
+    Canvas canvas;
+    canvas.add(new Rectangle(2.0, 3.0));
+    assert(canvas.count() == 1);
+    
+    canvas.add(new Circle(1.0));
+    assert(canvas.count() == 2);
+
+    canvas.add(nullptr); // Null should not increase count
+    assert(canvas.count() == 2);
+
+    std::cout << "Test test_Canvas_addAndCount: PASS" << std::endl;
+}
+
+void test_Canvas_totalArea() {
+    Canvas canvas;
+    // Rectangle 1: 2.0 * 5.0 = 10.0
+    canvas.add(new Rectangle(2.0, 5.0));
+    // Rectangle 2: 3.0 * 4.0 = 12.0
+    canvas.add(new Rectangle(3.0, 4.0));
+    // Circle: PI * 2.0^2 = 4.0 * PI
+    canvas.add(new Circle(2.0));
+    // Base generic Shape: area = 0.0
+    canvas.add(new Shape());
+
+    double expectedArea = 10.0 + 12.0 + (3.14159265358979323846 * 4.0) + 0.0;
+    assert(approxEqual(canvas.totalArea(), expectedArea));
+
+    std::cout << "Test test_Canvas_totalArea: PASS" << std::endl;
+}
+
+void test_Canvas_largestArea() {
+    Canvas canvas;
+    assert(approxEqual(canvas.largestArea(), 0.0));
+
+    // Add first shape: 10.0
+    canvas.add(new Rectangle(2.0, 5.0));
+    assert(approxEqual(canvas.largestArea(), 10.0));
+
+    // Add smaller shape: 6.0
+    canvas.add(new Rectangle(2.0, 3.0));
+    assert(approxEqual(canvas.largestArea(), 10.0));
+
+    // Add larger shape: Circle radius 2 -> area ~12.56637
+    canvas.add(new Circle(2.0));
+    double expectedCircleArea = 3.14159265358979323846 * 4.0;
+    assert(approxEqual(canvas.largestArea(), expectedCircleArea));
+
+    // Add another larger shape: Rectangle 4.0 * 4.0 = 16.0
+    canvas.add(new Rectangle(4.0, 4.0));
+    assert(approxEqual(canvas.largestArea(), 16.0));
+
+    std::cout << "Test test_Canvas_largestArea: PASS" << std::endl;
+}
+
+void test_Canvas_clear() {
+    Canvas canvas;
+    TrackedShape::deleteCount = 0;
+
+    canvas.add(new TrackedShape(5.0));
+    canvas.add(new TrackedShape(15.0));
+    canvas.add(new TrackedShape(10.0));
+    assert(canvas.count() == 3);
+
+    canvas.clear();
+
+    assert(canvas.count() == 0);
+    assert(canvas.shapes.empty());
+    assert(approxEqual(canvas.totalArea(), 0.0));
+    assert(approxEqual(canvas.largestArea(), 0.0));
+    assert(TrackedShape::deleteCount == 3);
+
+    // Repeated clear on empty canvas should be safe
+    canvas.clear();
+    assert(canvas.count() == 0);
+    assert(TrackedShape::deleteCount == 3);
+
+    std::cout << "Test test_Canvas_clear: PASS" << std::endl;
+}
+
+void test_Canvas_destructor() {
+    TrackedShape::deleteCount = 0;
+    {
+        Canvas canvas;
+        canvas.add(new TrackedShape(1.0));
+        canvas.add(new TrackedShape(2.0));
+        assert(canvas.count() == 2);
+    }
+    // Destructor of canvas should have called clear() and deleted both objects
+    assert(TrackedShape::deleteCount == 2);
+
+    std::cout << "Test test_Canvas_destructor: PASS" << std::endl;
+}
+
+int main() {
+    test_Canvas_initialState();
+    test_Canvas_addNullPointer();
+    test_Canvas_addAndCount();
+    test_Canvas_totalArea();
+    test_Canvas_largestArea();
+    test_Canvas_clear();
+    test_Canvas_destructor();
+
+    std::cout << "\nAll Canvas tests passed successfully!" << std::endl;
+    return 0;
+}

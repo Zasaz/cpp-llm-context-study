@@ -1,0 +1,9 @@
+Starting Canvas test suite...
+Test test_empty_canvas: PASS
+Test test_add_null_pointer: PASS
+Test test_add_single_shape: PASS
+Test test_multiple_shapes_areas: PASS
+Test test_clear_and_memory_deallocation: PASS
+Test test_destructor_deallocation: PASS
+Test test_add_after_clear: PASS
+All Canvas tests passed successfully!

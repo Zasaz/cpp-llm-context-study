@@ -1,0 +1,143 @@
+#include <iostream>
+#include <cassert>
+#include <cmath>
+#include "Canvas.h"
+#include "Shape.h"
+
+// Helper comparison for floating-point values
+bool areAlmostEqual(double a, double b, double epsilon = 1e-6) {
+    return std::fabs(a - b) < epsilon;
+}
+
+// Concrete mock implementation of Shape for testing Canvas
+class MockShape : public Shape {
+private:
+    double areaVal;
+    bool* destroyedFlag;
+
+public:
+    explicit MockShape(double area = 0.0, bool* destroyed = nullptr)
+        : areaVal(area), destroyedFlag(destroyed) {
+        if (destroyedFlag) {
+            *destroyedFlag = false;
+        }
+    }
+
+    virtual ~MockShape() {
+        if (destroyedFlag) {
+            *destroyedFlag = true;
+        }
+    }
+
+    virtual double area() const {
+        return areaVal;
+    }
+};
+
+void test_Canvas_initialState() {
+    Canvas canvas;
+    assert(canvas.count() == 0);
+    assert(areAlmostEqual(canvas.totalArea(), 0.0));
+    assert(areAlmostEqual(canvas.largestArea(), 0.0));
+    std::cout << "Test test_Canvas_initialState: PASS" << std::endl;
+}
+
+void test_Canvas_addNullPointer() {
+    Canvas canvas;
+    canvas.add(nullptr);
+    assert(canvas.count() == 0);
+    assert(areAlmostEqual(canvas.totalArea(), 0.0));
+    assert(areAlmostEqual(canvas.largestArea(), 0.0));
+    std::cout << "Test test_Canvas_addNullPointer: PASS" << std::endl;
+}
+
+void test_Canvas_addSingleShape() {
+    Canvas canvas;
+    canvas.add(new MockShape(25.5));
+    assert(canvas.count() == 1);
+    assert(areAlmostEqual(canvas.totalArea(), 25.5));
+    assert(areAlmostEqual(canvas.largestArea(), 25.5));
+    std::cout << "Test test_Canvas_addSingleShape: PASS" << std::endl;
+}
+
+void test_Canvas_addMultipleShapes() {
+    Canvas canvas;
+    canvas.add(new MockShape(10.0));
+    canvas.add(new MockShape(45.5));
+    canvas.add(new MockShape(20.0));
+    canvas.add(new MockShape(5.5));
+
+    assert(canvas.count() == 4);
+    assert(areAlmostEqual(canvas.totalArea(), 81.0));
+    assert(areAlmostEqual(canvas.largestArea(), 45.5));
+    std::cout << "Test test_Canvas_addMultipleShapes: PASS" << std::endl;
+}
+
+void test_Canvas_clear() {
+    bool destroyed1 = false;
+    bool destroyed2 = false;
+
+    Canvas canvas;
+    canvas.add(new MockShape(10.0, &destroyed1));
+    canvas.add(new MockShape(20.0, &destroyed2));
+
+    assert(canvas.count() == 2);
+    assert(!destroyed1 && !destroyed2);
+
+    canvas.clear();
+
+    assert(canvas.count() == 0);
+    assert(areAlmostEqual(canvas.totalArea(), 0.0));
+    assert(areAlmostEqual(canvas.largestArea(), 0.0));
+    assert(destroyed1 && destroyed2);
+
+    // Calling clear again on an empty canvas should be safe
+    canvas.clear();
+    assert(canvas.count() == 0);
+
+    std::cout << "Test test_Canvas_clear: PASS" << std::endl;
+}
+
+void test_Canvas_destructorCleansMemory() {
+    bool destroyed1 = false;
+    bool destroyed2 = false;
+
+    {
+        Canvas canvas;
+        canvas.add(new MockShape(15.0, &destroyed1));
+        canvas.add(new MockShape(30.0, &destroyed2));
+        assert(!destroyed1 && !destroyed2);
+    } // canvas goes out of scope and destructor is invoked
+
+    assert(destroyed1 && destroyed2);
+    std::cout << "Test test_Canvas_destructorCleansMemory: PASS" << std::endl;
+}
+
+void test_Canvas_addAfterClear() {
+    Canvas canvas;
+    canvas.add(new MockShape(12.0));
+    canvas.clear();
+
+    assert(canvas.count() == 0);
+
+    canvas.add(new MockShape(50.0));
+    assert(canvas.count() == 1);
+    assert(areAlmostEqual(canvas.totalArea(), 50.0));
+    assert(areAlmostEqual(canvas.largestArea(), 50.0));
+    std::cout << "Test test_Canvas_addAfterClear: PASS" << std::endl;
+}
+
+int main() {
+    std::cout << "Running Canvas unit tests..." << std::endl;
+
+    test_Canvas_initialState();
+    test_Canvas_addNullPointer();
+    test_Canvas_addSingleShape();
+    test_Canvas_addMultipleShapes();
+    test_Canvas_clear();
+    test_Canvas_destructorCleansMemory();
+    test_Canvas_addAfterClear();
+
+    std::cout << "All Canvas unit tests passed successfully!" << std::endl;
+    return 0;
+}

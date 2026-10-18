@@ -1,0 +1,15 @@
+--- Preparing user code (renaming main() to user_code_main) ---
+3 source files: Item.cpp, Report.cpp, Warehouse.cpp
+
+--- Test Suite Compilation & Linking ---
+Command: g++ -I /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpcwsyjrdj/build /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpcwsyjrdj/build/Item.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpcwsyjrdj/build/Report.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpcwsyjrdj/build/Warehouse.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpcwsyjrdj/build/test_suite.cpp -o /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpcwsyjrdj/test_executable -std=c++17 -Wall
+STDOUT:
+
+STDERR:
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpcwsyjrdj/build/test_suite.cpp:85:25: warning: implicit conversion from 'double' to 'int' changes value from 12.5 to 12 [-Wliteral-conversion]
+   85 |     Item item1("ItemA", 12.5, 0);
+      |          ~~~~~          ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpcwsyjrdj/build/test_suite.cpp:109:31: warning: implicit conversion from 'double' to 'int' changes value from 42.5 to 42 [-Wliteral-conversion]
+  109 |     Item item("SingleWidget", 42.50, 1);
+      |          ~~~~                 ^~~~~
+2 warnings generated.

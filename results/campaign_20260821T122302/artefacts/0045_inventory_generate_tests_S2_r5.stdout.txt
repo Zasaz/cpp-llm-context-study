@@ -1,0 +1,4 @@
+Starting Report test suite...
+Test test_default_constructor: PASS
+Test test_empty_warehouse: PASS
+Test test_warehouse_all_in_stock: PASS

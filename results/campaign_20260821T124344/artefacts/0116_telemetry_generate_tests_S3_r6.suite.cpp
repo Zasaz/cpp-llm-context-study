@@ -1,0 +1,244 @@
+#include <iostream>
+#include <cassert>
+#include <vector>
+#include <string>
+#include <cmath>
+
+#include "SamplePipeline.h"
+#include "Channel.h"
+#include "Filter.h"
+#include "Sample.h"
+#include "UnitScale.h"
+
+// Helper for floating-point comparisons
+static bool approxEqual(double a, double b, double epsilon = 1e-6) {
+    return std::fabs(a - b) < epsilon;
+}
+
+void test_SamplePipeline_constructors() {
+    // Default constructor
+    SamplePipeline p1;
+    assert(p1.acceptedCount() == 0);
+    assert(p1.rejectedCount() == 0);
+    assert(p1.minimumQuality == 1);
+    assert(p1.filterCount() == 0);
+    assert(p1.channel.channelName() == "unnamed");
+    assert(p1.channel.capacity == 16);
+    assert(!p1.isSaturated());
+    assert(p1.describe() == "empty");
+
+    // Parameterized constructor
+    SamplePipeline p2("voltage", 5);
+    assert(p2.acceptedCount() == 0);
+    assert(p2.rejectedCount() == 0);
+    assert(p2.minimumQuality == 1);
+    assert(p2.filterCount() == 0);
+    assert(p2.channel.channelName() == "voltage");
+    assert(p2.channel.capacity == 5);
+    assert(p2.describe() == "empty");
+
+    std::cout << "Test test_SamplePipeline_constructors: PASS" << std::endl;
+}
+
+void test_SamplePipeline_filterManagement() {
+    SamplePipeline pipeline("sensor", 10);
+    PassFilter pf;
+    ClampFilter cf(0.0, 10.0);
+
+    assert(pipeline.filterCount() == 0);
+
+    // Adding null filter should not increase count
+    int res = pipeline.addFilter(nullptr);
+    assert(res == 0);
+    assert(pipeline.filterCount() == 0);
+
+    // Adding valid filters
+    res = pipeline.addFilter(&pf);
+    assert(res == 1);
+    assert(pipeline.filterCount() == 1);
+
+    res = pipeline.addFilter(&cf);
+    assert(res == 2);
+    assert(pipeline.filterCount() == 2);
+
+    // Clear filters
+    int cleared = pipeline.clearFilters();
+    assert(cleared == 2);
+    assert(pipeline.filterCount() == 0);
+
+    std::cout << "Test test_SamplePipeline_filterManagement: PASS" << std::endl;
+}
+
+void test_SamplePipeline_processingAndStaging() {
+    SamplePipeline pipeline;
+    ClampFilter cf(0.0, 100.0);
+    SmoothFilter sf(0.5);
+
+    pipeline.addFilter(&cf);
+    pipeline.addFilter(&sf);
+
+    // Stage out of range
+    double out1 = pipeline.stage(150.0, -1);
+    assert(approxEqual(out1, 150.0));
+    double out2 = pipeline.stage(150.0, 2);
+    assert(approxEqual(out2, 150.0));
+
+    // Stage valid index
+    double stagedClamp = pipeline.stage(150.0, 0);
+    assert(approxEqual(stagedClamp, 100.0));
+
+    // Process applies in sequence: 150 -> clamped to 100 -> smooth first reading -> 100
+    double processed1 = pipeline.process(150.0);
+    assert(approxEqual(processed1, 100.0));
+
+    // Next reading: 20 -> clamped to 20 -> smoothed: 0.5 * 20 + 0.5 * 100 = 60
+    double processed2 = pipeline.process(20.0);
+    assert(approxEqual(processed2, 60.0));
+
+    std::cout << "Test test_SamplePipeline_processingAndStaging: PASS" << std::endl;
+}
+
+void test_SamplePipeline_wouldReject() {
+    SamplePipeline pipeline;
+    ClampFilter cf(0.0, 10.0);
+    pipeline.addFilter(&cf);
+
+    assert(!pipeline.wouldReject(5.0));
+    assert(pipeline.wouldReject(-0.1));
+    assert(pipeline.wouldReject(10.1));
+
+    // Disabled base filter rejection behavior
+    PassFilter pf;
+    pipeline.clearFilters();
+    pipeline.addFilter(&pf);
+    assert(!pipeline.wouldReject(5.0));
+    pf.toggle(); // enabled = false
+    assert(pipeline.wouldReject(5.0));
+    assert(!pipeline.wouldReject(0.0)); // Filter::rejects returns false for 0.0
+
+    std::cout << "Test test_SamplePipeline_wouldReject: PASS" << std::endl;
+}
+
+void test_SamplePipeline_ingestSingleAndQuality() {
+    SamplePipeline pipeline("temperature", 3);
+    ClampFilter cf(0.0, 50.0);
+    pipeline.addFilter(&cf);
+
+    pipeline.requireQuality(20);
+
+    // Rejected due to quality
+    int res = pipeline.ingest(1, 25.0, 10);
+    assert(res == -1);
+    assert(pipeline.acceptedCount() == 0);
+    assert(pipeline.rejectedCount() == 1);
+
+    // Rejected due to filter rejection
+    res = pipeline.ingest(2, 55.0, 30);
+    assert(res == -1);
+    assert(pipeline.acceptedCount() == 0);
+    assert(pipeline.rejectedCount() == 2);
+
+    // Accepted
+    res = pipeline.ingest(3, 25.0, 50);
+    assert(res == 1);
+    assert(pipeline.acceptedCount() == 1);
+    assert(pipeline.rejectedCount() == 2);
+    assert(pipeline.validSamples() == 1);
+    assert(approxEqual(pipeline.latest().value(), 25.0));
+
+    // Invalid quality passed to ingest causing Sample quality to be 0 (if quality < 1)
+    // requireQuality change
+    pipeline.requireQuality(0);
+    res = pipeline.ingest(4, 25.0, 0); // Sample quality 0 -> sample.isValid() is false
+    assert(res == -1);
+    assert(pipeline.rejectedCount() == 3);
+
+    // Fill capacity
+    assert(pipeline.ingest(5, 30.0, 60) == 2);
+    assert(pipeline.ingest(6, 35.0, 70) == 3);
+    assert(pipeline.isSaturated());
+
+    // Capacity overflow -> channel.append returns -1 -> pipeline rejects
+    res = pipeline.ingest(7, 40.0, 80);
+    assert(res == -1);
+    assert(pipeline.acceptedCount() == 3);
+    assert(pipeline.rejectedCount() == 4);
+
+    std::cout << "Test test_SamplePipeline_ingestSingleAndQuality: PASS" << std::endl;
+}
+
+void test_SamplePipeline_ingestBatch() {
+    SamplePipeline pipeline("batch_channel", 10);
+    ClampFilter cf(0.0, 100.0);
+    pipeline.addFilter(&cf);
+
+    std::vector<double> batch = { 10.0, 150.0, 20.0, -5.0, 30.0 }; // 150 and -5 rejected by ClampFilter
+    int taken = pipeline.ingestBatch(batch, 80);
+
+    assert(taken == 3);
+    assert(pipeline.acceptedCount() == 3);
+    assert(pipeline.rejectedCount() == 2);
+    assert(pipeline.validSamples() == 3);
+
+    std::cout << "Test test_SamplePipeline_ingestBatch: PASS" << std::endl;
+}
+
+void test_SamplePipeline_channelMetrics() {
+    SamplePipeline pipeline("metrics_test", 5);
+    pipeline.ingest(1, 10.0, 80);
+    pipeline.ingest(2, 20.0, 80);
+    pipeline.ingest(3, 30.0, 80);
+
+    assert(approxEqual(pipeline.channelMean(), 20.0));
+    assert(approxEqual(pipeline.channelPeak(), 30.0));
+
+    std::cout << "Test test_SamplePipeline_channelMetrics: PASS" << std::endl;
+}
+
+void test_SamplePipeline_scalingAndNormalization() {
+    SamplePipeline pipeline("scaled", 5);
+    pipeline.scale = UnitScale(2.0, 10.0, "mV"); // toBase: x*2 + 10; fromBase: (x-10)/2
+
+    double norm = pipeline.normalised(30.0); // fromBase(30) = (30 - 10)/2 = 10.0
+    assert(approxEqual(norm, 10.0));
+
+    double denorm = pipeline.denormalised(10.0); // toBase(10) = 10*2 + 10 = 30.0
+    assert(approxEqual(denorm, 30.0));
+
+    std::cout << "Test test_SamplePipeline_scalingAndNormalization: PASS" << std::endl;
+}
+
+void test_SamplePipeline_flushAndDescribe() {
+    SamplePipeline pipeline("sensor_ch", 5);
+    pipeline.scale = UnitScale(1.0, 0.0, "degC");
+
+    // Before ingesting: empty
+    assert(pipeline.describe() == "empty");
+
+    pipeline.ingest(1, 23.5, 90);
+    assert(pipeline.describe() == "sensor_ch:degC");
+
+    int flushed = pipeline.flush();
+    assert(flushed == 1);
+    assert(pipeline.acceptedCount() == 0);
+    assert(pipeline.rejectedCount() == 0);
+    assert(pipeline.validSamples() == 0);
+    assert(pipeline.describe() == "empty");
+
+    std::cout << "Test test_SamplePipeline_flushAndDescribe: PASS" << std::endl;
+}
+
+int main() {
+    test_SamplePipeline_constructors();
+    test_SamplePipeline_filterManagement();
+    test_SamplePipeline_processingAndStaging();
+    test_SamplePipeline_wouldReject();
+    test_SamplePipeline_ingestSingleAndQuality();
+    test_SamplePipeline_ingestBatch();
+    test_SamplePipeline_channelMetrics();
+    test_SamplePipeline_scalingAndNormalization();
+    test_SamplePipeline_flushAndDescribe();
+
+    std::cout << "\nAll SamplePipeline unit tests passed successfully!" << std::endl;
+    return 0;
+}

@@ -1,0 +1,156 @@
+#include <iostream>
+#include <cassert>
+#include <cmath>
+#include "Canvas.h"
+#include "Shape.h"
+
+// Helper function for floating point comparisons
+bool areAlmostEqual(double a, double b, double epsilon = 1e-6) {
+    return std::fabs(a - b) < epsilon;
+}
+
+// Concrete mock implementation of Shape for testing Canvas methods
+class MockShape : public Shape {
+private:
+    double mockArea;
+    bool* destructionFlag;
+
+public:
+    MockShape(double areaVal, bool* flag = nullptr)
+        : mockArea(areaVal), destructionFlag(flag) {
+        if (destructionFlag) {
+            *destructionFlag = false;
+        }
+    }
+
+    virtual ~MockShape() {
+        if (destructionFlag) {
+            *destructionFlag = true;
+        }
+    }
+
+    virtual double area() const {
+        return mockArea;
+    }
+};
+
+// 1. Test initial empty state of Canvas
+void test_canvas_initialState() {
+    Canvas canvas;
+    assert(canvas.count() == 0);
+    assert(canvas.shapes.empty());
+    assert(areAlmostEqual(canvas.totalArea(), 0.0));
+    assert(areAlmostEqual(canvas.largestArea(), 0.0));
+    std::cout << "Test test_canvas_initialState: PASS" << std::endl;
+}
+
+// 2. Test adding valid shapes and null pointers
+void test_canvas_add() {
+    Canvas canvas;
+
+    canvas.add(new MockShape(10.0));
+    assert(canvas.count() == 1);
+
+    canvas.add(new MockShape(25.5));
+    assert(canvas.count() == 2);
+
+    // Adding null pointer should be ignored
+    canvas.add(nullptr);
+    assert(canvas.count() == 2);
+
+    std::cout << "Test test_canvas_add: PASS" << std::endl;
+}
+
+// 3. Test totalArea calculation
+void test_canvas_totalArea() {
+    Canvas canvas;
+
+    assert(areAlmostEqual(canvas.totalArea(), 0.0));
+
+    canvas.add(new MockShape(12.5));
+    canvas.add(new MockShape(7.5));
+    canvas.add(new MockShape(100.0));
+
+    assert(areAlmostEqual(canvas.totalArea(), 120.0));
+
+    std::cout << "Test test_canvas_totalArea: PASS" << std::endl;
+}
+
+// 4. Test largestArea calculation
+void test_canvas_largestArea() {
+    Canvas canvas;
+
+    assert(areAlmostEqual(canvas.largestArea(), 0.0));
+
+    canvas.add(new MockShape(15.0));
+    assert(areAlmostEqual(canvas.largestArea(), 15.0));
+
+    canvas.add(new MockShape(42.0));
+    assert(areAlmostEqual(canvas.largestArea(), 42.0));
+
+    canvas.add(new MockShape(5.0));
+    assert(areAlmostEqual(canvas.largestArea(), 42.0));
+
+    canvas.add(new MockShape(50.5));
+    assert(areAlmostEqual(canvas.largestArea(), 50.5));
+
+    std::cout << "Test test_canvas_largestArea: PASS" << std::endl;
+}
+
+// 5. Test clear() explicitly and check that memory is deallocated
+void test_canvas_clear() {
+    Canvas canvas;
+    bool destroyed1 = false;
+    bool destroyed2 = false;
+
+    canvas.add(new MockShape(10.0, &destroyed1));
+    canvas.add(new MockShape(20.0, &destroyed2));
+    assert(canvas.count() == 2);
+
+    canvas.clear();
+
+    assert(canvas.count() == 0);
+    assert(canvas.shapes.empty());
+    assert(areAlmostEqual(canvas.totalArea(), 0.0));
+    assert(areAlmostEqual(canvas.largestArea(), 0.0));
+    assert(destroyed1 == true);
+    assert(destroyed2 == true);
+
+    // Calling clear again on empty canvas should be safe
+    canvas.clear();
+    assert(canvas.count() == 0);
+
+    std::cout << "Test test_canvas_clear: PASS" << std::endl;
+}
+
+// 6. Test destructor cleanup
+void test_canvas_destructor() {
+    bool destroyed1 = false;
+    bool destroyed2 = false;
+
+    {
+        Canvas canvas;
+        canvas.add(new MockShape(10.0, &destroyed1));
+        canvas.add(new MockShape(20.0, &destroyed2));
+        // canvas goes out of scope here and destructor should be invoked
+    }
+
+    assert(destroyed1 == true);
+    assert(destroyed2 == true);
+
+    std::cout << "Test test_canvas_destructor: PASS" << std::endl;
+}
+
+int main() {
+    std::cout << "=== Starting Canvas Test Suite ===" << std::endl;
+
+    test_canvas_initialState();
+    test_canvas_add();
+    test_canvas_totalArea();
+    test_canvas_largestArea();
+    test_canvas_clear();
+    test_canvas_destructor();
+
+    std::cout << "=== All Canvas Tests Passed Successfully ===" << std::endl;
+    return 0;
+}

@@ -1,0 +1,4 @@
+Test test_constructors_and_initial_state: PASS
+Test test_filter_management: PASS
+Test test_process_and_stage: PASS
+Test test_wouldReject: PASS

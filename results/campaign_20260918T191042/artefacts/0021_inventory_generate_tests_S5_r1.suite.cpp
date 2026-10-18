@@ -1,0 +1,173 @@
+#include <iostream>
+#include <cassert>
+#include <cmath>
+#include "Report.h"
+#include "Warehouse.h"
+#include "Item.h"
+
+// Helper for floating point comparisons
+bool isApproximatelyEqual(double a, double b, double epsilon = 1e-6) {
+    return std::fabs(a - b) < epsilon;
+}
+
+// Test default constructor
+void test_Report_defaultConstructor() {
+    Report report;
+    
+    // Default warehouse is unnamed and empty
+    assert(report.isEmpty());
+    assert(report.summaryLine() == "empty");
+    assert(isApproximatelyEqual(report.averageItemValue(), 0.0));
+    assert(report.outOfStockCount() == 0);
+    assert(report.source.label == "unnamed");
+
+    std::cout << "Test test_Report_defaultConstructor: PASS" << std::endl;
+}
+
+// Test parameterized constructor
+void test_Report_parameterizedConstructor() {
+    Warehouse wh("North Facility");
+    wh.addItem(Item("Widget", 10, 2.50));
+    
+    Report report(wh);
+    assert(!report.isEmpty());
+    assert(report.summaryLine() == "North Facility");
+    assert(report.source.itemCount() == 1);
+
+    std::cout << "Test test_Report_parameterizedConstructor: PASS" << std::endl;
+}
+
+// Test isEmpty on empty and non-empty warehouse reports
+void test_Report_isEmpty() {
+    // Empty warehouse with custom label
+    Warehouse emptyWh("Empty Depot");
+    Report reportEmpty(emptyWh);
+    assert(reportEmpty.isEmpty());
+
+    // Non-empty warehouse
+    Warehouse wh("Active Depot");
+    wh.addItem(Item("Bolt", 100, 0.05));
+    Report reportActive(wh);
+    assert(!reportActive.isEmpty());
+
+    std::cout << "Test test_Report_isEmpty: PASS" << std::endl;
+}
+
+// Test summaryLine logic for empty vs non-empty warehouse
+void test_Report_summaryLine() {
+    // Empty warehouse report
+    Warehouse emptyWh("Depot 1");
+    Report reportEmpty(emptyWh);
+    assert(reportEmpty.summaryLine() == "empty");
+
+    // Non-empty warehouse report
+    Warehouse wh("Main Distribution Center");
+    wh.addItem(Item("Screw", 50, 0.10));
+    Report report(wh);
+    assert(report.summaryLine() == "Main Distribution Center");
+
+    std::cout << "Test test_Report_summaryLine: PASS" << std::endl;
+}
+
+// Test averageItemValue with 0 items, 1 item, and multiple items
+void test_Report_averageItemValue() {
+    // Case 1: 0 items
+    Warehouse emptyWh("Empty WH");
+    Report reportEmpty(emptyWh);
+    assert(isApproximatelyEqual(reportEmpty.averageItemValue(), 0.0));
+
+    // Case 2: 1 item
+    Warehouse whSingle("Single Item WH");
+    whSingle.addItem(Item("Laptop", 5, 800.0)); // total: 4000.0
+    Report reportSingle(whSingle);
+    assert(isApproximatelyEqual(reportSingle.averageItemValue(), 4000.0));
+
+    // Case 3: Multiple items
+    Warehouse whMulti("Multi Item WH");
+    whMulti.addItem(Item("Laptop", 5, 800.0));   // total: 4000.0
+    whMulti.addItem(Item("Mouse", 20, 25.0));    // total: 500.0
+    whMulti.addItem(Item("Keyboard", 10, 50.0)); // total: 500.0
+    // Total Inventory Value = 5000.0 across 3 item kinds
+    // Average = 5000.0 / 3 = 1666.666667
+    Report reportMulti(whMulti);
+    assert(isApproximatelyEqual(reportMulti.averageItemValue(), 5000.0 / 3.0));
+
+    // Case 4: Multiple items with zero quantity / zero value items
+    Warehouse whZeroVal("Zero Val WH");
+    whZeroVal.addItem(Item("Free Sample", 10, 0.0)); // total: 0.0
+    whZeroVal.addItem(Item("Out of Stock", 0, 50.0)); // total: 0.0
+    Report reportZero(whZeroVal);
+    assert(isApproximatelyEqual(reportZero.averageItemValue(), 0.0));
+
+    std::cout << "Test test_Report_averageItemValue: PASS" << std::endl;
+}
+
+// Test outOfStockCount under various conditions
+void test_Report_outOfStockCount() {
+    // Case 1: Empty report
+    Report reportEmpty;
+    assert(reportEmpty.outOfStockCount() == 0);
+
+    // Case 2: All items in stock
+    Warehouse whAllInStock("In Stock WH");
+    whAllInStock.addItem(Item("Item A", 5, 10.0));
+    whAllInStock.addItem(Item("Item B", 1, 20.0));
+    Report reportAllIn(whAllInStock);
+    assert(reportAllIn.outOfStockCount() == 0);
+
+    // Case 3: Some items out of stock (quantity <= 0)
+    Warehouse whMixed("Mixed WH");
+    whMixed.addItem(Item("Item A", 5, 10.0));
+    whMixed.addItem(Item("Item B", 0, 20.0));
+    whMixed.addItem(Item("Item C", -1, 15.0)); // Negative quantity is also not in stock
+    whMixed.addItem(Item("Item D", 10, 5.0));
+    Report reportMixed(whMixed);
+    assert(reportMixed.outOfStockCount() == 2);
+
+    // Case 4: All items out of stock
+    Warehouse whAllOut("Out WH");
+    whAllOut.addItem(Item("Item 1", 0, 10.0));
+    whAllOut.addItem(Item("Item 2", 0, 15.0));
+    Report reportAllOut(whAllOut);
+    assert(reportAllOut.outOfStockCount() == 2);
+
+    std::cout << "Test test_Report_outOfStockCount: PASS" << std::endl;
+}
+
+// Test Report reflection after changes to underlying Warehouse copy
+void test_Report_warehouseModifications() {
+    Warehouse wh("Flex WH");
+    wh.addItem(Item("Cable", 10, 5.0)); // total: 50.0
+
+    Report report(wh);
+    assert(isApproximatelyEqual(report.averageItemValue(), 50.0));
+    assert(report.outOfStockCount() == 0);
+
+    // Consume stock via warehouse member
+    report.source.withdraw("Cable", 10);
+    assert(report.outOfStockCount() == 1);
+    assert(isApproximatelyEqual(report.averageItemValue(), 0.0));
+
+    // Add a new item
+    report.source.addItem(Item("Adapter", 2, 25.0)); // total: 50.0
+    // Total items: 2 (Cable: 0, Adapter: 50.0), Avg = 25.0
+    assert(isApproximatelyEqual(report.averageItemValue(), 25.0));
+    assert(report.outOfStockCount() == 1);
+
+    std::cout << "Test test_Report_warehouseModifications: PASS" << std::endl;
+}
+
+int main() {
+    std::cout << "--- Starting Report Test Suite ---" << std::endl;
+
+    test_Report_defaultConstructor();
+    test_Report_parameterizedConstructor();
+    test_Report_isEmpty();
+    test_Report_summaryLine();
+    test_Report_averageItemValue();
+    test_Report_outOfStockCount();
+    test_Report_warehouseModifications();
+
+    std::cout << "--- All Report Tests Passed Successfully ---" << std::endl;
+    return 0;
+}

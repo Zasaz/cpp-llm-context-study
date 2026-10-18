@@ -1,0 +1,168 @@
+#include <iostream>
+#include <cassert>
+#include <vector>
+#include "TaskQueue.h"
+#include "Task.h"
+#include "Policy.h"
+
+// Concrete mock policy for testing TaskQueue's policy integration
+class MockPolicy : public Policy {
+public:
+    bool allowAll;
+    int rankMultiplier;
+
+    MockPolicy(bool allow = true, int multiplier = 1) 
+        : allowAll(allow), rankMultiplier(multiplier) {}
+
+    virtual bool accepts(const Task& task) const {
+        return allowAll;
+    }
+
+    virtual int rank(const Task& task) const {
+        return task.weight() * rankMultiplier;
+    }
+};
+
+// Test default and parameterized constructors, and initial state
+void test_constructors_and_initial_state() {
+    // Default constructor
+    TaskQueue q1;
+    assert(q1.size() == 0);
+    assert(q1.isEmpty());
+    assert(!q1.isFull());
+    assert(q1.capacity == 8);
+    assert(q1.rejectedCount() == 0);
+    assert(q1.policy == 0);
+
+    // Custom positive capacity
+    TaskQueue q2(5);
+    assert(q2.capacity == 5);
+    assert(q2.isEmpty());
+    assert(!q2.isFull());
+
+    // Custom zero or negative capacity clamped to 1
+    TaskQueue q3(0);
+    assert(q3.capacity == 1);
+
+    TaskQueue q4(-10);
+    assert(q4.capacity == 1);
+
+    std::cout << "Test test_constructors_and_initial_state: PASS" << std::endl;
+}
+
+// Test enqueue operations, capacity enforcement, and rejection counts
+void test_enqueue_and_capacity_rejection() {
+    TaskQueue q(2);
+    Task t1, t2, t3;
+
+    assert(q.enqueue(t1) == 1);
+    assert(q.size() == 1);
+    assert(!q.isEmpty());
+    assert(!q.isFull());
+    assert(q.rejectedCount() == 0);
+
+    assert(q.enqueue(t2) == 2);
+    assert(q.size() == 2);
+    assert(q.isFull());
+    assert(q.rejectedCount() == 0);
+
+    // Enqueue to a full queue should fail and increment rejected
+    assert(q.enqueue(t3) == -1);
+    assert(q.size() == 2);
+    assert(q.rejectedCount() == 1);
+
+    assert(q.enqueue(t3) == -1);
+    assert(q.rejectedCount() == 2);
+
+    std::cout << "Test test_enqueue_and_capacity_rejection: PASS" << std::endl;
+}
+
+// Test policy assignment, acceptance filtering, and ranking
+void test_policy_interaction() {
+    TaskQueue q(5);
+    MockPolicy rejectPolicy(false, 1);
+    MockPolicy acceptPolicy(true, 2);
+
+    Task t1;
+    
+    // Set policy that rejects everything
+    q.usePolicy(&rejectPolicy);
+    assert(q.policy == &rejectPolicy);
+
+    assert(q.enqueue(t1) == -1);
+    assert(q.rejectedCount() == 1);
+    assert(q.size() == 0);
+
+    // Switch policy to one that accepts
+    q.usePolicy(&acceptPolicy);
+    assert(q.enqueue(t1) == 1);
+    assert(q.rejectedCount() == 1);
+    assert(q.size() == 1);
+
+    std::cout << "Test test_policy_interaction: PASS" << std::endl;
+}
+
+// Test bestIndex, best, and dequeue operations with and without policy
+void test_best_and_dequeue() {
+    TaskQueue q(5);
+
+    // Empty queue edge cases
+    assert(q.bestIndex() == -1);
+    Task emptyBest = q.best();
+    Task emptyDequeued = q.dequeue();
+    (void)emptyBest;
+    (void)emptyDequeued;
+
+    // Enqueue tasks
+    Task t1, t2, t3;
+    q.enqueue(t1);
+    q.enqueue(t2);
+    q.enqueue(t3);
+
+    // Default ranking uses tasks' weights
+    int chosenIdx = q.bestIndex();
+    assert(chosenIdx >= 0 && chosenIdx < q.size());
+
+    Task chosen = q.best();
+    int sizeBefore = q.size();
+    Task dequeued = q.dequeue();
+    assert(q.size() == sizeBefore - 1);
+
+    std::cout << "Test test_best_and_dequeue: PASS" << std::endl;
+}
+
+// Test metrics: totalRemaining, pendingCount, advanceAll, and purgeComplete
+void test_advance_and_purge() {
+    TaskQueue q(5);
+
+    Task t1, t2;
+    q.enqueue(t1);
+    q.enqueue(t2);
+
+    int initialRemaining = q.totalRemaining();
+    int initialPending = q.pendingCount();
+    assert(initialRemaining >= 0);
+    assert(initialPending >= 0);
+
+    // Advance all tasks
+    int completed = q.advanceAll(1000);
+    assert(completed >= 0);
+
+    // Purge completed tasks
+    int purged = q.purgeComplete();
+    assert(purged == completed);
+    assert(q.size() == 2 - purged);
+
+    std::cout << "Test test_advance_and_purge: PASS" << std::endl;
+}
+
+int main() {
+    test_constructors_and_initial_state();
+    test_enqueue_and_capacity_rejection();
+    test_policy_interaction();
+    test_best_and_dequeue();
+    test_advance_and_purge();
+
+    std::cout << "All TaskQueue tests passed successfully!" << std::endl;
+    return 0;
+}

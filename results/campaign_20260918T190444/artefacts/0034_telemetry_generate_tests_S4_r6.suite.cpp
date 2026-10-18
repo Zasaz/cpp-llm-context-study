@@ -1,0 +1,241 @@
+#include <iostream>
+#include <cassert>
+#include <vector>
+#include <string>
+#include <cmath>
+
+#include "SamplePipeline.h"
+#include "Channel.h"
+#include "Filter.h"
+#include "Sample.h"
+#include "UnitScale.h"
+
+// Helper function for floating point comparisons
+bool isClose(double a, double b, double epsilon = 1e-6) {
+    return std::fabs(a - b) < epsilon;
+}
+
+// Concrete dummy filter for testing pipeline filter operations
+class OffsetFilter : public Filter {
+public:
+    double offset;
+    double rejectThreshold;
+
+    OffsetFilter(double off = 0.0, double threshold = 1e9)
+        : offset(off), rejectThreshold(threshold) {}
+
+    double apply(double reading) const {
+        return reading + offset;
+    }
+
+    bool rejects(double reading) const {
+        return reading > rejectThreshold;
+    }
+};
+
+void test_constructors_and_initial_state() {
+    // Default constructor
+    SamplePipeline p1;
+    assert(p1.acceptedCount() == 0);
+    assert(p1.rejectedCount() == 0);
+    assert(p1.filterCount() == 0);
+    assert(p1.minimumQuality == 1);
+    assert(p1.describe() == "empty");
+
+    // Parameterized constructor
+    SamplePipeline p2("Voltage", 5);
+    assert(p2.acceptedCount() == 0);
+    assert(p2.rejectedCount() == 0);
+    assert(p2.filterCount() == 0);
+    assert(p2.minimumQuality == 1);
+    assert(p2.channel.channelName() == "Voltage");
+    assert(p2.describe() == "empty");
+
+    std::cout << "Test test_constructors_and_initial_state: PASS" << std::endl;
+}
+
+void test_filter_management() {
+    SamplePipeline p("Sensor", 10);
+    OffsetFilter f1(2.0);
+    OffsetFilter f2(3.0);
+
+    assert(p.filterCount() == 0);
+
+    // Adding null filter should be ignored
+    assert(p.addFilter(nullptr) == 0);
+    assert(p.filterCount() == 0);
+
+    // Adding valid filters
+    assert(p.addFilter(&f1) == 1);
+    assert(p.addFilter(&f2) == 2);
+    assert(p.filterCount() == 2);
+
+    // Clear filters
+    int previousCount = p.clearFilters();
+    assert(previousCount == 2);
+    assert(p.filterCount() == 0);
+
+    std::cout << "Test test_filter_management: PASS" << std::endl;
+}
+
+void test_process_and_stage() {
+    SamplePipeline p("Sensor", 10);
+    OffsetFilter f1(2.0);
+    OffsetFilter f2(3.0);
+
+    p.addFilter(&f1);
+    p.addFilter(&f2);
+
+    // Process applies f1 (+2) then f2 (+3) => total +5
+    double result = p.process(10.0);
+    assert(isClose(result, 15.0));
+
+    // Stage applies only single filter at index
+    assert(isClose(p.stage(10.0, 0), 12.0)); // f1 (+2)
+    assert(isClose(p.stage(10.0, 1), 13.0)); // f2 (+3)
+
+    // Stage with out of bounds index returns original reading
+    assert(isClose(p.stage(10.0, -1), 10.0));
+    assert(isClose(p.stage(10.0, 2), 10.0));
+
+    std::cout << "Test test_process_and_stage: PASS" << std::endl;
+}
+
+void test_rejection_and_quality_requirement() {
+    SamplePipeline p("Sensor", 10);
+    OffsetFilter f1(0.0, 50.0); // rejects values > 50
+    p.addFilter(&f1);
+
+    // wouldReject test
+    assert(!p.wouldReject(30.0));
+    assert(p.wouldReject(60.0));
+
+    // Quality check configuration
+    int prevMin = p.requireQuality(3);
+    assert(prevMin == 1);
+    assert(p.minimumQuality == 3);
+
+    // Negative minimum quality should not change the value
+    p.requireQuality(-5);
+    assert(p.minimumQuality == 3);
+
+    // Ingest with quality lower than required should be rejected
+    int res = p.ingest(1, 20.0, 2);
+    assert(res == -1);
+    assert(p.acceptedCount() == 0);
+    assert(p.rejectedCount() == 1);
+
+    // Ingest with reading that filter rejects should be rejected
+    res = p.ingest(2, 60.0, 5);
+    assert(res == -1);
+    assert(p.acceptedCount() == 0);
+    assert(p.rejectedCount() == 2);
+
+    // Valid ingest
+    res = p.ingest(3, 20.0, 5);
+    assert(res == 1);
+    assert(p.acceptedCount() == 1);
+    assert(p.rejectedCount() == 2);
+
+    std::cout << "Test test_rejection_and_quality_requirement: PASS" << std::endl;
+}
+
+void test_ingest_and_channel_metrics() {
+    SamplePipeline p("Temperature", 5);
+    OffsetFilter f(5.0); // adds 5 to reading
+    p.addFilter(&f);
+
+    // Ingest sample: reading 10.0 becomes 15.0
+    int res = p.ingest(1, 10.0, 1);
+    assert(res == 1);
+    assert(p.acceptedCount() == 1);
+    assert(p.validSamples() == 1);
+
+    // Latest sample inspection
+    Sample latestSample = p.latest();
+    assert(latestSample.sequence == 1);
+    assert(isClose(latestSample.value, 15.0));
+
+    // Ingest another: reading 20.0 becomes 25.0
+    p.ingest(2, 20.0, 1);
+    assert(p.acceptedCount() == 2);
+    assert(isClose(p.channelMean(), 20.0)); // (15 + 25) / 2
+    assert(isClose(p.channelPeak(), 25.0));
+
+    std::cout << "Test test_ingest_and_channel_metrics: PASS" << std::endl;
+}
+
+void test_ingest_batch() {
+    SamplePipeline p("BatchChannel", 10);
+    OffsetFilter f(1.0, 100.0); // Rejects > 100.0
+    p.addFilter(&f);
+
+    std::vector<double> readings = { 10.0, 20.0, 150.0, 30.0 }; // 150 will be rejected
+    int taken = p.ingestBatch(readings, 1);
+
+    assert(taken == 3);
+    assert(p.acceptedCount() == 3);
+    assert(p.rejectedCount() == 1);
+
+    std::cout << "Test test_ingest_batch: PASS" << std::endl;
+}
+
+void test_saturation_and_flush() {
+    SamplePipeline p("SmallBuffer", 2);
+
+    assert(!p.isSaturated());
+    p.ingest(1, 10.0, 1);
+    assert(!p.isSaturated());
+    p.ingest(2, 20.0, 1);
+    assert(p.isSaturated());
+
+    // Ingesting into a full channel should fail and increment rejected
+    int res = p.ingest(3, 30.0, 1);
+    assert(res == -1);
+    assert(p.rejectedCount() == 1);
+
+    // Flush
+    int flushedCount = p.flush();
+    assert(flushedCount == 2);
+    assert(p.acceptedCount() == 0);
+    assert(p.rejectedCount() == 0);
+    assert(!p.isSaturated());
+    assert(p.validSamples() == 0);
+
+    std::cout << "Test test_saturation_and_flush: PASS" << std::endl;
+}
+
+void test_scale_and_describe() {
+    SamplePipeline p("Pressure", 5);
+
+    // Scaling tests via UnitScale interface
+    // Defaults typically represent identity or base conversions
+    double norm = p.normalised(100.0);
+    double denorm = p.denormalised(norm);
+    assert(isClose(denorm, 100.0));
+
+    // Describe when empty
+    assert(p.describe() == "empty");
+
+    // Ingest sample to make it non-empty
+    p.ingest(1, 50.0, 1);
+    std::string desc = p.describe();
+    assert(desc.find("Pressure") != std::string::npos);
+    assert(desc != "empty");
+
+    std::cout << "Test test_scale_and_describe: PASS" << std::endl;
+}
+
+int main() {
+    test_constructors_and_initial_state();
+    test_filter_management();
+    test_process_and_stage();
+    test_rejection_and_quality_requirement();
+    test_ingest_and_channel_metrics();
+    test_ingest_batch();
+    test_saturation_and_flush();
+    test_scale_and_describe();
+
+    std::cout << "\nAll SamplePipeline tests passed successfully!" << std::endl;
+    return 0;
+}

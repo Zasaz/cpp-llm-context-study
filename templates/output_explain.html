@@ -1,0 +1,15 @@
+<div class="explanation-view">
+    {% if result.error %}
+    <div class="error-message">
+        <strong>Error:</strong>
+        <pre
+            style="background: transparent !important; border: none !important; padding: 0; margin-top: 0.5rem;">{{ result.error }}</pre>
+    </div>
+    {% elif result.explanation_html %}
+    <div class="markdown-content">
+        {{ result.explanation_html | safe }}
+    </div>
+    {% else %}
+    <p style="color: var(--text-secondary);">No explanation was generated for this file.</p>
+    {% endif %}
+</div>

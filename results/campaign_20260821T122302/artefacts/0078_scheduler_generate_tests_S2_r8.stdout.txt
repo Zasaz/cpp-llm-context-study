@@ -1,0 +1,10 @@
+Starting TaskQueue test suite...
+Test test_defaultConstructor: PASS
+Test test_parameterizedConstructor: PASS
+Test test_enqueue_capacityLimit: PASS
+Test test_enqueue_policyAccepts: PASS
+Test test_emptyQueueOperations: PASS
+Test test_dequeue_defaultWeighting: PASS
+Test test_policyRanking: PASS
+Test test_advanceAndPurge: PASS
+All TaskQueue tests PASSED successfully.

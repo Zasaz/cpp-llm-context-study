@@ -1,0 +1,8 @@
+--- Preparing user code (renaming main() to user_code_main) ---
+10 source files: AlertRule.cpp, Channel.cpp, Dashboard.cpp, Filter.cpp, QueryEngine.cpp, RingBuffer.cpp, Sample.cpp, SamplePipeline.cpp, SeriesStore.cpp, UnitScale.cpp
+
+--- Test Suite Compilation & Linking ---
+Command: g++ -I /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpiivs0wfm/build /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpiivs0wfm/build/AlertRule.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpiivs0wfm/build/Channel.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpiivs0wfm/build/Dashboard.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpiivs0wfm/build/Filter.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpiivs0wfm/build/QueryEngine.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpiivs0wfm/build/RingBuffer.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpiivs0wfm/build/Sample.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpiivs0wfm/build/SamplePipeline.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpiivs0wfm/build/SeriesStore.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpiivs0wfm/build/UnitScale.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpiivs0wfm/build/test_suite.cpp -o /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpiivs0wfm/test_executable -std=c++17 -Wall
+STDOUT:
+
+STDERR:

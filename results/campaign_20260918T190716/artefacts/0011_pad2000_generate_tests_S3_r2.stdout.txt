@@ -1,0 +1,8 @@
+=== Running Canvas Unit Tests ===
+Test test_Canvas_constructor_initialState: PASS
+Test test_Canvas_add_and_count: PASS
+Test test_Canvas_totalArea_multipleShapes: PASS
+Test test_Canvas_largestArea_variousOrders: PASS
+Test test_Canvas_clear: PASS
+Test test_Canvas_destructor_scope: PASS
+=== All Canvas tests passed successfully! ===

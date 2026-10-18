@@ -1,0 +1,842 @@
+[
+  {
+    "project": "geometry",
+    "strategy": "S1",
+    "mutant": "m04",
+    "kind": "boundary",
+    "file": "Canvas.cpp",
+    "line": 21,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "geometry",
+    "strategy": "S1",
+    "mutant": "m06",
+    "kind": "arithmetic",
+    "file": "Canvas.cpp",
+    "line": 23,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "geometry",
+    "strategy": "S1",
+    "mutant": "m07",
+    "kind": "boundary",
+    "file": "Canvas.cpp",
+    "line": 29,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "geometry",
+    "strategy": "S1",
+    "mutant": "m09",
+    "kind": "relational",
+    "file": "Canvas.cpp",
+    "line": 32,
+    "suites_run": 10,
+    "suites_killed": 0
+  },
+  {
+    "project": "geometry",
+    "strategy": "S2",
+    "mutant": "m04",
+    "kind": "boundary",
+    "file": "Canvas.cpp",
+    "line": 21,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "geometry",
+    "strategy": "S2",
+    "mutant": "m06",
+    "kind": "arithmetic",
+    "file": "Canvas.cpp",
+    "line": 23,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "geometry",
+    "strategy": "S2",
+    "mutant": "m07",
+    "kind": "boundary",
+    "file": "Canvas.cpp",
+    "line": 29,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "geometry",
+    "strategy": "S2",
+    "mutant": "m09",
+    "kind": "relational",
+    "file": "Canvas.cpp",
+    "line": 32,
+    "suites_run": 10,
+    "suites_killed": 0
+  },
+  {
+    "project": "geometry",
+    "strategy": "S3",
+    "mutant": "m04",
+    "kind": "boundary",
+    "file": "Canvas.cpp",
+    "line": 21,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "geometry",
+    "strategy": "S3",
+    "mutant": "m06",
+    "kind": "arithmetic",
+    "file": "Canvas.cpp",
+    "line": 23,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "geometry",
+    "strategy": "S3",
+    "mutant": "m07",
+    "kind": "boundary",
+    "file": "Canvas.cpp",
+    "line": 29,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "geometry",
+    "strategy": "S3",
+    "mutant": "m09",
+    "kind": "relational",
+    "file": "Canvas.cpp",
+    "line": 32,
+    "suites_run": 10,
+    "suites_killed": 0
+  },
+  {
+    "project": "inventory",
+    "strategy": "S1",
+    "mutant": "m01",
+    "kind": "relational",
+    "file": "Report.cpp",
+    "line": 12,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "inventory",
+    "strategy": "S1",
+    "mutant": "m02",
+    "kind": "boundary",
+    "file": "Report.cpp",
+    "line": 12,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "inventory",
+    "strategy": "S1",
+    "mutant": "m03",
+    "kind": "boundary",
+    "file": "Report.cpp",
+    "line": 13,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "inventory",
+    "strategy": "S1",
+    "mutant": "m05",
+    "kind": "boundary",
+    "file": "Report.cpp",
+    "line": 19,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "inventory",
+    "strategy": "S1",
+    "mutant": "m06",
+    "kind": "arithmetic",
+    "file": "Report.cpp",
+    "line": 22,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "inventory",
+    "strategy": "S1",
+    "mutant": "m07",
+    "kind": "boundary",
+    "file": "Report.cpp",
+    "line": 22,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "inventory",
+    "strategy": "S1",
+    "mutant": "m08",
+    "kind": "relational",
+    "file": "Report.cpp",
+    "line": 29,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "inventory",
+    "strategy": "S1",
+    "mutant": "m09",
+    "kind": "boundary",
+    "file": "Report.cpp",
+    "line": 29,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "inventory",
+    "strategy": "S2",
+    "mutant": "m01",
+    "kind": "relational",
+    "file": "Report.cpp",
+    "line": 12,
+    "suites_run": 0,
+    "suites_killed": 0
+  },
+  {
+    "project": "inventory",
+    "strategy": "S2",
+    "mutant": "m02",
+    "kind": "boundary",
+    "file": "Report.cpp",
+    "line": 12,
+    "suites_run": 0,
+    "suites_killed": 0
+  },
+  {
+    "project": "inventory",
+    "strategy": "S2",
+    "mutant": "m03",
+    "kind": "boundary",
+    "file": "Report.cpp",
+    "line": 13,
+    "suites_run": 0,
+    "suites_killed": 0
+  },
+  {
+    "project": "inventory",
+    "strategy": "S2",
+    "mutant": "m05",
+    "kind": "boundary",
+    "file": "Report.cpp",
+    "line": 19,
+    "suites_run": 0,
+    "suites_killed": 0
+  },
+  {
+    "project": "inventory",
+    "strategy": "S2",
+    "mutant": "m06",
+    "kind": "arithmetic",
+    "file": "Report.cpp",
+    "line": 22,
+    "suites_run": 0,
+    "suites_killed": 0
+  },
+  {
+    "project": "inventory",
+    "strategy": "S2",
+    "mutant": "m07",
+    "kind": "boundary",
+    "file": "Report.cpp",
+    "line": 22,
+    "suites_run": 0,
+    "suites_killed": 0
+  },
+  {
+    "project": "inventory",
+    "strategy": "S2",
+    "mutant": "m08",
+    "kind": "relational",
+    "file": "Report.cpp",
+    "line": 29,
+    "suites_run": 0,
+    "suites_killed": 0
+  },
+  {
+    "project": "inventory",
+    "strategy": "S2",
+    "mutant": "m09",
+    "kind": "boundary",
+    "file": "Report.cpp",
+    "line": 29,
+    "suites_run": 0,
+    "suites_killed": 0
+  },
+  {
+    "project": "inventory",
+    "strategy": "S3",
+    "mutant": "m01",
+    "kind": "relational",
+    "file": "Report.cpp",
+    "line": 12,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "inventory",
+    "strategy": "S3",
+    "mutant": "m02",
+    "kind": "boundary",
+    "file": "Report.cpp",
+    "line": 12,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "inventory",
+    "strategy": "S3",
+    "mutant": "m03",
+    "kind": "boundary",
+    "file": "Report.cpp",
+    "line": 13,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "inventory",
+    "strategy": "S3",
+    "mutant": "m05",
+    "kind": "boundary",
+    "file": "Report.cpp",
+    "line": 19,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "inventory",
+    "strategy": "S3",
+    "mutant": "m06",
+    "kind": "arithmetic",
+    "file": "Report.cpp",
+    "line": 22,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "inventory",
+    "strategy": "S3",
+    "mutant": "m07",
+    "kind": "boundary",
+    "file": "Report.cpp",
+    "line": 22,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "inventory",
+    "strategy": "S3",
+    "mutant": "m08",
+    "kind": "relational",
+    "file": "Report.cpp",
+    "line": 29,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "inventory",
+    "strategy": "S3",
+    "mutant": "m09",
+    "kind": "boundary",
+    "file": "Report.cpp",
+    "line": 29,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "scheduler",
+    "strategy": "S1",
+    "mutant": "m02",
+    "kind": "boundary",
+    "file": "TaskQueue.cpp",
+    "line": 6,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "scheduler",
+    "strategy": "S1",
+    "mutant": "m03",
+    "kind": "relational",
+    "file": "TaskQueue.cpp",
+    "line": 11,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "scheduler",
+    "strategy": "S1",
+    "mutant": "m04",
+    "kind": "boundary",
+    "file": "TaskQueue.cpp",
+    "line": 11,
+    "suites_run": 10,
+    "suites_killed": 0
+  },
+  {
+    "project": "scheduler",
+    "strategy": "S1",
+    "mutant": "m06",
+    "kind": "relational",
+    "file": "TaskQueue.cpp",
+    "line": 24,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "scheduler",
+    "strategy": "S1",
+    "mutant": "m07",
+    "kind": "boundary",
+    "file": "TaskQueue.cpp",
+    "line": 29,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "scheduler",
+    "strategy": "S1",
+    "mutant": "m08",
+    "kind": "arithmetic",
+    "file": "TaskQueue.cpp",
+    "line": 30,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "scheduler",
+    "strategy": "S1",
+    "mutant": "m11",
+    "kind": "boundary",
+    "file": "TaskQueue.cpp",
+    "line": 33,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "scheduler",
+    "strategy": "S1",
+    "mutant": "m12",
+    "kind": "arithmetic",
+    "file": "TaskQueue.cpp",
+    "line": 34,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "scheduler",
+    "strategy": "S2",
+    "mutant": "m02",
+    "kind": "boundary",
+    "file": "TaskQueue.cpp",
+    "line": 6,
+    "suites_run": 6,
+    "suites_killed": 6
+  },
+  {
+    "project": "scheduler",
+    "strategy": "S2",
+    "mutant": "m03",
+    "kind": "relational",
+    "file": "TaskQueue.cpp",
+    "line": 11,
+    "suites_run": 6,
+    "suites_killed": 6
+  },
+  {
+    "project": "scheduler",
+    "strategy": "S2",
+    "mutant": "m04",
+    "kind": "boundary",
+    "file": "TaskQueue.cpp",
+    "line": 11,
+    "suites_run": 6,
+    "suites_killed": 0
+  },
+  {
+    "project": "scheduler",
+    "strategy": "S2",
+    "mutant": "m06",
+    "kind": "relational",
+    "file": "TaskQueue.cpp",
+    "line": 24,
+    "suites_run": 6,
+    "suites_killed": 6
+  },
+  {
+    "project": "scheduler",
+    "strategy": "S2",
+    "mutant": "m07",
+    "kind": "boundary",
+    "file": "TaskQueue.cpp",
+    "line": 29,
+    "suites_run": 6,
+    "suites_killed": 6
+  },
+  {
+    "project": "scheduler",
+    "strategy": "S2",
+    "mutant": "m08",
+    "kind": "arithmetic",
+    "file": "TaskQueue.cpp",
+    "line": 30,
+    "suites_run": 6,
+    "suites_killed": 6
+  },
+  {
+    "project": "scheduler",
+    "strategy": "S2",
+    "mutant": "m11",
+    "kind": "boundary",
+    "file": "TaskQueue.cpp",
+    "line": 33,
+    "suites_run": 6,
+    "suites_killed": 4
+  },
+  {
+    "project": "scheduler",
+    "strategy": "S2",
+    "mutant": "m12",
+    "kind": "arithmetic",
+    "file": "TaskQueue.cpp",
+    "line": 34,
+    "suites_run": 6,
+    "suites_killed": 4
+  },
+  {
+    "project": "scheduler",
+    "strategy": "S3",
+    "mutant": "m02",
+    "kind": "boundary",
+    "file": "TaskQueue.cpp",
+    "line": 6,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "scheduler",
+    "strategy": "S3",
+    "mutant": "m03",
+    "kind": "relational",
+    "file": "TaskQueue.cpp",
+    "line": 11,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "scheduler",
+    "strategy": "S3",
+    "mutant": "m04",
+    "kind": "boundary",
+    "file": "TaskQueue.cpp",
+    "line": 11,
+    "suites_run": 10,
+    "suites_killed": 0
+  },
+  {
+    "project": "scheduler",
+    "strategy": "S3",
+    "mutant": "m06",
+    "kind": "relational",
+    "file": "TaskQueue.cpp",
+    "line": 24,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "scheduler",
+    "strategy": "S3",
+    "mutant": "m07",
+    "kind": "boundary",
+    "file": "TaskQueue.cpp",
+    "line": 29,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "scheduler",
+    "strategy": "S3",
+    "mutant": "m08",
+    "kind": "arithmetic",
+    "file": "TaskQueue.cpp",
+    "line": 30,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "scheduler",
+    "strategy": "S3",
+    "mutant": "m11",
+    "kind": "boundary",
+    "file": "TaskQueue.cpp",
+    "line": 33,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "scheduler",
+    "strategy": "S3",
+    "mutant": "m12",
+    "kind": "arithmetic",
+    "file": "TaskQueue.cpp",
+    "line": 34,
+    "suites_run": 10,
+    "suites_killed": 10
+  },
+  {
+    "project": "telemetry",
+    "strategy": "S1",
+    "mutant": "m01",
+    "kind": "boundary",
+    "file": "SamplePipeline.cpp",
+    "line": 4,
+    "suites_run": 9,
+    "suites_killed": 9
+  },
+  {
+    "project": "telemetry",
+    "strategy": "S1",
+    "mutant": "m02",
+    "kind": "boundary",
+    "file": "SamplePipeline.cpp",
+    "line": 5,
+    "suites_run": 9,
+    "suites_killed": 9
+  },
+  {
+    "project": "telemetry",
+    "strategy": "S1",
+    "mutant": "m03",
+    "kind": "boundary",
+    "file": "SamplePipeline.cpp",
+    "line": 6,
+    "suites_run": 9,
+    "suites_killed": 8
+  },
+  {
+    "project": "telemetry",
+    "strategy": "S1",
+    "mutant": "m04",
+    "kind": "boundary",
+    "file": "SamplePipeline.cpp",
+    "line": 12,
+    "suites_run": 9,
+    "suites_killed": 9
+  },
+  {
+    "project": "telemetry",
+    "strategy": "S1",
+    "mutant": "m05",
+    "kind": "boundary",
+    "file": "SamplePipeline.cpp",
+    "line": 13,
+    "suites_run": 9,
+    "suites_killed": 9
+  },
+  {
+    "project": "telemetry",
+    "strategy": "S1",
+    "mutant": "m10",
+    "kind": "boundary",
+    "file": "SamplePipeline.cpp",
+    "line": 43,
+    "suites_run": 9,
+    "suites_killed": 8
+  },
+  {
+    "project": "telemetry",
+    "strategy": "S1",
+    "mutant": "m13",
+    "kind": "arithmetic",
+    "file": "SamplePipeline.cpp",
+    "line": 60,
+    "suites_run": 9,
+    "suites_killed": 9
+  },
+  {
+    "project": "telemetry",
+    "strategy": "S1",
+    "mutant": "m14",
+    "kind": "boundary",
+    "file": "SamplePipeline.cpp",
+    "line": 60,
+    "suites_run": 9,
+    "suites_killed": 9
+  },
+  {
+    "project": "telemetry",
+    "strategy": "S2",
+    "mutant": "m01",
+    "kind": "boundary",
+    "file": "SamplePipeline.cpp",
+    "line": 4,
+    "suites_run": 0,
+    "suites_killed": 0
+  },
+  {
+    "project": "telemetry",
+    "strategy": "S2",
+    "mutant": "m02",
+    "kind": "boundary",
+    "file": "SamplePipeline.cpp",
+    "line": 5,
+    "suites_run": 0,
+    "suites_killed": 0
+  },
+  {
+    "project": "telemetry",
+    "strategy": "S2",
+    "mutant": "m03",
+    "kind": "boundary",
+    "file": "SamplePipeline.cpp",
+    "line": 6,
+    "suites_run": 0,
+    "suites_killed": 0
+  },
+  {
+    "project": "telemetry",
+    "strategy": "S2",
+    "mutant": "m04",
+    "kind": "boundary",
+    "file": "SamplePipeline.cpp",
+    "line": 12,
+    "suites_run": 0,
+    "suites_killed": 0
+  },
+  {
+    "project": "telemetry",
+    "strategy": "S2",
+    "mutant": "m05",
+    "kind": "boundary",
+    "file": "SamplePipeline.cpp",
+    "line": 13,
+    "suites_run": 0,
+    "suites_killed": 0
+  },
+  {
+    "project": "telemetry",
+    "strategy": "S2",
+    "mutant": "m10",
+    "kind": "boundary",
+    "file": "SamplePipeline.cpp",
+    "line": 43,
+    "suites_run": 0,
+    "suites_killed": 0
+  },
+  {
+    "project": "telemetry",
+    "strategy": "S2",
+    "mutant": "m13",
+    "kind": "arithmetic",
+    "file": "SamplePipeline.cpp",
+    "line": 60,
+    "suites_run": 0,
+    "suites_killed": 0
+  },
+  {
+    "project": "telemetry",
+    "strategy": "S2",
+    "mutant": "m14",
+    "kind": "boundary",
+    "file": "SamplePipeline.cpp",
+    "line": 60,
+    "suites_run": 0,
+    "suites_killed": 0
+  },
+  {
+    "project": "telemetry",
+    "strategy": "S3",
+    "mutant": "m01",
+    "kind": "boundary",
+    "file": "SamplePipeline.cpp",
+    "line": 4,
+    "suites_run": 9,
+    "suites_killed": 9
+  },
+  {
+    "project": "telemetry",
+    "strategy": "S3",
+    "mutant": "m02",
+    "kind": "boundary",
+    "file": "SamplePipeline.cpp",
+    "line": 5,
+    "suites_run": 9,
+    "suites_killed": 9
+  },
+  {
+    "project": "telemetry",
+    "strategy": "S3",
+    "mutant": "m03",
+    "kind": "boundary",
+    "file": "SamplePipeline.cpp",
+    "line": 6,
+    "suites_run": 9,
+    "suites_killed": 8
+  },
+  {
+    "project": "telemetry",
+    "strategy": "S3",
+    "mutant": "m04",
+    "kind": "boundary",
+    "file": "SamplePipeline.cpp",
+    "line": 12,
+    "suites_run": 9,
+    "suites_killed": 9
+  },
+  {
+    "project": "telemetry",
+    "strategy": "S3",
+    "mutant": "m05",
+    "kind": "boundary",
+    "file": "SamplePipeline.cpp",
+    "line": 13,
+    "suites_run": 9,
+    "suites_killed": 9
+  },
+  {
+    "project": "telemetry",
+    "strategy": "S3",
+    "mutant": "m10",
+    "kind": "boundary",
+    "file": "SamplePipeline.cpp",
+    "line": 43,
+    "suites_run": 9,
+    "suites_killed": 9
+  },
+  {
+    "project": "telemetry",
+    "strategy": "S3",
+    "mutant": "m13",
+    "kind": "arithmetic",
+    "file": "SamplePipeline.cpp",
+    "line": 60,
+    "suites_run": 9,
+    "suites_killed": 9
+  },
+  {
+    "project": "telemetry",
+    "strategy": "S3",
+    "mutant": "m14",
+    "kind": "boundary",
+    "file": "SamplePipeline.cpp",
+    "line": 60,
+    "suites_run": 9,
+    "suites_killed": 9
+  }
+]

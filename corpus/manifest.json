@@ -1,0 +1,25 @@
+{
+  "note": "Each entry names a project directory and the file that acts as the developer's point of interest for that project. The point of interest is what S2 restricts the prompt to and what S3 seeds its traversal from, so it is fixed per project and held constant across all three conditions.",
+  "projects": [
+    {
+      "name": "geometry",
+      "dir": "geometry",
+      "active_file": "Canvas.cpp"
+    },
+    {
+      "name": "inventory",
+      "dir": "inventory",
+      "active_file": "Report.cpp"
+    },
+    {
+      "name": "scheduler",
+      "dir": "scheduler",
+      "active_file": "TaskQueue.cpp"
+    },
+    {
+      "name": "telemetry",
+      "dir": "telemetry",
+      "active_file": "SamplePipeline.cpp"
+    }
+  ]
+}

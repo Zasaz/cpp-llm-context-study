@@ -1,0 +1,239 @@
+Here is the complete C++ unit test suite covering `SamplePipeline` and its interactions with the supporting classes.
+
+```cpp
+#include <iostream>
+#include <cassert>
+#include <cmath>
+#include <vector>
+#include <string>
+
+#include "SamplePipeline.h"
+#include "Channel.h"
+#include "Filter.h"
+#include "Sample.h"
+#include "UnitScale.h"
+
+// Helper function for floating point comparisons
+static bool approxEqual(double a, double b, double epsilon = 1e-6) {
+    return std::fabs(a - b) < epsilon;
+}
+
+void test_pipeline_constructors() {
+    // Default constructor
+    SamplePipeline p1;
+    assert(p1.acceptedCount() == 0);
+    assert(p1.rejectedCount() == 0);
+    assert(p1.minimumQuality == 1);
+    assert(p1.filterCount() == 0);
+    assert(p1.channel.channelName() == "unnamed");
+    assert(p1.channel.capacity == 16);
+    assert(p1.channel.isEmpty());
+
+    // Parameterized constructor
+    SamplePipeline p2("voltage", 5);
+    assert(p2.acceptedCount() == 0);
+    assert(p2.rejectedCount() == 0);
+    assert(p2.minimumQuality == 1);
+    assert(p2.filterCount() == 0);
+    assert(p2.channel.channelName() == "voltage");
+    assert(p2.channel.capacity == 5);
+    assert(p2.channel.isEmpty());
+
+    std::cout << "Test test_pipeline_constructors: PASS" << std::endl;
+}
+
+void test_pipeline_filter_management() {
+    SamplePipeline pipeline("sensor", 10);
+    assert(pipeline.filterCount() == 0);
+
+    // Test adding null pointer
+    int count = pipeline.addFilter(nullptr);
+    assert(count == 0);
+    assert(pipeline.filterCount() == 0);
+
+    PassFilter pf;
+    ClampFilter cf(0.0, 10.0);
+    SmoothFilter sf(0.5);
+
+    assert(pipeline.addFilter(&pf) == 1);
+    assert(pipeline.addFilter(&cf) == 2);
+    assert(pipeline.addFilter(&sf) == 3);
+    assert(pipeline.filterCount() == 3);
+
+    // Clear filters
+    int cleared = pipeline.clearFilters();
+    assert(cleared == 3);
+    assert(pipeline.filterCount() == 0);
+
+    std::cout << "Test test_pipeline_filter_management: PASS" << std::endl;
+}
+
+void test_pipeline_process_and_stage() {
+    SamplePipeline pipeline("processing", 10);
+    ClampFilter cf(0.0, 100.0);
+    PassFilter pf;
+
+    pipeline.addFilter(&cf);
+    pipeline.addFilter(&pf);
+
+    // Test stage with valid and invalid indices
+    assert(approxEqual(pipeline.stage(150.0, 0), 100.0)); // stage 0: clamped
+    assert(approxEqual(pipeline.stage(-20.0, 0), 0.0));   // stage 0: clamped
+    assert(approxEqual(pipeline.stage(50.0, 1), 50.0));   // stage 1: pass
+    assert(approxEqual(pipeline.stage(200.0, -1), 200.0)); // invalid index
+    assert(approxEqual(pipeline.stage(200.0, 5), 200.0));  // invalid index
+
+    // Test overall process (chaining filters)
+    assert(approxEqual(pipeline.process(150.0), 100.0));
+    assert(approxEqual(pipeline.process(-10.0), 0.0));
+    assert(approxEqual(pipeline.process(42.5), 42.5));
+
+    std::cout << "Test test_pipeline_process_and_stage: PASS" << std::endl;
+}
+
+void test_pipeline_wouldReject() {
+    SamplePipeline pipeline("guard", 10);
+    ClampFilter cf(0.0, 50.0);
+    pipeline.addFilter(&cf);
+
+    assert(!pipeline.wouldReject(25.0));
+    assert(pipeline.wouldReject(75.0));
+    assert(pipeline.wouldReject(-5.0));
+
+    // Test disabled filter rejection logic via base Filter
+    Filter generalFilter;
+    generalFilter.toggle(); // enabled = false
+    SamplePipeline disabledPipeline;
+    disabledPipeline.addFilter(&generalFilter);
+    assert(disabledPipeline.wouldReject(10.0));  // non-zero reading rejected when disabled
+    assert(!disabledPipeline.wouldReject(0.0)); // zero reading is not rejected
+
+    std::cout << "Test test_pipeline_wouldReject: PASS" << std::endl;
+}
+
+void test_pipeline_ingest_and_quality() {
+    SamplePipeline pipeline("temp", 3);
+    ClampFilter cf(0.0, 100.0);
+    pipeline.addFilter(&cf);
+
+    // Initial quality requirement is 1
+    int prevMin = pipeline.requireQuality(10);
+    assert(prevMin == 1);
+    assert(pipeline.minimumQuality == 10);
+
+    // Attempt ingest with quality < minimumQuality
+    int res1 = pipeline.ingest(1, 50.0, 5);
+    assert(res1 == -1);
+    assert(pipeline.rejectedCount() == 1);
+    assert(pipeline.acceptedCount() == 0);
+
+    // Attempt ingest that triggers wouldReject (clamp range is 0.0 - 100.0)
+    int res2 = pipeline.ingest(2, 150.0, 20);
+    assert(res2 == -1);
+    assert(pipeline.rejectedCount() == 2);
+    assert(pipeline.acceptedCount() == 0);
+
+    // Successful ingest
+    int res3 = pipeline.ingest(3, 40.0, 50);
+    assert(res3 == 1);
+    assert(pipeline.acceptedCount() == 1);
+    assert(pipeline.rejectedCount() == 2);
+    assert(pipeline.validSamples() == 1);
+    assert(approxEqual(pipeline.latest().value(), 40.0));
+
+    // Attempt negative requirement adjustment
+    pipeline.requireQuality(-5);
+    assert(pipeline.minimumQuality == 10); // should not change if < 0
+
+    std::cout << "Test test_pipeline_ingest_and_quality: PASS" << std::endl;
+}
+
+void test_pipeline_saturation_and_channel_limits() {
+    SamplePipeline pipeline("limited", 2);
+
+    assert(pipeline.ingest(1, 10.0, 80) == 1);
+    assert(pipeline.ingest(2, 20.0, 80) == 2);
+    assert(pipeline.isSaturated());
+
+    // Ingesting beyond capacity should fail at channel append and count as rejected
+    assert(pipeline.ingest(3, 30.0, 80) == -1);
+    assert(pipeline.rejectedCount() == 1);
+    assert(pipeline.acceptedCount() == 2);
+    assert(pipeline.channel.droppedCount() == 1);
+
+    std::cout << "Test test_pipeline_saturation_and_channel_limits: PASS" << std::endl;
+}
+
+void test_pipeline_ingestBatch() {
+    SamplePipeline pipeline("batch", 5);
+    ClampFilter cf(0.0, 50.0);
+    pipeline.addFilter(&cf);
+
+    // Values: 10.0 (ok), 20.0 (ok), 60.0 (rejected by filter), 30.0 (ok)
+    std::vector<double> readings = {10.0, 20.0, 60.0, 30.0};
+    int taken = pipeline.ingestBatch(readings, 75);
+
+    assert(taken == 3);
+    assert(pipeline.acceptedCount() == 3);
+    assert(pipeline.rejectedCount() == 1);
+    assert(pipeline.channel.count() == 3);
+    assert(approxEqual(pipeline.latest().value(), 30.0));
+
+    std::cout << "Test test_pipeline_ingestBatch: PASS" << std::endl;
+}
+
+void test_pipeline_statistics_and_scaling() {
+    SamplePipeline pipeline("scale_stats", 10);
+    pipeline.scale = UnitScale(2.0, 5.0, "mV"); // toBase: x * 2 + 5, fromBase: (x - 5) / 2
+
+    pipeline.ingest(1, 10.0, 90);
+    pipeline.ingest(2, 30.0, 90);
+
+    // Channel stats
+    assert(approxEqual(pipeline.channelMean(), 20.0));
+    assert(approxEqual(pipeline.channelPeak(), 30.0));
+
+    // Normalisation and Denormalisation via pipeline's scale
+    assert(approxEqual(pipeline.normalised(25.0), 10.0));   // (25 - 5) / 2
+    assert(approxEqual(pipeline.denormalised(10.0), 25.0)); // 10 * 2 + 5
+
+    std::cout << "Test test_pipeline_statistics_and_scaling: PASS" << std::endl;
+}
+
+void test_pipeline_flush_and_describe() {
+    SamplePipeline pipeline("current", 5);
+    pipeline.scale = UnitScale(1.0, 0.0, "mA");
+
+    assert(pipeline.describe() == "empty");
+
+    pipeline.ingest(1, 15.0, 90);
+    assert(pipeline.describe() == "current:mA");
+
+    // Flush
+    int flushedCount = pipeline.flush();
+    assert(flushedCount == 1);
+    assert(pipeline.acceptedCount() == 0);
+    assert(pipeline.rejectedCount() == 0);
+    assert(pipeline.channel.isEmpty());
+    assert(pipeline.channel.capacity == 5);
+    assert(pipeline.channel.channelName() == "current");
+    assert(pipeline.describe() == "empty");
+
+    std::cout << "Test test_pipeline_flush_and_describe: PASS" << std::endl;
+}
+
+int main() {
+    test_pipeline_constructors();
+    test_pipeline_filter_management();
+    test_pipeline_process_and_stage();
+    test_pipeline_wouldReject();
+    test_pipeline_ingest_and_quality();
+    test_pipeline_saturation_and_channel_limits();
+    test_pipeline_ingestBatch();
+    test_pipeline_statistics_and_scaling();
+    test_pipeline_flush_and_describe();
+
+    std::cout << "\nAll SamplePipeline unit tests passed successfully!" << std::endl;
+    return 0;
+}
+```

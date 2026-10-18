@@ -1,0 +1,138 @@
+#include <iostream>
+#include <cassert>
+#include <cmath>
+#include "Canvas.h"
+#include "Shape.h"
+
+// Helper to check floating-point equality
+bool areClose(double a, double b, double epsilon = 1e-6) {
+    return std::fabs(a - b) < epsilon;
+}
+
+// Mock/Concrete Shape implementation to test Canvas
+class MockShape : public Shape {
+private:
+    double shapeArea;
+
+public:
+    explicit MockShape(double a) : shapeArea(a) {}
+    
+    virtual double area() const {
+        return shapeArea;
+    }
+};
+
+// Test initial empty state of Canvas
+void test_Canvas_initialState() {
+    Canvas canvas;
+    assert(canvas.count() == 0);
+    assert(areClose(canvas.totalArea(), 0.0));
+    assert(areClose(canvas.largestArea(), 0.0));
+    assert(canvas.shapes.empty());
+    
+    std::cout << "Test test_Canvas_initialState: PASS" << std::endl;
+}
+
+// Test adding valid shapes and null pointers
+void test_Canvas_addShapesAndNull() {
+    Canvas canvas;
+
+    canvas.add(new MockShape(10.0));
+    assert(canvas.count() == 1);
+
+    // Adding null pointer should be ignored
+    canvas.add(nullptr);
+    assert(canvas.count() == 1);
+
+    canvas.add(new MockShape(25.5));
+    assert(canvas.count() == 2);
+
+    std::cout << "Test test_Canvas_addShapesAndNull: PASS" << std::endl;
+}
+
+// Test totalArea calculation with multiple shapes
+void test_Canvas_totalArea() {
+    Canvas canvas;
+    canvas.add(new MockShape(10.5));
+    canvas.add(new MockShape(20.25));
+    canvas.add(new MockShape(5.25));
+
+    assert(canvas.count() == 3);
+    assert(areClose(canvas.totalArea(), 36.0));
+
+    std::cout << "Test test_Canvas_totalArea: PASS" << std::endl;
+}
+
+// Test largestArea computation across various shape configurations
+void test_Canvas_largestArea() {
+    Canvas canvas;
+    
+    // Empty canvas largest area should be 0.0
+    assert(areClose(canvas.largestArea(), 0.0));
+
+    canvas.add(new MockShape(15.0));
+    assert(areClose(canvas.largestArea(), 15.0));
+
+    canvas.add(new MockShape(42.5));
+    assert(areClose(canvas.largestArea(), 42.5));
+
+    canvas.add(new MockShape(30.0));
+    // Should still be 42.5
+    assert(areClose(canvas.largestArea(), 42.5));
+
+    std::cout << "Test test_Canvas_largestArea: PASS" << std::endl;
+}
+
+// Test clearing shapes from Canvas
+void test_Canvas_clear() {
+    Canvas canvas;
+    canvas.add(new MockShape(10.0));
+    canvas.add(new MockShape(20.0));
+    canvas.add(new MockShape(30.0));
+
+    assert(canvas.count() == 3);
+
+    canvas.clear();
+    assert(canvas.count() == 0);
+    assert(canvas.shapes.empty());
+    assert(areClose(canvas.totalArea(), 0.0));
+    assert(areClose(canvas.largestArea(), 0.0));
+
+    // Calling clear again on empty canvas should be safe
+    canvas.clear();
+    assert(canvas.count() == 0);
+
+    // Adding shapes after clearing should work normally
+    canvas.add(new MockShape(5.0));
+    assert(canvas.count() == 1);
+    assert(areClose(canvas.totalArea(), 5.0));
+
+    std::cout << "Test test_Canvas_clear: PASS" << std::endl;
+}
+
+// Test proper destruction through dynamic allocation
+void test_Canvas_destructor() {
+    Canvas* canvas = new Canvas();
+    canvas->add(new MockShape(100.0));
+    canvas->add(new MockShape(200.0));
+    assert(canvas->count() == 2);
+
+    // Deleting canvas will invoke Canvas::~Canvas() and its clear() logic
+    delete canvas;
+
+    std::cout << "Test test_Canvas_destructor: PASS" << std::endl;
+}
+
+int main() {
+    std::cout << "--- Running Canvas Unit Tests ---" << std::endl;
+
+    test_Canvas_initialState();
+    test_Canvas_addShapesAndNull();
+    test_Canvas_totalArea();
+    test_Canvas_largestArea();
+    test_Canvas_clear();
+    test_Canvas_destructor();
+
+    std::cout << "All Canvas unit tests passed successfully!" << std::endl;
+    return 0;
+}

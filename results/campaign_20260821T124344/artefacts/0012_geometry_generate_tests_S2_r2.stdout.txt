@@ -1,0 +1,9 @@
+--- Starting Canvas Tests ---
+Test test_Canvas_empty: PASS
+Test test_Canvas_add: PASS
+Test test_Canvas_add_null: PASS
+Test test_Canvas_totalArea: PASS
+Test test_Canvas_largestArea: PASS
+Test test_Canvas_clear: PASS
+Test test_Canvas_destructor: PASS
+--- All Canvas Tests PASSED ---

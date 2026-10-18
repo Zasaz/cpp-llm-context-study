@@ -1,0 +1,305 @@
+#include <iostream>
+#include <cassert>
+#include <string>
+#include <vector>
+
+#include "TaskQueue.h"
+#include "Policy.h"
+#include "Task.h"
+
+void test_constructors_and_defaults() {
+    // Default constructor
+    TaskQueue defaultQueue;
+    assert(defaultQueue.size() == 0);
+    assert(defaultQueue.isEmpty());
+    assert(!defaultQueue.isFull());
+    assert(defaultQueue.capacity == 8);
+    assert(defaultQueue.rejectedCount() == 0);
+    assert(defaultQueue.policy == nullptr);
+
+    // Parameterized constructor with positive limit
+    TaskQueue customQueue(5);
+    assert(customQueue.size() == 0);
+    assert(customQueue.capacity == 5);
+    assert(customQueue.rejectedCount() == 0);
+
+    // Parameterized constructor with non-positive limit (should clamp to 1)
+    TaskQueue zeroQueue(0);
+    assert(zeroQueue.capacity == 1);
+
+    TaskQueue negativeQueue(-10);
+    assert(negativeQueue.capacity == 1);
+
+    std::cout << "Test test_constructors_and_defaults: PASS" << std::endl;
+}
+
+void test_enqueue_and_capacity_limits() {
+    TaskQueue queue(2);
+    Task t1(1, "Task1", 5, 10);
+    Task t2(2, "Task2", 3, 20);
+    Task t3(3, "Task3", 1, 5);
+
+    int res1 = queue.enqueue(t1);
+    assert(res1 == 1);
+    assert(queue.size() == 1);
+    assert(!queue.isEmpty());
+    assert(!queue.isFull());
+
+    int res2 = queue.enqueue(t2);
+    assert(res2 == 2);
+    assert(queue.size() == 2);
+    assert(queue.isFull());
+
+    // Enqueue when full should fail and increase rejectedCount
+    int res3 = queue.enqueue(t3);
+    assert(res3 == -1);
+    assert(queue.size() == 2);
+    assert(queue.rejectedCount() == 1);
+
+    int res4 = queue.enqueue(t3);
+    assert(res4 == -1);
+    assert(queue.rejectedCount() == 2);
+
+    std::cout << "Test test_enqueue_and_capacity_limits: PASS" << std::endl;
+}
+
+void test_policy_rejection() {
+    TaskQueue queue(5);
+    PriorityPolicy priorityPolicy(10); // Only accepts priority >= 10
+    queue.usePolicy(&priorityPolicy);
+
+    Task lowPriority(1, "Low", 5, 10);
+    Task highPriority(2, "High", 12, 10);
+
+    // Rejection by policy
+    int resLow = queue.enqueue(lowPriority);
+    assert(resLow == -1);
+    assert(queue.size() == 0);
+    assert(queue.rejectedCount() == 1);
+
+    // Acceptance by policy
+    int resHigh = queue.enqueue(highPriority);
+    assert(resHigh == 1);
+    assert(queue.size() == 1);
+    assert(queue.rejectedCount() == 1);
+
+    // Policy rejecting completed tasks
+    Policy basePolicy;
+    TaskQueue queue2(5);
+    queue2.usePolicy(&basePolicy);
+
+    Task completedTask(3, "Done", 5, 10);
+    completedTask.advance(10);
+    assert(completedTask.isComplete());
+
+    int resComp = queue2.enqueue(completedTask);
+    assert(resComp == -1);
+    assert(queue2.rejectedCount() == 1);
+
+    std::cout << "Test test_policy_rejection: PASS" << std::endl;
+}
+
+void test_ranking_and_best_selection_default() {
+    // When policy is null, rank uses task.weight() = priority * 10 (+ 25 if overdue)
+    TaskQueue queue(5);
+
+    // Empty queue best / bestIndex
+    assert(queue.bestIndex() == -1);
+    Task emptyBest = queue.best();
+    assert(emptyBest.identifier() == 0); // default Task has id 0
+
+    Task t1(10, "NormalPriority", 3, 20); // weight: 30
+    Task t2(20, "HighPriority", 8, 20);   // weight: 80
+    Task t3(30, "MidPriority", 5, 20);    // weight: 50
+
+    queue.enqueue(t1);
+    queue.enqueue(t2);
+    queue.enqueue(t3);
+
+    assert(queue.bestIndex() == 1);
+    assert(queue.best().identifier() == 20);
+
+    // Test tie-breaking: first one encountered with highest score remains chosen
+    Task t4(40, "HighPriorityDuplicate", 8, 20); // weight: 80
+    queue.enqueue(t4);
+    assert(queue.bestIndex() == 1);
+    assert(queue.best().identifier() == 20);
+
+    std::cout << "Test test_ranking_and_best_selection_default: PASS" << std::endl;
+}
+
+void test_ranking_and_best_with_custom_policies() {
+    TaskQueue queue(5);
+
+    Task t1(1, "First", 5, 20);
+    Task t2(2, "Second", 10, 50);
+    Task t3(3, "Third", 2, 5);
+
+    queue.enqueue(t1);
+    queue.enqueue(t2);
+    queue.enqueue(t3);
+
+    // FifoPolicy: rank = bias - task.id * arrivalWeight
+    // t1 rank = 0 - 1*1 = -1
+    // t2 rank = 0 - 2*1 = -2
+    // t3 rank = 0 - 3*1 = -3
+    FifoPolicy fifoPolicy;
+    queue.usePolicy(&fifoPolicy);
+    assert(queue.bestIndex() == 0);
+    assert(queue.best().identifier() == 1);
+
+    // PriorityPolicy: rank = max(priority, floor) * 100 - duration + bias
+    // t1: 5*100 - 20 = 480
+    // t2: 10*100 - 50 = 950
+    // t3: 2*100 - 5 = 195
+    PriorityPolicy priorityPolicy;
+    queue.usePolicy(&priorityPolicy);
+    assert(queue.bestIndex() == 1);
+    assert(queue.best().identifier() == 2);
+
+    // DeadlinePolicy: rank = max(0, horizon - deadline) * 5 + bias
+    // Default horizon = 100.
+    // t1 deadline = 20 -> urgency = 80 -> rank = 400
+    // t2 deadline = 50 -> urgency = 50 -> rank = 250
+    // t3 deadline = 5 -> urgency = 95 -> rank = 475
+    DeadlinePolicy deadlinePolicy;
+    queue.usePolicy(&deadlinePolicy);
+    assert(queue.bestIndex() == 2);
+    assert(queue.best().identifier() == 3);
+
+    std::cout << "Test test_ranking_and_best_with_custom_policies: PASS" << std::endl;
+}
+
+void test_dequeue() {
+    TaskQueue queue(5);
+
+    // Dequeue from empty
+    Task emptyDequeued = queue.dequeue();
+    assert(emptyDequeued.identifier() == 0);
+    assert(queue.isEmpty());
+
+    Task t1(1, "Low", 1, 10);
+    Task t2(2, "High", 10, 10);
+    Task t3(3, "Medium", 5, 10);
+
+    queue.enqueue(t1);
+    queue.enqueue(t2);
+    queue.enqueue(t3);
+
+    assert(queue.size() == 3);
+
+    // First dequeue should be t2 (highest priority by default weight)
+    Task d1 = queue.dequeue();
+    assert(d1.identifier() == 2);
+    assert(queue.size() == 2);
+
+    // Second dequeue should be t3
+    Task d2 = queue.dequeue();
+    assert(d2.identifier() == 3);
+    assert(queue.size() == 1);
+
+    // Third dequeue should be t1
+    Task d3 = queue.dequeue();
+    assert(d3.identifier() == 1);
+    assert(queue.isEmpty());
+
+    // Dequeue again on now empty queue
+    Task d4 = queue.dequeue();
+    assert(d4.identifier() == 0);
+
+    std::cout << "Test test_dequeue: PASS" << std::endl;
+}
+
+void test_total_remaining_and_pending_count() {
+    TaskQueue queue(5);
+    assert(queue.totalRemaining() == 0);
+    assert(queue.pendingCount() == 0);
+
+    Task t1(1, "Task1", 1, 10);
+    Task t2(2, "Task2", 1, 20);
+    Task t3(3, "Task3", 1, 15);
+
+    queue.enqueue(t1);
+    queue.enqueue(t2);
+    queue.enqueue(t3);
+
+    assert(queue.totalRemaining() == 45);
+    assert(queue.pendingCount() == 3);
+
+    // Partially advance one task
+    queue.tasks[0].advance(4); // remaining 6, running (not pending)
+    assert(queue.totalRemaining() == 41);
+    assert(queue.pendingCount() == 2);
+
+    // Fully complete one task
+    queue.tasks[1].advance(20); // remaining 0, complete (not pending)
+    assert(queue.totalRemaining() == 21);
+    assert(queue.pendingCount() == 1);
+
+    std::cout << "Test test_total_remaining_and_pending_count: PASS" << std::endl;
+}
+
+void test_advance_all_and_purge_complete() {
+    TaskQueue queue(5);
+
+    Task t1(1, "Short", 1, 5);
+    Task t2(2, "Medium", 1, 10);
+    Task t3(3, "Long", 1, 20);
+
+    queue.enqueue(t1);
+    queue.enqueue(t2);
+    queue.enqueue(t3);
+
+    // Advance by 4 units: none complete yet
+    int completed1 = queue.advanceAll(4);
+    assert(completed1 == 0);
+    assert(queue.pendingCount() == 0); // All have started
+    assert(queue.totalRemaining() == 1 + 6 + 16);
+
+    // Advance by 2 more units: t1 completes (total elapsed 6 >= duration 5)
+    int completed2 = queue.advanceAll(2);
+    assert(completed2 == 1);
+    assert(queue.tasks[0].isComplete());
+    assert(!queue.tasks[1].isComplete());
+    assert(!queue.tasks[2].isComplete());
+
+    // Advance by 5 more units: t2 completes (total elapsed 11 >= duration 10)
+    int completed3 = queue.advanceAll(5);
+    assert(completed3 == 2); // t1 and t2 are now complete
+    assert(queue.tasks[0].isComplete());
+    assert(queue.tasks[1].isComplete());
+    assert(!queue.tasks[2].isComplete());
+
+    // Purge completed tasks
+    int purged = queue.purgeComplete();
+    assert(purged == 2);
+    assert(queue.size() == 1);
+    assert(queue.tasks[0].identifier() == 3);
+    assert(queue.tasks[0].remaining() == 9);
+
+    // Purge when no completed tasks exist
+    int purgedAgain = queue.purgeComplete();
+    assert(purgedAgain == 0);
+    assert(queue.size() == 1);
+
+    // Complete the remaining task and purge
+    queue.advanceAll(10);
+    assert(queue.purgeComplete() == 1);
+    assert(queue.isEmpty());
+
+    std::cout << "Test test_advance_all_and_purge_complete: PASS" << std::endl;
+}
+
+int main() {
+    test_constructors_and_defaults();
+    test_enqueue_and_capacity_limits();
+    test_policy_rejection();
+    test_ranking_and_best_selection_default();
+    test_ranking_and_best_with_custom_policies();
+    test_dequeue();
+    test_total_remaining_and_pending_count();
+    test_advance_all_and_purge_complete();
+
+    std::cout << "\nAll TaskQueue tests passed successfully!" << std::endl;
+    return 0;
+}

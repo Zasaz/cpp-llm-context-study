@@ -1,0 +1,20 @@
+<div class="execution-output-container">
+    
+    {% if result.error %}
+        <div class="error-message">
+            <strong>Error:</strong>
+            <pre style="background: transparent !important; border: none !important; padding: 0; margin-top: 0.5rem;">{{ result.error }}</pre>
+        </div>
+    {% endif %}
+
+    <details class="output-log-section" {% if 'error' in result.compilation|lower or 'warning' in result.compilation|lower %}open{% endif %}>
+        <summary>Compilation Log</summary>
+        <pre class="console-output">{{ result.compilation if result.compilation.strip() else "[No Compilation Output]" }}</pre>
+    </details>
+
+    <details class="output-log-section" open>
+        <summary>Execution Output</summary>
+        <pre class="console-output">{{ result.execution if result.execution.strip() else "[No Execution Output]" }}</pre>
+    </details>
+
+</div>

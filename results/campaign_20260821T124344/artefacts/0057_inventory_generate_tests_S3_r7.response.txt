@@ -1,0 +1,135 @@
+Here is the complete C++ unit test suite covering the `Report` class and its functions.
+
+```cpp
+#include <iostream>
+#include <cassert>
+#include <cmath>
+#include "Item.h"
+#include "Warehouse.h"
+#include "Report.h"
+
+// Helper function for floating point comparisons
+bool isClose(double a, double b, double epsilon = 1e-6) {
+    return std::fabs(a - b) < epsilon;
+}
+
+// Test default constructor and its default state
+void test_Report_defaultConstructor() {
+    Report report;
+    assert(report.isEmpty() == true);
+    assert(report.source.label == "unnamed");
+    assert(report.source.itemCount() == 0);
+    assert(isClose(report.averageItemValue(), 0.0));
+    assert(report.outOfStockCount() == 0);
+    assert(report.summaryLine() == "empty");
+
+    std::cout << "Test test_Report_defaultConstructor: PASS" << std::endl;
+}
+
+// Test parameterized constructor
+void test_Report_parameterizedConstructor() {
+    Warehouse wh("Main Warehouse");
+    wh.addItem(Item("Widget", 10, 5.0));
+
+    Report report(wh);
+    assert(report.isEmpty() == false);
+    assert(report.source.label == "Main Warehouse");
+    assert(report.source.itemCount() == 1);
+
+    std::cout << "Test test_Report_parameterizedConstructor: PASS" << std::endl;
+}
+
+// Test isEmpty() function for both empty and non-empty warehouses
+void test_Report_isEmpty() {
+    Warehouse emptyWh("Empty WH");
+    Report emptyReport(emptyWh);
+    assert(emptyReport.isEmpty() == true);
+
+    Warehouse nonEmptyWh("Active WH");
+    nonEmptyWh.addItem(Item("Gadget", 0, 15.0)); // Item with 0 stock still counts as an item entry
+    Report nonEmptyReport(nonEmptyWh);
+    assert(nonEmptyReport.isEmpty() == false);
+
+    std::cout << "Test test_Report_isEmpty: PASS" << std::endl;
+}
+
+// Test summaryLine() for empty and populated warehouses
+void test_Report_summaryLine() {
+    // Empty warehouse report
+    Warehouse emptyWh("North Hub");
+    Report report1(emptyWh);
+    assert(report1.summaryLine() == "empty");
+
+    // Populated warehouse report
+    Warehouse populatedWh("North Hub");
+    populatedWh.addItem(Item("Tool", 5, 2.5));
+    Report report2(populatedWh);
+    assert(report2.summaryLine() == "North Hub");
+
+    std::cout << "Test test_Report_summaryLine: PASS" << std::endl;
+}
+
+// Test averageItemValue() with 0, 1, and multiple items
+void test_Report_averageItemValue() {
+    // Empty report (division by zero protection)
+    Report emptyReport;
+    assert(isClose(emptyReport.averageItemValue(), 0.0));
+
+    // Single item
+    Warehouse wh1("Single Item WH");
+    wh1.addItem(Item("Laptop", 2, 500.0)); // totalValue = 1000.0
+    Report report1(wh1);
+    assert(isClose(report1.averageItemValue(), 1000.0));
+
+    // Multiple items
+    Warehouse wh2("Multi Item WH");
+    wh2.addItem(Item("Laptop", 2, 500.0));  // totalValue = 1000.0
+    wh2.addItem(Item("Mouse", 10, 20.0));   // totalValue = 200.0
+    wh2.addItem(Item("Keyboard", 0, 50.0)); // totalValue = 0.0
+    // Total inventory value = 1200.0, Item count = 3. Average = 400.0
+    Report report2(wh2);
+    assert(isClose(report2.averageItemValue(), 400.0));
+
+    std::cout << "Test test_Report_averageItemValue: PASS" << std::endl;
+}
+
+// Test outOfStockCount() under various conditions
+void test_Report_outOfStockCount() {
+    Warehouse wh("Inventory WH");
+    Report emptyReport(wh);
+    assert(emptyReport.outOfStockCount() == 0);
+
+    // Add items that are in stock
+    wh.addItem(Item("Apples", 10, 0.5));
+    wh.addItem(Item("Bananas", 5, 0.3));
+    Report inStockReport(wh);
+    assert(inStockReport.outOfStockCount() == 0);
+
+    // Add out-of-stock items (quantity 0)
+    wh.addItem(Item("Oranges", 0, 0.8));
+    wh.addItem(Item("Pears", 0, 1.2));
+    Report mixedReport(wh);
+    assert(mixedReport.outOfStockCount() == 2);
+
+    // Consume stock until an item becomes out of stock
+    wh.withdraw("Bananas", 5);
+    Report updatedReport(wh);
+    assert(updatedReport.outOfStockCount() == 3);
+
+    std::cout << "Test test_Report_outOfStockCount: PASS" << std::endl;
+}
+
+int main() {
+    std::cout << "Running Report test suite..." << std::endl;
+
+    test_Report_defaultConstructor();
+    test_Report_parameterizedConstructor();
+    test_Report_isEmpty();
+    test_Report_summaryLine();
+    test_Report_averageItemValue();
+    test_Report_outOfStockCount();
+
+    std::cout << "All Report tests passed successfully!" << std::endl;
+    return 0;
+}
+```

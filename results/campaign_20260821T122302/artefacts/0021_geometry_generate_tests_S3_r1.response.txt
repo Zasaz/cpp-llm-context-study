@@ -1,0 +1,158 @@
+```cpp
+#include <iostream>
+#include <cassert>
+#include <cmath>
+#include "Canvas.h"
+#include "Shape.h"
+
+// Helper function for floating point comparison
+static bool approx_equal(double a, double b, double epsilon = 1e-6) {
+    return std::abs(a - b) < epsilon;
+}
+
+void test_initial_state() {
+    Canvas canvas;
+    assert(canvas.count() == 0);
+    assert(canvas.shapes.empty());
+    assert(approx_equal(canvas.totalArea(), 0.0));
+    assert(approx_equal(canvas.largestArea(), 0.0));
+    std::cout << "Test test_initial_state: PASS" << std::endl;
+}
+
+void test_add_null_pointer() {
+    Canvas canvas;
+    canvas.add(nullptr);
+    assert(canvas.count() == 0);
+    assert(canvas.shapes.empty());
+    assert(approx_equal(canvas.totalArea(), 0.0));
+    assert(approx_equal(canvas.largestArea(), 0.0));
+    std::cout << "Test test_add_null_pointer: PASS" << std::endl;
+}
+
+void test_add_single_shape() {
+    Canvas canvas;
+    Rectangle* rect = new Rectangle(4.0, 5.0); // area = 20.0
+    canvas.add(rect);
+
+    assert(canvas.count() == 1);
+    assert(canvas.shapes.size() == 1);
+    assert(canvas.shapes[0] == rect);
+    assert(approx_equal(canvas.totalArea(), 20.0));
+    assert(approx_equal(canvas.largestArea(), 20.0));
+    std::cout << "Test test_add_single_shape: PASS" << std::endl;
+}
+
+void test_add_multiple_shapes_and_total_area() {
+    Canvas canvas;
+    Rectangle* r1 = new Rectangle(2.0, 3.0);  // area = 6.0
+    Circle* c1 = new Circle(2.0);              // area = PI * 4 = 12.56637...
+    Rectangle* r2 = new Rectangle(10.0, 5.0); // area = 50.0
+    Shape* baseShape = new Shape();            // area = 0.0
+
+    canvas.add(r1);
+    canvas.add(c1);
+    canvas.add(r2);
+    canvas.add(baseShape);
+
+    assert(canvas.count() == 4);
+
+    double expectedTotal = (2.0 * 3.0) + (3.14159265358979323846 * 4.0) + (10.0 * 5.0) + 0.0;
+    assert(approx_equal(canvas.totalArea(), expectedTotal));
+    assert(approx_equal(canvas.largestArea(), 50.0));
+
+    std::cout << "Test test_add_multiple_shapes_and_total_area: PASS" << std::endl;
+}
+
+void test_largest_area_orderings() {
+    // Case 1: Largest is first
+    {
+        Canvas canvas;
+        canvas.add(new Rectangle(10.0, 10.0)); // 100.0
+        canvas.add(new Rectangle(2.0, 2.0));   // 4.0
+        canvas.add(new Rectangle(5.0, 5.0));   // 25.0
+        assert(approx_equal(canvas.largestArea(), 100.0));
+    }
+
+    // Case 2: Largest is in the middle
+    {
+        Canvas canvas;
+        canvas.add(new Rectangle(2.0, 2.0));   // 4.0
+        canvas.add(new Rectangle(10.0, 10.0)); // 100.0
+        canvas.add(new Rectangle(5.0, 5.0));   // 25.0
+        assert(approx_equal(canvas.largestArea(), 100.0));
+    }
+
+    // Case 3: Largest is last
+    {
+        Canvas canvas;
+        canvas.add(new Rectangle(2.0, 2.0));   // 4.0
+        canvas.add(new Rectangle(5.0, 5.0));   // 25.0
+        canvas.add(new Rectangle(10.0, 10.0)); // 100.0
+        assert(approx_equal(canvas.largestArea(), 100.0));
+    }
+
+    std::cout << "Test test_largest_area_orderings: PASS" << std::endl;
+}
+
+void test_clear_method() {
+    Canvas canvas;
+    canvas.add(new Rectangle(4.0, 4.0));
+    canvas.add(new Circle(3.0));
+    assert(canvas.count() == 2);
+
+    canvas.clear();
+    assert(canvas.count() == 0);
+    assert(canvas.shapes.empty());
+    assert(approx_equal(canvas.totalArea(), 0.0));
+    assert(approx_equal(canvas.largestArea(), 0.0));
+
+    // Verify canvas can be reused after clear
+    canvas.add(new Rectangle(3.0, 3.0)); // area = 9.0
+    assert(canvas.count() == 1);
+    assert(approx_equal(canvas.totalArea(), 9.0));
+    assert(approx_equal(canvas.largestArea(), 9.0));
+
+    std::cout << "Test test_clear_method: PASS" << std::endl;
+}
+
+void test_destructor_invokes_cleanup() {
+    // Scoped canvas to ensure destructor does not crash or leak
+    {
+        Canvas scopedCanvas;
+        scopedCanvas.add(new Rectangle(5.0, 5.0));
+        scopedCanvas.add(new Circle(2.5));
+        scopedCanvas.add(new Shape());
+        assert(scopedCanvas.count() == 3);
+    }
+    // If destructor executes properly without error, pass
+    std::cout << "Test test_destructor_invokes_cleanup: PASS" << std::endl;
+}
+
+void test_zero_and_empty_dimensions() {
+    Canvas canvas;
+    canvas.add(new Rectangle(0.0, 5.0)); // area = 0.0
+    canvas.add(new Circle(0.0));         // area = 0.0
+
+    assert(canvas.count() == 2);
+    assert(approx_equal(canvas.totalArea(), 0.0));
+    assert(approx_equal(canvas.largestArea(), 0.0));
+
+    std::cout << "Test test_zero_and_empty_dimensions: PASS" << std::endl;
+}
+
+int main() {
+    std::cout << "Starting Canvas unit tests..." << std::endl;
+
+    test_initial_state();
+    test_add_null_pointer();
+    test_add_single_shape();
+    test_add_multiple_shapes_and_total_area();
+    test_largest_area_orderings();
+    test_clear_method();
+    test_destructor_invokes_cleanup();
+    test_zero_and_empty_dimensions();
+
+    std::cout << "All Canvas unit tests passed successfully!" << std::endl;
+    return 0;
+}
+```

@@ -1,0 +1,9 @@
+Starting Canvas test suite...
+Test test_canvas_initialState: PASS
+Test test_canvas_addNullPointer: PASS
+Test test_canvas_addValidShapes: PASS
+Test test_canvas_totalArea: PASS
+Test test_canvas_largestArea: PASS
+Test test_canvas_clear: PASS
+Test test_canvas_destructorCleansMemory: PASS
+All Canvas tests passed successfully!

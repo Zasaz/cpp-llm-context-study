@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Upload C++ Project{% endblock %}
+
+{% block content %}
+<div class="home-page-container">
+    <div class="upload-layout">
+
+        <!-- Individual File Upload Card -->
+        <div class="upload-card">
+            <h2>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" x2="8" y1="13" y2="13"></line><line x1="16" x2="8" y1="17" y2="17"></line><line x1="10" x2="8" y1="9" y2="9"></line></svg>
+                <span>Upload Files</span>
+            </h2>
+            <p>Choose one or more <code>.cpp</code> and <code>.h</code> files to start a new project analysis.</p>
+            <form method="post" enctype="multipart/form-data" class="upload-form">
+                <input type="hidden" name="upload_type" value="individual">
+                <label for="files-upload-input" class="file-drop-zone">
+                    <svg class="file-drop-zone-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" x2="12" y1="3" y2="15"></line></svg>
+                    <div class="file-drop-zone-text">
+                        <span>Click to upload</span> or drag and drop
+                    </div>
+                    <div class="file-name-display" id="files-name-display">No files chosen...</div>
+                    <input type="file" name="files" id="files-upload-input" accept=".cpp,.cxx,.cc,.h,.hpp" required multiple>
+                </label>
+                <button type="submit" class="submit-button button-primary">Upload & Analyze</button>
+            </form>
+        </div>
+
+        <!-- ZIP File Upload Card -->
+        <div class="upload-card">
+            <h2>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" x2="12" y1="22.08" y2="12"></line></svg>
+                <span>Upload Project (.zip)</span>
+            </h2>
+            <p>Package your project into a single <code>.zip</code> file. Max size: 5MB, 10 files.</p>
+            <form method="post" enctype="multipart/form-data" class="upload-form">
+                <input type="hidden" name="upload_type" value="zip">
+                <label for="zip-upload-input" class="file-drop-zone">
+                    <svg class="file-drop-zone-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" x2="12" y1="3" y2="15"></line></svg>
+                    <div class="file-drop-zone-text">
+                        <span>Click to upload</span> or drag and drop
+                    </div>
+                    <div class="file-name-display" id="zip-name-display">No .zip file chosen...</div>
+                    <input type="file" name="zip_file" id="zip-upload-input" accept=".zip" required>
+                </label>
+                <button type="submit" class="submit-button button-primary">Upload & Analyze</button>
+            </form>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Handler for individual file input
+    const filesInput = document.getElementById('files-upload-input');
+    const filesNameDisplay = document.getElementById('files-name-display');
+    filesInput.addEventListener('change', function() {
+        if (this.files.length > 1) {
+            filesNameDisplay.textContent = `${this.files.length} files selected`;
+        } else if (this.files.length === 1) {
+            filesNameDisplay.textContent = this.files[0].name;
+        } else {
+            filesNameDisplay.textContent = 'No files chosen...';
+        }
+    });
+
+    // Handler for zip file input
+    const zipInput = document.getElementById('zip-upload-input');
+    const zipNameDisplay = document.getElementById('zip-name-display');
+    zipInput.addEventListener('change', function() {
+        zipNameDisplay.textContent = this.files[0] ? this.files[0].name : 'No .zip file chosen...';
+    });
+});
+</script>
+{% endblock %}

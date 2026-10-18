@@ -1,0 +1,9 @@
+=== Running Canvas Unit Tests ===
+Test test_Canvas_initialState: PASS
+Test test_Canvas_addValidShapes: PASS
+Test test_Canvas_addNullPointer: PASS
+Test test_Canvas_totalArea: PASS
+Test test_Canvas_largestArea: PASS
+Test test_Canvas_clear: PASS
+Test test_Canvas_destructor: PASS
+=== All Canvas tests passed successfully! ===

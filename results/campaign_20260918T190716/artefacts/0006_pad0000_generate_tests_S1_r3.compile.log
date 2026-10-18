@@ -1,0 +1,8 @@
+--- Preparing user code (renaming main() to user_code_main) ---
+3 source files: Canvas.cpp, Shape.cpp, Vector2.cpp
+
+--- Test Suite Compilation & Linking ---
+Command: g++ -I /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpccle1rut/build /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpccle1rut/build/Canvas.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpccle1rut/build/Shape.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpccle1rut/build/Vector2.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpccle1rut/build/test_suite.cpp -o /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpccle1rut/test_executable -std=c++17 -Wall
+STDOUT:
+
+STDERR:

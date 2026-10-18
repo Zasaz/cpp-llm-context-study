@@ -1,0 +1,15 @@
+--- Preparing user code (renaming main() to user_code_main) ---
+10 source files: AlertRule.cpp, Channel.cpp, Dashboard.cpp, Filter.cpp, QueryEngine.cpp, RingBuffer.cpp, Sample.cpp, SamplePipeline.cpp, SeriesStore.cpp, UnitScale.cpp
+
+--- Test Suite Compilation & Linking ---
+Command: g++ -I /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpoxg9g_yi/build /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpoxg9g_yi/build/AlertRule.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpoxg9g_yi/build/Channel.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpoxg9g_yi/build/Dashboard.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpoxg9g_yi/build/Filter.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpoxg9g_yi/build/QueryEngine.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpoxg9g_yi/build/RingBuffer.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpoxg9g_yi/build/Sample.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpoxg9g_yi/build/SamplePipeline.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpoxg9g_yi/build/SeriesStore.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpoxg9g_yi/build/UnitScale.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpoxg9g_yi/build/test_suite.cpp -o /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpoxg9g_yi/test_executable -std=c++17 -Wall
+STDOUT:
+
+STDERR:
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpoxg9g_yi/build/test_suite.cpp:22:10: warning: 'CustomTestFilter::rejects' hides overloaded virtual function [-Woverloaded-virtual]
+   22 |     bool rejects(double reading) {
+      |          ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpoxg9g_yi/build/Filter.h:16:18: note: hidden overloaded virtual function 'Filter::rejects' declared here: different qualifiers ('const' vs unqualified)
+   16 |     virtual bool rejects(double reading) const;
+      |                  ^
+1 warning generated.

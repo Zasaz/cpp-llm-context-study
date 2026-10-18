@@ -1,0 +1,129 @@
+Here is the complete, compilable C++ unit test suite for the `Report` class and its operations.
+
+```cpp
+#include <iostream>
+#include <cassert>
+#include <cmath>
+#include <string>
+#include "Report.h"
+#include "Warehouse.h"
+#include "Item.h"
+
+// Helper function to compare floating-point numbers
+bool areClose(double a, double b, double epsilon = 1e-6) {
+    return std::fabs(a - b) < epsilon;
+}
+
+// Test default constructor and default state
+void test_report_defaultConstructor() {
+    Report report;
+    assert(report.isEmpty() == true);
+    assert(report.summaryLine() == "empty");
+    assert(areClose(report.averageItemValue(), 0.0));
+    assert(report.outOfStockCount() == 0);
+
+    std::cout << "Test test_report_defaultConstructor: PASS" << std::endl;
+}
+
+// Test parameterized constructor with an empty warehouse
+void test_report_emptyWarehouse() {
+    Warehouse wh("Main Hub");
+    Report report(wh);
+
+    assert(report.isEmpty() == true);
+    assert(report.summaryLine() == "empty");
+    assert(areClose(report.averageItemValue(), 0.0));
+    assert(report.outOfStockCount() == 0);
+
+    std::cout << "Test test_report_emptyWarehouse: PASS" << std::endl;
+}
+
+// Test isEmpty and summaryLine with populated warehouse
+void test_report_summaryLineAndEmptyState() {
+    Warehouse wh("North Facility");
+    wh.addItem(Item("Screws", 100, 0.05));
+
+    Report report(wh);
+    assert(report.isEmpty() == false);
+    assert(report.summaryLine() == "North Facility");
+
+    std::cout << "Test test_report_summaryLineAndEmptyState: PASS" << std::endl;
+}
+
+// Test averageItemValue calculation
+void test_report_averageItemValue() {
+    Warehouse wh("Central Storage");
+    
+    // Item 1: 10 * $5.0 = $50.0
+    wh.addItem(Item("Widget A", 10, 5.0));
+    // Item 2: 2 * $100.0 = $200.0
+    wh.addItem(Item("Widget B", 2, 100.0));
+    // Item 3: 5 * $10.0 = $50.0
+    wh.addItem(Item("Widget C", 5, 10.0));
+
+    // Total Inventory Value = $50 + $200 + $50 = $300.0
+    // Total Unique Items (Count) = 3
+    // Average Item Value = $300.0 / 3 = $100.0
+
+    Report report(wh);
+    assert(areClose(report.averageItemValue(), 100.0));
+
+    std::cout << "Test test_report_averageItemValue: PASS" << std::endl;
+}
+
+// Test outOfStockCount with all in-stock items
+void test_report_outOfStockCount_noneOutOfStock() {
+    Warehouse wh("Depot");
+    wh.addItem(Item("Item1", 5, 10.0));
+    wh.addItem(Item("Item2", 1, 20.0));
+
+    Report report(wh);
+    assert(report.outOfStockCount() == 0);
+
+    std::cout << "Test test_report_outOfStockCount_noneOutOfStock: PASS" << std::endl;
+}
+
+// Test outOfStockCount with mixed in-stock and out-of-stock items
+void test_report_outOfStockCount_mixedStock() {
+    Warehouse wh("Depot Mixed");
+    wh.addItem(Item("Item1", 10, 2.0));  // In stock
+    wh.addItem(Item("Item2", 0, 5.0));   // Out of stock
+    wh.addItem(Item("Item3", 0, 1.0));   // Out of stock
+    wh.addItem(Item("Item4", 3, 15.0));  // In stock
+
+    Report report(wh);
+    assert(report.outOfStockCount() == 2);
+
+    std::cout << "Test test_report_outOfStockCount_mixedStock: PASS" << std::endl;
+}
+
+// Test outOfStockCount when items are consumed to zero
+void test_report_outOfStockCount_afterWithdraw() {
+    Warehouse wh("Depot Dynamic");
+    wh.addItem(Item("Gears", 5, 4.0));
+    wh.addItem(Item("Bolts", 2, 1.0));
+
+    wh.withdraw("Gears", 5); // Quantity becomes 0
+    wh.withdraw("Bolts", 1); // Quantity becomes 1
+
+    Report report(wh);
+    assert(report.outOfStockCount() == 1);
+    assert(report.source.items[0].quantity == 0);
+    assert(report.source.items[1].quantity == 1);
+
+    std::cout << "Test test_report_outOfStockCount_afterWithdraw: PASS" << std::endl;
+}
+
+int main() {
+    test_report_defaultConstructor();
+    test_report_emptyWarehouse();
+    test_report_summaryLineAndEmptyState();
+    test_report_averageItemValue();
+    test_report_outOfStockCount_noneOutOfStock();
+    test_report_outOfStockCount_mixedStock();
+    test_report_outOfStockCount_afterWithdraw();
+
+    std::cout << "All Report unit tests passed successfully!" << std::endl;
+    return 0;
+}
+```

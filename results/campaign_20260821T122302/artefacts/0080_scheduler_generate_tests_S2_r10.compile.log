@@ -1,0 +1,21 @@
+--- Preparing user code (renaming main() to user_code_main) ---
+6 source files: Policy.cpp, ResourceLedger.cpp, RunStatistics.cpp, Scheduler.cpp, Task.cpp, TaskQueue.cpp
+
+--- Test Suite Compilation & Linking ---
+Command: g++ -I /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp48gjg4jx/build /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp48gjg4jx/build/Policy.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp48gjg4jx/build/ResourceLedger.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp48gjg4jx/build/RunStatistics.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp48gjg4jx/build/Scheduler.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp48gjg4jx/build/Task.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp48gjg4jx/build/TaskQueue.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp48gjg4jx/build/test_suite.cpp -o /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp48gjg4jx/test_executable -std=c++17 -Wall
+STDOUT:
+
+STDERR:
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp48gjg4jx/build/test_suite.cpp:15:36: error: non-virtual member function marked 'override' hides virtual member function
+   15 |     bool accepts(const Task& task) override {
+      |                                    ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp48gjg4jx/build/Policy.h:16:18: note: hidden overloaded virtual function 'Policy::accepts' declared here: different qualifiers ('const' vs unqualified)
+   16 |     virtual bool accepts(const Task& task) const;
+      |                  ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp48gjg4jx/build/test_suite.cpp:19:32: error: non-virtual member function marked 'override' hides virtual member function
+   19 |     int rank(const Task& task) override {
+      |                                ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp48gjg4jx/build/Policy.h:14:17: note: hidden overloaded virtual function 'Policy::rank' declared here: different qualifiers ('const' vs unqualified)
+   14 |     virtual int rank(const Task& task) const;
+      |                 ^
+2 errors generated.

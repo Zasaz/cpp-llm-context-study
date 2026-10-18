@@ -1,0 +1,30 @@
+--- Preparing user code (renaming main() to user_code_main) ---
+3 source files: Item.cpp, Report.cpp, Warehouse.cpp
+
+--- Test Suite Compilation & Linking ---
+Command: g++ -I /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp4ymdzbuc/build /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp4ymdzbuc/build/Item.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp4ymdzbuc/build/Report.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp4ymdzbuc/build/Warehouse.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp4ymdzbuc/build/test_suite.cpp -o /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp4ymdzbuc/test_executable -std=c++17 -Wall
+STDOUT:
+
+STDERR:
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp4ymdzbuc/build/test_suite.cpp:50:11: error: no member named 'price' in 'Item'
+   50 |     item1.price = 10.0;
+      |     ~~~~~ ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp4ymdzbuc/build/test_suite.cpp:54:11: error: no member named 'price' in 'Item'
+   54 |     item2.price = 25.0;
+      |     ~~~~~ ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp4ymdzbuc/build/test_suite.cpp:79:11: error: no member named 'price' in 'Item'
+   79 |     item1.price = 15.0;
+      |     ~~~~~ ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp4ymdzbuc/build/test_suite.cpp:83:11: error: no member named 'price' in 'Item'
+   83 |     item2.price = 50.0;
+      |     ~~~~~ ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp4ymdzbuc/build/test_suite.cpp:105:11: error: no member named 'price' in 'Item'
+  105 |     item1.price = 20.0;
+      |     ~~~~~ ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp4ymdzbuc/build/test_suite.cpp:109:11: error: no member named 'price' in 'Item'
+  109 |     item2.price = 30.0;
+      |     ~~~~~ ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp4ymdzbuc/build/test_suite.cpp:113:11: error: no member named 'price' in 'Item'
+  113 |     item3.price = 100.0;
+      |     ~~~~~ ^
+7 errors generated.

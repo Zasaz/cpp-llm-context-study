@@ -1,0 +1,9 @@
+--- Starting Canvas Unit Tests ---
+Test test_canvas_initialState: PASS
+Test test_canvas_addNull: PASS
+Test test_canvas_addSingleShape: PASS
+Test test_canvas_addMultipleShapes: PASS
+Test test_canvas_largestAreaPositions: PASS
+Test test_canvas_clearAndReuse: PASS
+Test test_canvas_destructor: PASS
+--- All Canvas Unit Tests Passed Successfully ---

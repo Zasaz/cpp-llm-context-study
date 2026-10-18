@@ -1,0 +1,197 @@
+```cpp
+#include <iostream>
+#include <cassert>
+#include <cmath>
+#include "Canvas.h"
+#include "Shape.h"
+
+// Helper function for floating point comparisons
+bool isClose(double a, double b, double epsilon = 1e-6) {
+    return std::abs(a - b) < epsilon;
+}
+
+// Concrete Shape class for testing Canvas functionality
+class TestShape : public Shape {
+private:
+    double m_area;
+    bool* m_deletedFlag;
+
+public:
+    explicit TestShape(double a, bool* deletedFlag = nullptr)
+        : m_area(a), m_deletedFlag(deletedFlag) {
+        if (m_deletedFlag) {
+            *m_deletedFlag = false;
+        }
+    }
+
+    virtual ~TestShape() {
+        if (m_deletedFlag) {
+            *m_deletedFlag = true;
+        }
+    }
+
+    virtual double area() const {
+        return m_area;
+    }
+};
+
+// Test default constructor and initial state
+void test_initial_state() {
+    Canvas canvas;
+    assert(canvas.count() == 0);
+    assert(isClose(canvas.totalArea(), 0.0));
+    assert(isClose(canvas.largestArea(), 0.0));
+
+    std::cout << "Test test_initial_state: PASS" << std::endl;
+}
+
+// Test adding a null pointer (should not be added)
+void test_add_null() {
+    Canvas canvas;
+    canvas.add(nullptr);
+    canvas.add(0);
+
+    assert(canvas.count() == 0);
+    assert(isClose(canvas.totalArea(), 0.0));
+    assert(isClose(canvas.largestArea(), 0.0));
+
+    std::cout << "Test test_add_null: PASS" << std::endl;
+}
+
+// Test adding a single valid shape
+void test_add_single_shape() {
+    Canvas canvas;
+    canvas.add(new TestShape(15.5));
+
+    assert(canvas.count() == 1);
+    assert(isClose(canvas.totalArea(), 15.5));
+    assert(isClose(canvas.largestArea(), 15.5));
+
+    std::cout << "Test test_add_single_shape: PASS" << std::endl;
+}
+
+// Test adding multiple shapes and calculating total and largest areas
+void test_add_multiple_shapes() {
+    Canvas canvas;
+    canvas.add(new TestShape(10.0));
+    canvas.add(new TestShape(25.5));
+    canvas.add(new TestShape(5.25));
+    canvas.add(new TestShape(30.0));
+    canvas.add(new TestShape(12.75));
+
+    assert(canvas.count() == 5);
+    assert(isClose(canvas.totalArea(), 83.5));
+    assert(isClose(canvas.largestArea(), 30.0));
+
+    std::cout << "Test test_add_multiple_shapes: PASS" << std::endl;
+}
+
+// Test largestArea when shapes are added in various orderings
+void test_largest_area_ordering() {
+    // Largest first
+    {
+        Canvas canvas;
+        canvas.add(new TestShape(50.0));
+        canvas.add(new TestShape(20.0));
+        canvas.add(new TestShape(10.0));
+        assert(isClose(canvas.largestArea(), 50.0));
+    }
+
+    // Largest last
+    {
+        Canvas canvas;
+        canvas.add(new TestShape(10.0));
+        canvas.add(new TestShape(20.0));
+        canvas.add(new TestShape(50.0));
+        assert(isClose(canvas.largestArea(), 50.0));
+    }
+
+    // Largest in middle
+    {
+        Canvas canvas;
+        canvas.add(new TestShape(10.0));
+        canvas.add(new TestShape(50.0));
+        canvas.add(new TestShape(20.0));
+        assert(isClose(canvas.largestArea(), 50.0));
+    }
+
+    std::cout << "Test test_largest_area_ordering: PASS" << std::endl;
+}
+
+// Test shapes with zero area
+void test_zero_area_shapes() {
+    Canvas canvas;
+    canvas.add(new TestShape(0.0));
+    canvas.add(new TestShape(0.0));
+
+    assert(canvas.count() == 2);
+    assert(isClose(canvas.totalArea(), 0.0));
+    assert(isClose(canvas.largestArea(), 0.0));
+
+    std::cout << "Test test_zero_area_shapes: PASS" << std::endl;
+}
+
+// Test clear method resets count and areas, and properly deallocates shapes
+void test_clear() {
+    bool deleted1 = false;
+    bool deleted2 = false;
+
+    Canvas canvas;
+    canvas.add(new TestShape(10.0, &deleted1));
+    canvas.add(new TestShape(20.0, &deleted2));
+
+    assert(canvas.count() == 2);
+    assert(!deleted1);
+    assert(!deleted2);
+
+    canvas.clear();
+
+    assert(canvas.count() == 0);
+    assert(isClose(canvas.totalArea(), 0.0));
+    assert(isClose(canvas.largestArea(), 0.0));
+    assert(deleted1);
+    assert(deleted2);
+
+    // Calling clear again on an empty canvas should be safe
+    canvas.clear();
+    assert(canvas.count() == 0);
+
+    std::cout << "Test test_clear: PASS" << std::endl;
+}
+
+// Test destructor properly cleans up remaining shapes
+void test_destructor_deallocation() {
+    bool deleted1 = false;
+    bool deleted2 = false;
+
+    {
+        Canvas canvas;
+        canvas.add(new TestShape(10.0, &deleted1));
+        canvas.add(new TestShape(20.0, &deleted2));
+        assert(!deleted1);
+        assert(!deleted2);
+    } // canvas goes out of scope here
+
+    assert(deleted1);
+    assert(deleted2);
+
+    std::cout << "Test test_destructor_deallocation: PASS" << std::endl;
+}
+
+// Main function to run all test cases
+int main() {
+    std::cout << "Starting Canvas unit tests..." << std::endl;
+
+    test_initial_state();
+    test_add_null();
+    test_add_single_shape();
+    test_add_multiple_shapes();
+    test_largest_area_ordering();
+    test_zero_area_shapes();
+    test_clear();
+    test_destructor_deallocation();
+
+    std::cout << "All Canvas unit tests passed successfully!" << std::endl;
+    return 0;
+}
+```

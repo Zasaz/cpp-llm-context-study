@@ -1,0 +1,109 @@
+<div class="documentation-output">
+    {% if result.error %}
+    <div class="error-message">
+        <strong>Error:</strong>
+        <pre>{{ result.error }}</pre>
+    </div>
+    {% elif result.format == 'doxygen' %}
+    <div id="raw-doc-content" style="display:none;">{{ result.content | safe }}</div>
+
+    <div class="actions-header">
+        <h6>Generated Doxygen Comments</h6>
+        <div class="button-group">
+            <button type="button" class="button" id="copy-doc-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span>Copy</span>
+            </button>
+            <button type="button" class="button button-primary" id="download-doc-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" x2="12" y1="15" y2="3"></line>
+                </svg>
+                <span>Download .txt</span>
+            </button>
+        </div>
+    </div>
+    <pre><code class="language-cpp" id="doc-code-block">{{ result.content }}</code></pre>
+
+    {% elif result.format == 'markdown' %}
+    <div id="raw-doc-content" style="display:none;">{{ result.content_raw | safe }}</div>
+
+    <div class="actions-header">
+        <h6>Generated Markdown Report</h6>
+        <div class="button-group">
+            <button type="button" class="button button-primary" id="download-doc-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" x2="12" y1="15" y2="3"></line>
+                </svg>
+                <span>Download .txt</span>
+            </button>
+        </div>
+    </div>
+    <div class="markdown-content">
+        {{ result.content_html | safe }}
+    </div>
+    {% else %}
+    <p style="color: var(--text-secondary);">No documentation was generated.</p>
+    {% endif %}
+</div>
+
+<script>
+    // This ensures Prism highlights the new code block when this partial is loaded.
+    if (window.Prism) {
+        Prism.highlightAll();
+    }
+
+    // --- Copy Button Logic ---
+    const copyBtn = document.getElementById('copy-doc-button');
+    if (copyBtn) {
+        copyBtn.addEventListener('click', function () {
+            const codeBlock = document.getElementById('doc-code-block');
+            if (navigator.clipboard && codeBlock) {
+                navigator.clipboard.writeText(codeBlock.textContent).then(function () {
+                    const originalText = copyBtn.querySelector('span').textContent;
+                    copyBtn.querySelector('span').textContent = 'Copied!';
+                    setTimeout(() => {
+                        copyBtn.querySelector('span').textContent = originalText;
+                    }, 2000);
+                }).catch(err => {
+                    alert('Failed to copy text.');
+                });
+            }
+        });
+    }
+
+    // --- Download Button Logic ---
+    const downloadBtn = document.getElementById('download-doc-button');
+    if (downloadBtn) {
+        downloadBtn.addEventListener('click', function () {
+            const rawContentDiv = document.getElementById('raw-doc-content');
+            if (!rawContentDiv) {
+                alert('Could not find content to download.');
+                return;
+            }
+            const content = rawContentDiv.textContent;
+            if (!content) {
+                alert('Content for download is empty.');
+                return;
+            }
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'documentation_report.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+    }
+</script>

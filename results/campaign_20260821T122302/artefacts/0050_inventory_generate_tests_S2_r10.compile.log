@@ -1,0 +1,67 @@
+--- Preparing user code (renaming main() to user_code_main) ---
+3 source files: Item.cpp, Report.cpp, Warehouse.cpp
+
+--- Test Suite Compilation & Linking ---
+Command: g++ -I /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp20wkcsek/build /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp20wkcsek/build/Item.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp20wkcsek/build/Report.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp20wkcsek/build/Warehouse.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp20wkcsek/build/test_suite.cpp -o /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp20wkcsek/test_executable -std=c++17 -Wall
+STDOUT:
+
+STDERR:
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp20wkcsek/build/test_suite.cpp:48:11: error: no member named 'setName' in 'Item'
+   48 |     item1.setName("Widget");
+      |     ~~~~~ ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp20wkcsek/build/test_suite.cpp:49:11: error: no member named 'setPrice' in 'Item'
+   49 |     item1.setPrice(10.0);
+      |     ~~~~~ ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp20wkcsek/build/test_suite.cpp:50:11: error: no member named 'setQuantity' in 'Item'
+   50 |     item1.setQuantity(5);
+      |     ~~~~~ ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp20wkcsek/build/test_suite.cpp:53:11: error: no member named 'setName' in 'Item'
+   53 |     item2.setName("Gadget");
+      |     ~~~~~ ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp20wkcsek/build/test_suite.cpp:54:11: error: no member named 'setPrice' in 'Item'
+   54 |     item2.setPrice(20.0);
+      |     ~~~~~ ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp20wkcsek/build/test_suite.cpp:55:11: error: no member named 'setQuantity' in 'Item'
+   55 |     item2.setQuantity(2);
+      |     ~~~~~ ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp20wkcsek/build/test_suite.cpp:80:11: error: no member named 'setName' in 'Item'
+   80 |     item1.setName("Item A");
+      |     ~~~~~ ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp20wkcsek/build/test_suite.cpp:81:11: error: no member named 'setPrice' in 'Item'
+   81 |     item1.setPrice(15.0);
+      |     ~~~~~ ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp20wkcsek/build/test_suite.cpp:82:11: error: no member named 'setQuantity' in 'Item'
+   82 |     item1.setQuantity(0); // Out of stock
+      |     ~~~~~ ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp20wkcsek/build/test_suite.cpp:85:11: error: no member named 'setName' in 'Item'
+   85 |     item2.setName("Item B");
+      |     ~~~~~ ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp20wkcsek/build/test_suite.cpp:86:11: error: no member named 'setPrice' in 'Item'
+   86 |     item2.setPrice(25.0);
+      |     ~~~~~ ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp20wkcsek/build/test_suite.cpp:87:11: error: no member named 'setQuantity' in 'Item'
+   87 |     item2.setQuantity(4); // In stock
+      |     ~~~~~ ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp20wkcsek/build/test_suite.cpp:90:11: error: no member named 'setName' in 'Item'
+   90 |     item3.setName("Item C");
+      |     ~~~~~ ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp20wkcsek/build/test_suite.cpp:91:11: error: no member named 'setPrice' in 'Item'
+   91 |     item3.setPrice(5.0);
+      |     ~~~~~ ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp20wkcsek/build/test_suite.cpp:92:11: error: no member named 'setQuantity' in 'Item'
+   92 |     item3.setQuantity(0); // Out of stock
+      |     ~~~~~ ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp20wkcsek/build/test_suite.cpp:117:11: error: no member named 'setName' in 'Item'
+  117 |     item1.setName("Tool");
+      |     ~~~~~ ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp20wkcsek/build/test_suite.cpp:118:11: error: no member named 'setPrice' in 'Item'
+  118 |     item1.setPrice(50.0);
+      |     ~~~~~ ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp20wkcsek/build/test_suite.cpp:119:11: error: no member named 'setQuantity' in 'Item'
+  119 |     item1.setQuantity(0);
+      |     ~~~~~ ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp20wkcsek/build/test_suite.cpp:122:11: error: no member named 'setName' in 'Item'
+  122 |     item2.setName("Part");
+      |     ~~~~~ ^
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+20 errors generated.

@@ -1,0 +1,148 @@
+<div class="performance-report">
+    <script id="performanceJsonData" type="application/json" style="display: none;">
+        {{ result | tojson | safe }}
+    </script>
+
+    {% if result.error and not result.execution_time_s_val %}
+    <div class="error-message"><strong>Error:</strong>
+        <pre>{{ result.error }}</pre>
+    </div>
+    {% else %}
+    <!-- Stat Cards -->
+    <div class="performance-stats">
+        <div class="stat-card">
+            <div class="stat-card-label">Execution Time</div>
+            <div class="stat-card-value">
+                {{ "%.4f"|format(result.execution_time_s_val|float) if result.execution_time_s_val is not none else
+                'N/A' }}
+                <span>s</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-label">Peak Memory</div>
+            <div class="stat-card-value">
+                {{ "%.2f"|format(result.peak_memory_mb_val|float) if result.peak_memory_mb_val is not none else 'N/A' }}
+                <span>MB</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-label">CPU Time</div>
+            <div class="stat-card-value">
+                {{ "%.3f"|format(result.cpu_time_s_val|float) if result.cpu_time_s_val is not none else 'N/A' }}
+                <span>s</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="chart-container" style="margin-bottom: 1.5rem;">
+        <canvas id="performanceChart"></canvas>
+    </div>
+
+    <!-- AI Analysis Card -->
+    <div class="output-card" style="margin-bottom: 1.5rem;">
+        <div class="output-card-header">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20h9"></path>
+                <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+            </svg>
+            <span>AI-Powered Analysis</span>
+        </div>
+        <div class="output-card-body markdown-content">
+            {{ result.ai_analysis | safe }}
+        </div>
+    </div>
+
+    <!-- Compilation Log Card -->
+    {% if result.compilation %}
+    <div class="output-card">
+        <div class="output-card-header">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="4 17 10 11 4 5"></polyline>
+                <line x1="12" x2="20" y1="19" y2="19"></line>
+            </svg>
+            <span>Compilation Log</span>
+        </div>
+        <div class="output-card-body">
+            <pre class="console-output">{{ result.compilation }}</pre>
+        </div>
+    </div>
+    {% endif %}
+    {% endif %}
+</div>
+
+<script>
+    if (!window.performanceOutputScriptRendered && document.getElementById('performanceChart')) {
+        window.performanceOutputScriptRendered = true;
+        document.addEventListener("DOMContentLoaded", function () {
+            if (window.performanceChartInstance || !document.getElementById('performanceChart')) {
+                return;
+            }
+            const canvasElement = document.getElementById('performanceChart');
+            if (!canvasElement) {
+                return;
+            }
+            const ctx = canvasElement.getContext('2d');
+
+            let performanceData = null;
+            try {
+                const jsonDataElement = document.getElementById('performanceJsonData');
+                performanceData = JSON.parse(jsonDataElement.textContent);
+            } catch (e) {
+                const chartContainerError = document.querySelector('.chart-container');
+                if (chartContainerError) {
+                    chartContainerError.innerHTML = '<p style="text-align:center; color: var(--text-secondary); padding: 2rem;">Error: Could not load performance data for the chart.</p>';
+                }
+                return;
+            }
+
+            const execTime = performanceData.execution_time_s_val !== undefined ? performanceData.execution_time_s_val : null;
+            const peakMem = performanceData.peak_memory_mb_val !== undefined ? performanceData.peak_memory_mb_val : null;
+            const cpuTime = performanceData.cpu_time_s_val !== undefined ? performanceData.cpu_time_s_val : null;
+
+            const labels = [];
+            const dataValues = [];
+            const backgroundColors = [];
+
+            const colors = {
+                exec: 'rgba(59, 130, 246, 0.7)',
+                mem: 'rgba(236, 72, 153, 0.7)',
+                cpu: 'rgba(34, 197, 94, 0.7)'
+            };
+
+            if (execTime !== null) { labels.push('Execution Time (s)'); dataValues.push(execTime); backgroundColors.push(colors.exec); }
+            if (peakMem !== null) { labels.push('Peak Memory (MB)'); dataValues.push(peakMem); backgroundColors.push(colors.mem); }
+            if (cpuTime !== null) { labels.push('CPU Time (s)'); dataValues.push(cpuTime); backgroundColors.push(colors.cpu); }
+
+            const chartContainer = document.querySelector('.chart-container');
+
+            if (dataValues.length === 0) {
+                if (chartContainer) {
+                    chartContainer.innerHTML = '<p style="text-align:center; color: var(--text-secondary); padding: 2rem;">Performance metrics could not be gathered. This may require /usr/bin/time or a successful execution.</p>';
+                }
+            } else {
+                window.performanceChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: { labels: labels, datasets: [{ label: 'Value', data: dataValues, backgroundColor: backgroundColors, borderRadius: 4 }] },
+                    options: {
+                        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                        scales: {
+                            x: { beginAtZero: true, ticks: { color: 'var(--text-secondary)', font: { family: 'var(--font-sans)' } }, grid: { color: 'var(--border-color)' } },
+                            y: { ticks: { color: 'var(--text-primary)', font: { family: 'var(--font-sans)' } }, grid: { display: false } }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            title: { display: false },
+                            tooltip: {
+                                backgroundColor: 'var(--bg-main)', titleFont: { family: 'var(--font-sans)' }, bodyFont: { family: 'var(--font-sans)' },
+                                padding: 12, displayColors: false,
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    }
+</script>

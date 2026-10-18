@@ -1,0 +1,13 @@
+Test test_constructors_and_defaults: PASS
+Test test_filter_management: PASS
+Test test_process_and_stage: PASS
+Test test_wouldReject: PASS
+Test test_requireQuality: PASS
+Test test_ingest_single: PASS
+Test test_ingestBatch: PASS
+Test test_channel_statistics_and_latest: PASS
+Test test_normalised_and_denormalised: PASS
+Test test_flush: PASS
+Test test_describe: PASS
+
+All SamplePipeline tests passed successfully!

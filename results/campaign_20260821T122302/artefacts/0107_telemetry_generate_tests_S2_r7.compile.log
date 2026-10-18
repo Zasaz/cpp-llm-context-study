@@ -1,0 +1,21 @@
+--- Preparing user code (renaming main() to user_code_main) ---
+10 source files: AlertRule.cpp, Channel.cpp, Dashboard.cpp, Filter.cpp, QueryEngine.cpp, RingBuffer.cpp, Sample.cpp, SamplePipeline.cpp, SeriesStore.cpp, UnitScale.cpp
+
+--- Test Suite Compilation & Linking ---
+Command: g++ -I /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpczjzoo0k/build /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpczjzoo0k/build/AlertRule.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpczjzoo0k/build/Channel.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpczjzoo0k/build/Dashboard.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpczjzoo0k/build/Filter.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpczjzoo0k/build/QueryEngine.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpczjzoo0k/build/RingBuffer.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpczjzoo0k/build/Sample.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpczjzoo0k/build/SamplePipeline.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpczjzoo0k/build/SeriesStore.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpczjzoo0k/build/UnitScale.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpczjzoo0k/build/test_suite.cpp -o /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpczjzoo0k/test_executable -std=c++17 -Wall
+STDOUT:
+
+STDERR:
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpczjzoo0k/build/test_suite.cpp:28:34: error: non-virtual member function marked 'override' hides virtual member function
+   28 |     bool rejects(double reading) override {
+      |                                  ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpczjzoo0k/build/Filter.h:16:18: note: hidden overloaded virtual function 'Filter::rejects' declared here: different qualifiers ('const' vs unqualified)
+   16 |     virtual bool rejects(double reading) const;
+      |                  ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpczjzoo0k/build/test_suite.cpp:158:37: error: reference to non-static member function must be called; did you mean to call it with no arguments?
+  158 |     assert(approxEqual(latestSample.value, 20.0));
+      |                        ~~~~~~~~~~~~~^~~~~
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/assert.h:72:25: note: expanded from macro 'assert'
+   72 |     (__builtin_expect(!(e), 0) ? __assert_rtn(__func__, __ASSERT_FILE_NAME, __LINE__, #e) : (void)0)
+      |                         ^
+2 errors generated.

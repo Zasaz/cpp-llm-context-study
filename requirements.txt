@@ -1,0 +1,8 @@
+Flask
+google-genai
+python-dotenv
+markdown2
+Flask-APScheduler
+flask-cors
+gunicorn
+libclang

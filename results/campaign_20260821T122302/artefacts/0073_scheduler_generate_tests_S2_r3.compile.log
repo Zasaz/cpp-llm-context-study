@@ -1,0 +1,24 @@
+--- Preparing user code (renaming main() to user_code_main) ---
+6 source files: Policy.cpp, ResourceLedger.cpp, RunStatistics.cpp, Scheduler.cpp, Task.cpp, TaskQueue.cpp
+
+--- Test Suite Compilation & Linking ---
+Command: g++ -I /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpd2aznw_d/build /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpd2aznw_d/build/Policy.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpd2aznw_d/build/ResourceLedger.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpd2aznw_d/build/RunStatistics.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpd2aznw_d/build/Scheduler.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpd2aznw_d/build/Task.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpd2aznw_d/build/TaskQueue.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpd2aznw_d/build/test_suite.cpp -o /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpd2aznw_d/test_executable -std=c++17 -Wall
+STDOUT:
+
+STDERR:
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpd2aznw_d/build/test_suite.cpp:13:36: error: non-virtual member function marked 'override' hides virtual member function
+   13 |     bool accepts(const Task& task) override {
+      |                                    ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpd2aznw_d/build/Policy.h:16:18: note: hidden overloaded virtual function 'Policy::accepts' declared here: different qualifiers ('const' vs unqualified)
+   16 |     virtual bool accepts(const Task& task) const;
+      |                  ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpd2aznw_d/build/test_suite.cpp:17:32: error: non-virtual member function marked 'override' hides virtual member function
+   17 |     int rank(const Task& task) override {
+      |                                ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpd2aznw_d/build/Policy.h:14:17: note: hidden overloaded virtual function 'Policy::rank' declared here: different qualifiers ('const' vs unqualified)
+   14 |     virtual int rank(const Task& task) const;
+      |                 ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpd2aznw_d/build/test_suite.cpp:122:9: warning: unused variable 'initialRejected' [-Wunused-variable]
+  122 |     int initialRejected = queue.rejectedCount();
+      |         ^~~~~~~~~~~~~~~
+1 warning and 2 errors generated.

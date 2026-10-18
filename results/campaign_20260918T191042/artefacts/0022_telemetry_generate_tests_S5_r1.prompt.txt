@@ -1,0 +1,786 @@
+
+    You are an expert C++ unit testing assistant.
+    Given the following C++ code project, generate a complete, compilable C++ unit test suite in a single code block.
+    Your primary goal is to generate comprehensive tests for the functions and classes defined in the file `SamplePipeline.cpp`. Use the other provided files for context to understand dependencies and usage.
+
+    The test suite you generate MUST:
+    1.  Include necessary standard headers (like `<cassert>`, `<iostream>`, `<vector>`, `<string>`, etc., as needed for the tests).
+    2.  Create several distinct test functions. Each test function should focus on testing a specific aspect, function, or edge case. Name test functions clearly (e.g., `test_functionName_caseDescription()`).
+    3.  Each test function MUST use `assert()` for checks.
+    4.  Each test function should print a distinct success message to `std::cout` if all its assertions pass (e.g., `std::cout << "Test test_functionName_caseDescription: PASS" << std::endl;`).
+    5.  Include YOUR OWN `main()` function in the test suite. This `main()` function will be the ONLY entry point for the test executable. It should call all the individual test functions you defined.
+    6.  The test suite should be self-contained in terms of test logic.
+
+    **Important for Compilation & Usability:**
+    -   The user's C++ code (provided below) will be compiled first, and then this test suite will be compiled and linked against it. The test suite is compiled inside the project directory, so the project's own headers are on the include path.
+    -   Therefore, you MUST obtain the declarations you need by including the project's own headers by name, for example `#include "Canvas.h"`.
+    -   Do NOT re-declare or re-define any class, struct or function that the project's own headers already declare. A hand-written declaration that does not match the real one compiles and links without any diagnostic and then corrupts memory at run time.
+    -   Do NOT attempt to call or interact with any `main()` function that might be present in the User's C++ Code.
+
+    User's C++ Project Code:
+    ```cpp
+    //--- file: Channel.h ---
+#ifndef CHANNEL_H
+#define CHANNEL_H
+
+#include "Sample.h"
+#include "UnitScale.h"
+#include <string>
+#include <vector>
+
+class Channel {
+public:
+    std::string name;
+    std::vector<Sample> samples;
+    UnitScale scale;
+    int capacity;
+    int dropped;
+
+    Channel();
+    Channel(const std::string& channelName, int limit);
+
+    int append(const Sample& sample);
+    int count() const;
+    int validCount() const;
+    int droppedCount() const;
+    bool isFull() const;
+    bool isEmpty() const;
+    double sum() const;
+    double mean() const;
+    double peak() const;
+    double trough() const;
+    double range() const;
+    double meanInBase() const;
+    Sample sampleAt(int position) const;
+    Sample newest() const;
+    int purgeDegraded();
+    std::string channelName() const;
+    int rescale(const UnitScale& replacement);
+};
+
+#endif
+
+
+//--- file: Filter.h ---
+#ifndef FILTER_H
+#define FILTER_H
+
+#include <string>
+
+class Filter {
+public:
+    int applied;
+    bool enabled;
+
+    Filter();
+    virtual ~Filter();
+
+    virtual double apply(double reading);
+    virtual std::string label() const;
+    virtual bool rejects(double reading) const;
+    int appliedCount() const;
+    int resetCount();
+    bool toggle();
+};
+
+class PassFilter : public Filter {
+public:
+    PassFilter();
+    double apply(double reading);
+    std::string label() const;
+};
+
+class ClampFilter : public Filter {
+public:
+    double low;
+    double high;
+
+    ClampFilter();
+    ClampFilter(double lowBound, double highBound);
+    double apply(double reading);
+    std::string label() const;
+    bool rejects(double reading) const;
+    double width() const;
+};
+
+class SmoothFilter : public Filter {
+public:
+    double previous;
+    double weight;
+    bool primed;
+
+    SmoothFilter();
+    SmoothFilter(double smoothing);
+    double apply(double reading);
+    std::string label() const;
+    double lastValue() const;
+    bool isPrimed() const;
+};
+
+#endif
+
+
+//--- file: Sample.h ---
+#ifndef SAMPLE_H
+#define SAMPLE_H
+
+class Sample {
+public:
+    int sequence;
+    double raw;
+    int quality;
+    bool flagged;
+
+    Sample();
+    Sample(int position, double reading, int qualityScore);
+
+    int position() const;
+    double value() const;
+    int score() const;
+    bool isValid() const;
+    bool isDegraded() const;
+    double weighted() const;
+    double deviationFrom(double reference) const;
+    double bounded(double low, double high) const;
+    int flag();
+    int promote(int amount);
+};
+
+#endif
+
+
+//--- file: SamplePipeline.h ---
+#ifndef SAMPLEPIPELINE_H
+#define SAMPLEPIPELINE_H
+
+#include "Channel.h"
+#include "Filter.h"
+#include "Sample.h"
+#include "UnitScale.h"
+#include <string>
+#include <vector>
+
+class SamplePipeline {
+public:
+    Channel channel;
+    std::vector<Filter*> filters;
+    UnitScale scale;
+    int accepted;
+    int rejected;
+    int minimumQuality;
+
+    SamplePipeline();
+    SamplePipeline(const std::string& channelName, int limit);
+
+    int addFilter(Filter* filter);
+    int filterCount() const;
+    int clearFilters();
+    double process(double reading);
+    double stage(double reading, int index);
+    bool wouldReject(double reading) const;
+    int ingest(int sequence, double reading, int quality);
+    int ingestBatch(const std::vector<double>& readings, int quality);
+    int acceptedCount() const;
+    int rejectedCount() const;
+    int requireQuality(int minimum);
+    double channelMean() const;
+    double channelPeak() const;
+    double normalised(double reading) const;
+    double denormalised(double reading) const;
+    int validSamples() const;
+    bool isSaturated() const;
+    Sample latest() const;
+    int flush();
+    std::string describe() const;
+};
+
+#endif
+
+
+//--- file: UnitScale.h ---
+#ifndef UNITSCALE_H
+#define UNITSCALE_H
+
+#include <string>
+
+class UnitScale {
+public:
+    double factor;
+    double offset;
+    std::string unit;
+
+    UnitScale();
+    UnitScale(double scaleFactor, double scaleOffset, const std::string& unitName);
+
+    double toBase(double reading) const;
+    double fromBase(double reading) const;
+    double spanOf(double low, double high) const;
+    std::string unitName() const;
+    bool isIdentity() const;
+    double quantised(double reading, int digits) const;
+    UnitScale inverted() const;
+};
+
+#endif
+
+
+//--- file: Channel.cpp ---
+#include "Channel.h"
+
+Channel::Channel() {
+    name = "unnamed";
+    capacity = 16;
+    dropped = 0;
+}
+
+Channel::Channel(const std::string& channelName, int limit) {
+    name = channelName;
+    capacity = limit > 0 ? limit : 1;
+    dropped = 0;
+}
+
+int Channel::append(const Sample& sample) {
+    if (isFull()) {
+        dropped = dropped + 1;
+        return -1;
+    }
+    samples.push_back(sample);
+    return count();
+}
+
+int Channel::count() const {
+    return static_cast<int>(samples.size());
+}
+
+int Channel::validCount() const {
+    int total = 0;
+    for (unsigned int i = 0; i < samples.size(); ++i) {
+        if (samples[i].isValid()) {
+            total = total + 1;
+        }
+    }
+    return total;
+}
+
+int Channel::droppedCount() const {
+    return dropped;
+}
+
+bool Channel::isFull() const {
+    return count() >= capacity;
+}
+
+bool Channel::isEmpty() const {
+    return samples.empty();
+}
+
+double Channel::sum() const {
+    double total = 0.0;
+    for (unsigned int i = 0; i < samples.size(); ++i) {
+        total = total + samples[i].value();
+    }
+    return total;
+}
+
+double Channel::mean() const {
+    int n = count();
+    if (n == 0) {
+        return 0.0;
+    }
+    return sum() / static_cast<double>(n);
+}
+
+double Channel::peak() const {
+    if (samples.empty()) {
+        return 0.0;
+    }
+    double best = samples[0].value();
+    for (unsigned int i = 1; i < samples.size(); ++i) {
+        double current = samples[i].value();
+        if (current > best) {
+            best = current;
+        }
+    }
+    return best;
+}
+
+double Channel::trough() const {
+    if (samples.empty()) {
+        return 0.0;
+    }
+    double best = samples[0].value();
+    for (unsigned int i = 1; i < samples.size(); ++i) {
+        double current = samples[i].value();
+        if (current < best) {
+            best = current;
+        }
+    }
+    return best;
+}
+
+double Channel::range() const {
+    return peak() - trough();
+}
+
+double Channel::meanInBase() const {
+    return scale.toBase(mean());
+}
+
+Sample Channel::sampleAt(int position) const {
+    if (position < 0 || position >= count()) {
+        return Sample();
+    }
+    return samples[static_cast<unsigned int>(position)];
+}
+
+Sample Channel::newest() const {
+    return sampleAt(count() - 1);
+}
+
+int Channel::purgeDegraded() {
+    std::vector<Sample> kept;
+    int removed = 0;
+    for (unsigned int i = 0; i < samples.size(); ++i) {
+        if (samples[i].isDegraded()) {
+            removed = removed + 1;
+        } else {
+            kept.push_back(samples[i]);
+        }
+    }
+    samples = kept;
+    return removed;
+}
+
+std::string Channel::channelName() const {
+    return name;
+}
+
+int Channel::rescale(const UnitScale& replacement) {
+    scale = replacement;
+    return count();
+}
+
+
+//--- file: Filter.cpp ---
+#include "Filter.h"
+
+Filter::Filter() {
+    applied = 0;
+    enabled = true;
+}
+
+Filter::~Filter() {
+}
+
+double Filter::apply(double reading) {
+    applied = applied + 1;
+    return reading;
+}
+
+std::string Filter::label() const {
+    return "filter";
+}
+
+bool Filter::rejects(double reading) const {
+    return !enabled && reading != 0.0;
+}
+
+int Filter::appliedCount() const {
+    return applied;
+}
+
+int Filter::resetCount() {
+    int previous = applied;
+    applied = 0;
+    return previous;
+}
+
+bool Filter::toggle() {
+    enabled = !enabled;
+    return enabled;
+}
+
+PassFilter::PassFilter() {
+}
+
+double PassFilter::apply(double reading) {
+    applied = applied + 1;
+    return reading;
+}
+
+std::string PassFilter::label() const {
+    return "pass";
+}
+
+ClampFilter::ClampFilter() {
+    low = 0.0;
+    high = 1.0;
+}
+
+ClampFilter::ClampFilter(double lowBound, double highBound) {
+    if (lowBound <= highBound) {
+        low = lowBound;
+        high = highBound;
+    } else {
+        low = highBound;
+        high = lowBound;
+    }
+}
+
+double ClampFilter::apply(double reading) {
+    applied = applied + 1;
+    if (reading < low) {
+        return low;
+    }
+    if (reading > high) {
+        return high;
+    }
+    return reading;
+}
+
+std::string ClampFilter::label() const {
+    return "clamp";
+}
+
+bool ClampFilter::rejects(double reading) const {
+    return reading < low || reading > high;
+}
+
+double ClampFilter::width() const {
+    return high - low;
+}
+
+SmoothFilter::SmoothFilter() {
+    previous = 0.0;
+    weight = 0.5;
+    primed = false;
+}
+
+SmoothFilter::SmoothFilter(double smoothing) {
+    previous = 0.0;
+    primed = false;
+    weight = smoothing;
+    if (weight < 0.0) {
+        weight = 0.0;
+    }
+    if (weight > 1.0) {
+        weight = 1.0;
+    }
+}
+
+double SmoothFilter::apply(double reading) {
+    applied = applied + 1;
+    if (!primed) {
+        previous = reading;
+        primed = true;
+        return reading;
+    }
+    previous = weight * reading + (1.0 - weight) * previous;
+    return previous;
+}
+
+std::string SmoothFilter::label() const {
+    return "smooth";
+}
+
+double SmoothFilter::lastValue() const {
+    return previous;
+}
+
+bool SmoothFilter::isPrimed() const {
+    return primed;
+}
+
+
+//--- file: Sample.cpp ---
+#include "Sample.h"
+
+Sample::Sample() {
+    sequence = 0;
+    raw = 0.0;
+    quality = 0;
+    flagged = true;
+}
+
+Sample::Sample(int position, double reading, int qualityScore) {
+    sequence = position;
+    raw = reading;
+    quality = qualityScore;
+    if (quality < 0) {
+        quality = 0;
+    }
+    if (quality > 100) {
+        quality = 100;
+    }
+    flagged = false;
+}
+
+int Sample::position() const {
+    return sequence;
+}
+
+double Sample::value() const {
+    return raw;
+}
+
+int Sample::score() const {
+    return quality;
+}
+
+bool Sample::isValid() const {
+    return !flagged && quality > 0;
+}
+
+bool Sample::isDegraded() const {
+    return quality < 50;
+}
+
+double Sample::weighted() const {
+    if (!isValid()) {
+        return 0.0;
+    }
+    return raw * static_cast<double>(quality) / 100.0;
+}
+
+double Sample::deviationFrom(double reference) const {
+    double delta = raw - reference;
+    return delta < 0.0 ? -delta : delta;
+}
+
+double Sample::bounded(double low, double high) const {
+    if (low > high) {
+        return raw;
+    }
+    if (raw < low) {
+        return low;
+    }
+    if (raw > high) {
+        return high;
+    }
+    return raw;
+}
+
+int Sample::flag() {
+    int previous = quality;
+    flagged = true;
+    return previous;
+}
+
+int Sample::promote(int amount) {
+    quality = quality + amount;
+    if (quality < 0) {
+        quality = 0;
+    }
+    if (quality > 100) {
+        quality = 100;
+    }
+    return quality;
+}
+
+
+//--- file: SamplePipeline.cpp ---
+#include "SamplePipeline.h"
+
+SamplePipeline::SamplePipeline() {
+    accepted = 0;
+    rejected = 0;
+    minimumQuality = 1;
+}
+
+SamplePipeline::SamplePipeline(const std::string& channelName, int limit) {
+    channel = Channel(channelName, limit);
+    accepted = 0;
+    rejected = 0;
+    minimumQuality = 1;
+}
+
+int SamplePipeline::addFilter(Filter* filter) {
+    if (filter == 0) {
+        return filterCount();
+    }
+    filters.push_back(filter);
+    return filterCount();
+}
+
+int SamplePipeline::filterCount() const {
+    return static_cast<int>(filters.size());
+}
+
+int SamplePipeline::clearFilters() {
+    int previous = filterCount();
+    filters.clear();
+    return previous;
+}
+
+double SamplePipeline::process(double reading) {
+    double current = reading;
+    for (unsigned int i = 0; i < filters.size(); ++i) {
+        current = filters[i]->apply(current);
+    }
+    return current;
+}
+
+double SamplePipeline::stage(double reading, int index) {
+    if (index < 0 || index >= filterCount()) {
+        return reading;
+    }
+    return filters[static_cast<unsigned int>(index)]->apply(reading);
+}
+
+bool SamplePipeline::wouldReject(double reading) const {
+    for (unsigned int i = 0; i < filters.size(); ++i) {
+        if (filters[i]->rejects(reading)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+int SamplePipeline::ingest(int sequence, double reading, int quality) {
+    if (quality < minimumQuality || wouldReject(reading)) {
+        rejected = rejected + 1;
+        return -1;
+    }
+    double filtered = process(reading);
+    Sample sample(sequence, filtered, quality);
+    if (!sample.isValid()) {
+        rejected = rejected + 1;
+        return -1;
+    }
+    if (channel.append(sample) < 0) {
+        rejected = rejected + 1;
+        return -1;
+    }
+    accepted = accepted + 1;
+    return accepted;
+}
+
+int SamplePipeline::ingestBatch(const std::vector<double>& readings, int quality) {
+    int taken = 0;
+    for (unsigned int i = 0; i < readings.size(); ++i) {
+        if (ingest(static_cast<int>(i), readings[i], quality) > 0) {
+            taken = taken + 1;
+        }
+    }
+    return taken;
+}
+
+int SamplePipeline::acceptedCount() const {
+    return accepted;
+}
+
+int SamplePipeline::rejectedCount() const {
+    return rejected;
+}
+
+int SamplePipeline::requireQuality(int minimum) {
+    int previous = minimumQuality;
+    if (minimum >= 0) {
+        minimumQuality = minimum;
+    }
+    return previous;
+}
+
+double SamplePipeline::channelMean() const {
+    return channel.mean();
+}
+
+double SamplePipeline::channelPeak() const {
+    return channel.peak();
+}
+
+double SamplePipeline::normalised(double reading) const {
+    return scale.fromBase(reading);
+}
+
+double SamplePipeline::denormalised(double reading) const {
+    return scale.toBase(reading);
+}
+
+int SamplePipeline::validSamples() const {
+    return channel.validCount();
+}
+
+bool SamplePipeline::isSaturated() const {
+    return channel.isFull();
+}
+
+Sample SamplePipeline::latest() const {
+    return channel.newest();
+}
+
+int SamplePipeline::flush() {
+    int previous = channel.count();
+    channel = Channel(channel.channelName(), channel.capacity);
+    accepted = 0;
+    rejected = 0;
+    return previous;
+}
+
+std::string SamplePipeline::describe() const {
+    if (channel.isEmpty()) {
+        return "empty";
+    }
+    return channel.channelName() + ":" + scale.unitName();
+}
+
+
+//--- file: UnitScale.cpp ---
+#include "UnitScale.h"
+#include <cmath>
+
+UnitScale::UnitScale() {
+    factor = 1.0;
+    offset = 0.0;
+    unit = "raw";
+}
+
+UnitScale::UnitScale(double scaleFactor, double scaleOffset, const std::string& unitName) {
+    factor = scaleFactor != 0.0 ? scaleFactor : 1.0;
+    offset = scaleOffset;
+    unit = unitName;
+}
+
+double UnitScale::toBase(double reading) const {
+    return reading * factor + offset;
+}
+
+double UnitScale::fromBase(double reading) const {
+    return (reading - offset) / factor;
+}
+
+double UnitScale::spanOf(double low, double high) const {
+    double a = toBase(low);
+    double b = toBase(high);
+    double delta = b - a;
+    return delta < 0.0 ? -delta : delta;
+}
+
+std::string UnitScale::unitName() const {
+    return unit;
+}
+
+bool UnitScale::isIdentity() const {
+    return factor == 1.0 && offset == 0.0;
+}
+
+double UnitScale::quantised(double reading, int digits) const {
+    if (digits < 0) {
+        return reading;
+    }
+    double step = std::pow(10.0, static_cast<double>(digits));
+    double shifted = reading * step;
+    if (shifted < 0.0) {
+        return -std::floor(-shifted + 0.5) / step;
+    }
+    return std::floor(shifted + 0.5) / step;
+}
+
+UnitScale UnitScale::inverted() const {
+    return UnitScale(1.0 / factor, -offset / factor, unit);
+}
+
+    ```
+
+    Generate the complete C++ unit test suite now as a single C++ code block.
+    

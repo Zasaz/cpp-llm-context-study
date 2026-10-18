@@ -1,0 +1,192 @@
+
+    You are an expert C++ unit testing assistant.
+    Given the following C++ code project, generate a complete, compilable C++ unit test suite in a single code block.
+    Your primary goal is to generate comprehensive tests for the functions and classes defined in the file `TaskQueue.cpp`. Use the other provided files for context to understand dependencies and usage.
+
+    The test suite you generate MUST:
+    1.  Include necessary standard headers (like `<cassert>`, `<iostream>`, `<vector>`, `<string>`, etc., as needed for the tests).
+    2.  Create several distinct test functions. Each test function should focus on testing a specific aspect, function, or edge case. Name test functions clearly (e.g., `test_functionName_caseDescription()`).
+    3.  Each test function MUST use `assert()` for checks.
+    4.  Each test function should print a distinct success message to `std::cout` if all its assertions pass (e.g., `std::cout << "Test test_functionName_caseDescription: PASS" << std::endl;`).
+    5.  Include YOUR OWN `main()` function in the test suite. This `main()` function will be the ONLY entry point for the test executable. It should call all the individual test functions you defined.
+    6.  The test suite should be self-contained in terms of test logic.
+
+    **Important for Compilation & Usability:**
+    -   The user's C++ code (provided below) will be compiled first, and then this test suite will be compiled and linked against it. The test suite is compiled inside the project directory, so the project's own headers are on the include path.
+    -   Therefore, you MUST obtain the declarations you need by including the project's own headers by name, for example `#include "Canvas.h"`.
+    -   Do NOT re-declare or re-define any class, struct or function that the project's own headers already declare. A hand-written declaration that does not match the real one compiles and links without any diagnostic and then corrupts memory at run time.
+    -   Do NOT attempt to call or interact with any `main()` function that might be present in the User's C++ Code.
+
+    User's C++ Project Code:
+    ```cpp
+    //--- file: TaskQueue.h ---
+#ifndef TASKQUEUE_H
+#define TASKQUEUE_H
+
+#include "Policy.h"
+#include "Task.h"
+#include <vector>
+
+class TaskQueue {
+public:
+    std::vector<Task> tasks;
+    Policy* policy;
+    int capacity;
+    int rejected;
+
+    TaskQueue();
+    TaskQueue(int limit);
+
+    int enqueue(const Task& task);
+    int usePolicy(Policy* replacement);
+    int size() const;
+    bool isEmpty() const;
+    bool isFull() const;
+    int bestIndex() const;
+    Task best() const;
+    Task dequeue();
+    int totalRemaining() const;
+    int pendingCount() const;
+    int advanceAll(int units);
+    int purgeComplete();
+    int rejectedCount() const;
+};
+
+#endif
+
+
+//--- file: TaskQueue.cpp ---
+#include "TaskQueue.h"
+
+TaskQueue::TaskQueue() {
+    policy = 0;
+    capacity = 8;
+    rejected = 0;
+}
+
+TaskQueue::TaskQueue(int limit) {
+    policy = 0;
+    capacity = limit > 0 ? limit : 1;
+    rejected = 0;
+}
+
+int TaskQueue::size() const {
+    return static_cast<int>(tasks.size());
+}
+
+bool TaskQueue::isEmpty() const {
+    return tasks.empty();
+}
+
+bool TaskQueue::isFull() const {
+    return size() >= capacity;
+}
+
+int TaskQueue::enqueue(const Task& task) {
+    if (isFull()) {
+        rejected = rejected + 1;
+        return -1;
+    }
+    if (policy != 0 && !policy->accepts(task)) {
+        rejected = rejected + 1;
+        return -1;
+    }
+    tasks.push_back(task);
+    return size();
+}
+
+int TaskQueue::usePolicy(Policy* replacement) {
+    policy = replacement;
+    return size();
+}
+
+int TaskQueue::bestIndex() const {
+    if (tasks.empty()) {
+        return -1;
+    }
+    int chosen = 0;
+    int bestScore = 0;
+    for (unsigned int i = 0; i < tasks.size(); ++i) {
+        int score = 0;
+        if (policy != 0) {
+            score = policy->rank(tasks[i]);
+        } else {
+            score = tasks[i].weight();
+        }
+        if (i == 0 || score > bestScore) {
+            chosen = static_cast<int>(i);
+            bestScore = score;
+        }
+    }
+    return chosen;
+}
+
+Task TaskQueue::best() const {
+    int index = bestIndex();
+    if (index < 0) {
+        return Task();
+    }
+    return tasks[static_cast<unsigned int>(index)];
+}
+
+Task TaskQueue::dequeue() {
+    int index = bestIndex();
+    if (index < 0) {
+        return Task();
+    }
+    Task chosen = tasks[static_cast<unsigned int>(index)];
+    tasks.erase(tasks.begin() + index);
+    return chosen;
+}
+
+int TaskQueue::totalRemaining() const {
+    int total = 0;
+    for (unsigned int i = 0; i < tasks.size(); ++i) {
+        total = total + tasks[i].remaining();
+    }
+    return total;
+}
+
+int TaskQueue::pendingCount() const {
+    int total = 0;
+    for (unsigned int i = 0; i < tasks.size(); ++i) {
+        if (tasks[i].isPending()) {
+            total = total + 1;
+        }
+    }
+    return total;
+}
+
+int TaskQueue::advanceAll(int units) {
+    int completed = 0;
+    for (unsigned int i = 0; i < tasks.size(); ++i) {
+        tasks[i].advance(units);
+        if (tasks[i].isComplete()) {
+            completed = completed + 1;
+        }
+    }
+    return completed;
+}
+
+int TaskQueue::purgeComplete() {
+    std::vector<Task> kept;
+    int removed = 0;
+    for (unsigned int i = 0; i < tasks.size(); ++i) {
+        if (tasks[i].isComplete()) {
+            removed = removed + 1;
+        } else {
+            kept.push_back(tasks[i]);
+        }
+    }
+    tasks = kept;
+    return removed;
+}
+
+int TaskQueue::rejectedCount() const {
+    return rejected;
+}
+
+    ```
+
+    Generate the complete C++ unit test suite now as a single C++ code block.
+    

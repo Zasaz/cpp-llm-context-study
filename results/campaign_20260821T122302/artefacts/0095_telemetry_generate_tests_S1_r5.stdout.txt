@@ -1,0 +1,12 @@
+Test test_constructors_and_initial_state: PASS
+Test test_filter_management: PASS
+Test test_process_and_stage: PASS
+Test test_wouldReject: PASS
+Test test_ingest_and_quality_control: PASS
+Test test_ingest_saturation_and_rejection: PASS
+Test test_ingest_batch: PASS
+Test test_channel_statistics_and_latest: PASS
+Test test_scaling_and_normalization: PASS
+Test test_flush_and_describe: PASS
+
+All SamplePipeline unit tests passed successfully!

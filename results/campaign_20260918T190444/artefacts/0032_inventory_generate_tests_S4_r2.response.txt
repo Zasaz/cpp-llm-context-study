@@ -1,0 +1,150 @@
+Here is the complete unit test suite for the `Report` class.
+
+```cpp
+#include <iostream>
+#include <cassert>
+#include <cmath>
+#include <string>
+#include "Report.h"
+#include "Warehouse.h"
+
+// Helper function for floating point comparison
+bool isClose(double a, double b, double epsilon = 1e-6) {
+    return std::fabs(a - b) < epsilon;
+}
+
+// Test default constructor and empty state behaviors
+void test_Report_defaultConstructor_and_isEmpty() {
+    Report report;
+
+    assert(report.isEmpty() == true);
+    assert(report.summaryLine() == "empty");
+    assert(isClose(report.averageItemValue(), 0.0));
+    assert(report.outOfStockCount() == 0);
+
+    std::cout << "Test test_Report_defaultConstructor_and_isEmpty: PASS" << std::endl;
+}
+
+// Test parameterized constructor with an empty warehouse
+void test_Report_parameterizedConstructor_emptyWarehouse() {
+    Warehouse wh;
+    wh.label = "Main Depot";
+
+    Report report(wh);
+
+    // An empty warehouse (0 items) should cause isEmpty() to return true
+    assert(report.isEmpty() == true);
+    assert(report.summaryLine() == "empty");
+    assert(isClose(report.averageItemValue(), 0.0));
+    assert(report.outOfStockCount() == 0);
+
+    std::cout << "Test test_Report_parameterizedConstructor_emptyWarehouse: PASS" << std::endl;
+}
+
+// Test averageItemValue with non-empty warehouse
+void test_Report_averageItemValue() {
+    Warehouse wh;
+    wh.label = "East Warehouse";
+
+    // Add items (assuming standard Item structure / methods in Warehouse)
+    // We populate the warehouse using warehouse methods or direct member access
+    Item item1;
+    item1.price = 10.0;
+    item1.quantity = 2; // total value = 20.0
+    wh.items.push_back(item1);
+
+    Item item2;
+    item2.price = 30.0;
+    item2.quantity = 1; // total value = 30.0
+    wh.items.push_back(item2);
+
+    Report report(wh);
+
+    assert(!report.isEmpty());
+    // itemCount = 2 items, inventoryValue = 20.0 + 30.0 = 50.0
+    // averageItemValue = 50.0 / 2 = 25.0
+    assert(isClose(report.averageItemValue(), 50.0 / 2.0));
+
+    std::cout << "Test test_Report_averageItemValue: PASS" << std::endl;
+}
+
+// Test outOfStockCount function
+void test_Report_outOfStockCount() {
+    Warehouse wh;
+    wh.label = "Central Hub";
+
+    Item inStock1;
+    inStock1.quantity = 5;
+    wh.items.push_back(inStock1);
+
+    Item outOfStock1;
+    outOfStock1.quantity = 0;
+    wh.items.push_back(outOfStock1);
+
+    Item inStock2;
+    inStock2.quantity = 12;
+    wh.items.push_back(inStock2);
+
+    Item outOfStock2;
+    outOfStock2.quantity = 0;
+    wh.items.push_back(outOfStock2);
+
+    Report report(wh);
+
+    assert(report.outOfStockCount() == 2);
+
+    std::cout << "Test test_Report_outOfStockCount: PASS" << std::endl;
+}
+
+// Test summaryLine with populated warehouse
+void test_Report_summaryLine() {
+    Warehouse wh;
+    wh.label = "North Regional Distribution Center";
+
+    Item item;
+    item.quantity = 1;
+    item.price = 5.0;
+    wh.items.push_back(item);
+
+    Report report(wh);
+
+    assert(!report.isEmpty());
+    assert(report.summaryLine() == "North Regional Distribution Center");
+
+    std::cout << "Test test_Report_summaryLine: PASS" << std::endl;
+}
+
+// Test report consistency when the underlying warehouse is modified
+void test_Report_memberDirectAssignment() {
+    Report report;
+    assert(report.isEmpty());
+
+    // Modify source member directly
+    report.source.label = "West Annex";
+    Item item;
+    item.quantity = 4;
+    item.price = 15.0;
+    report.source.items.push_back(item);
+
+    assert(!report.isEmpty());
+    assert(report.summaryLine() == "West Annex");
+    assert(isClose(report.averageItemValue(), 60.0 / 1.0));
+    assert(report.outOfStockCount() == 0);
+
+    std::cout << "Test test_Report_memberDirectAssignment: PASS" << std::endl;
+}
+
+int main() {
+    std::cout << "Starting Report test suite..." << std::endl;
+
+    test_Report_defaultConstructor_and_isEmpty();
+    test_Report_parameterizedConstructor_emptyWarehouse();
+    test_Report_averageItemValue();
+    test_Report_outOfStockCount();
+    test_Report_summaryLine();
+    test_Report_memberDirectAssignment();
+
+    std::cout << "All Report tests passed successfully!" << std::endl;
+    return 0;
+}
+```

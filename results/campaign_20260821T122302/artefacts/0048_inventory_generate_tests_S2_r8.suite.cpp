@@ -1,0 +1,146 @@
+#include <iostream>
+#include <cassert>
+#include <cmath>
+#include <string>
+
+#include "Report.h"
+#include "Warehouse.h"
+#include "Item.h"
+
+// Helper function for floating point comparisons
+bool isClose(double a, double b, double epsilon = 1e-6) {
+    return std::fabs(a - b) < epsilon;
+}
+
+void test_defaultConstructor() {
+    Report report;
+
+    assert(report.isEmpty() == true);
+    assert(isClose(report.averageItemValue(), 0.0));
+    assert(report.outOfStockCount() == 0);
+    assert(report.summaryLine() == "empty");
+
+    std::cout << "Test test_defaultConstructor: PASS" << std::endl;
+}
+
+void test_emptyWarehouse() {
+    Warehouse warehouse;
+    warehouse.label = "Main Storage";
+
+    Report report(warehouse);
+
+    assert(report.isEmpty() == true);
+    assert(isClose(report.averageItemValue(), 0.0));
+    assert(report.outOfStockCount() == 0);
+    assert(report.summaryLine() == "empty");
+
+    std::cout << "Test test_emptyWarehouse: PASS" << std::endl;
+}
+
+void test_averageItemValue() {
+    Warehouse warehouse;
+    warehouse.label = "Electronics";
+
+    // Adding items with known prices/quantities to calculate expected average
+    Item item1;
+    item1.price = 10.0;
+    item1.quantity = 2; // Total value = 20.0
+    warehouse.items.push_back(item1);
+
+    Item item2;
+    item2.price = 40.0;
+    item2.quantity = 1; // Total value = 40.0
+    warehouse.items.push_back(item2);
+
+    Report report(warehouse);
+
+    assert(!report.isEmpty());
+    // warehouse.itemCount() is 2
+    // warehouse.inventoryValue() should be 60.0
+    // averageItemValue() = 60.0 / 2.0 = 30.0
+    double expectedAverage = warehouse.inventoryValue() / static_cast<double>(warehouse.itemCount());
+    assert(isClose(report.averageItemValue(), expectedAverage));
+
+    std::cout << "Test test_averageItemValue: PASS" << std::endl;
+}
+
+void test_outOfStockCount() {
+    Warehouse warehouse;
+    warehouse.label = "Hardware";
+
+    Item inStockItem;
+    inStockItem.quantity = 5;
+
+    Item outOfStockItem1;
+    outOfStockItem1.quantity = 0;
+
+    Item outOfStockItem2;
+    outOfStockItem2.quantity = 0;
+
+    warehouse.items.push_back(inStockItem);
+    warehouse.items.push_back(outOfStockItem1);
+    warehouse.items.push_back(outOfStockItem2);
+
+    Report report(warehouse);
+
+    assert(!report.isEmpty());
+    assert(report.outOfStockCount() == 2);
+
+    std::cout << "Test test_outOfStockCount: PASS" << std::endl;
+}
+
+void test_summaryLine() {
+    Warehouse emptyWarehouse;
+    emptyWarehouse.label = "Distribution Hub";
+    Report emptyReport(emptyWarehouse);
+    assert(emptyReport.summaryLine() == "empty");
+
+    Warehouse populatedWarehouse;
+    populatedWarehouse.label = "Distribution Hub";
+    Item item;
+    item.quantity = 10;
+    item.price = 5.0;
+    populatedWarehouse.items.push_back(item);
+
+    Report populatedReport(populatedWarehouse);
+    assert(populatedReport.summaryLine() == "Distribution Hub");
+
+    std::cout << "Test test_summaryLine: PASS" << std::endl;
+}
+
+void test_allInStock() {
+    Warehouse warehouse;
+    warehouse.label = "Grocery";
+
+    Item item1;
+    item1.quantity = 10;
+    item1.price = 2.50;
+    warehouse.items.push_back(item1);
+
+    Item item2;
+    item2.quantity = 20;
+    item2.price = 1.25;
+    warehouse.items.push_back(item2);
+
+    Report report(warehouse);
+
+    assert(!report.isEmpty());
+    assert(report.outOfStockCount() == 0);
+    assert(report.summaryLine() == "Grocery");
+
+    std::cout << "Test test_allInStock: PASS" << std::endl;
+}
+
+int main() {
+    std::cout << "Starting Report test suite..." << std::endl;
+
+    test_defaultConstructor();
+    test_emptyWarehouse();
+    test_averageItemValue();
+    test_outOfStockCount();
+    test_summaryLine();
+    test_allInStock();
+
+    std::cout << "All Report tests passed successfully!" << std::endl;
+    return 0;
+}

@@ -1,0 +1,7 @@
+Running SamplePipeline unit tests...
+Test test_constructors: PASS
+Test test_filter_management: PASS
+Test test_process_and_stage: PASS
+Test test_would_reject: PASS
+Test test_quality_requirements: PASS
+Test test_ingest_and_rejections: PASS

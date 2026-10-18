@@ -1,0 +1,142 @@
+#include <iostream>
+#include <cassert>
+#include <cmath>
+#include <string>
+#include "Item.h"
+#include "Warehouse.h"
+#include "Report.h"
+
+// Helper function for floating point comparisons
+bool areAlmostEqual(double a, double b, double epsilon = 1e-6) {
+    return std::abs(a - b) < epsilon;
+}
+
+void test_default_constructor() {
+    Report report;
+
+    assert(report.isEmpty());
+    assert(report.source.label == "unnamed");
+    assert(report.source.itemCount() == 0);
+    assert(areAlmostEqual(report.averageItemValue(), 0.0));
+    assert(report.outOfStockCount() == 0);
+    assert(report.summaryLine() == "empty");
+
+    std::cout << "Test test_default_constructor: PASS" << std::endl;
+}
+
+void test_constructor_with_empty_warehouse() {
+    Warehouse wh("North Facility");
+    Report report(wh);
+
+    assert(report.isEmpty());
+    assert(report.source.label == "North Facility");
+    assert(report.source.itemCount() == 0);
+    assert(areAlmostEqual(report.averageItemValue(), 0.0));
+    assert(report.outOfStockCount() == 0);
+    // When warehouse has no items, summaryLine() returns "empty" even if label is set
+    assert(report.summaryLine() == "empty");
+
+    std::cout << "Test test_constructor_with_empty_warehouse: PASS" << std::endl;
+}
+
+void test_averageItemValue() {
+    Warehouse wh("Central Hub");
+
+    // Case 1: Empty warehouse -> average 0.0
+    Report emptyReport(wh);
+    assert(areAlmostEqual(emptyReport.averageItemValue(), 0.0));
+
+    // Case 2: Single item
+    // 5 units @ $10.00 = $50.00 total value. 1 item type -> average = 50.00
+    wh.addItem(Item("Widget", 5, 10.0));
+    Report singleReport(wh);
+    assert(areAlmostEqual(singleReport.averageItemValue(), 50.0));
+
+    // Case 3: Multiple items
+    // Item 1: 5 * 10.0 = 50.0
+    // Item 2: 2 * 25.0 = 50.0
+    // Item 3: 0 * 100.0 = 0.0
+    // Total Inventory Value = 100.0, Item Count = 3 -> Average = 100.0 / 3 = 33.333333...
+    wh.addItem(Item("Gadget", 2, 25.0));
+    wh.addItem(Item("Gizmo", 0, 100.0));
+    Report multiReport(wh);
+    assert(areAlmostEqual(multiReport.averageItemValue(), 100.0 / 3.0));
+
+    std::cout << "Test test_averageItemValue: PASS" << std::endl;
+}
+
+void test_outOfStockCount() {
+    Warehouse wh("Storage B");
+
+    // Initially 0 items
+    Report report1(wh);
+    assert(report1.outOfStockCount() == 0);
+
+    // Add in-stock items
+    wh.addItem(Item("Apples", 10, 1.50));
+    wh.addItem(Item("Bananas", 5, 0.75));
+    Report report2(wh);
+    assert(report2.outOfStockCount() == 0);
+
+    // Add out-of-stock items (quantity <= 0)
+    wh.addItem(Item("Oranges", 0, 2.00));
+    wh.addItem(Item("Grapes", 0, 3.50));
+    Report report3(wh);
+    assert(report3.outOfStockCount() == 2);
+
+    // Consume all units of an in-stock item
+    wh.withdraw("Apples", 10);
+    Report report4(wh);
+    assert(report4.outOfStockCount() == 3);
+
+    std::cout << "Test test_outOfStockCount: PASS" << std::endl;
+}
+
+void test_isEmpty_and_summaryLine() {
+    Warehouse wh("Main Depot");
+    Report report(wh);
+
+    // Empty state
+    assert(report.isEmpty());
+    assert(report.summaryLine() == "empty");
+
+    // Non-empty state
+    wh.addItem(Item("Screwdriver", 12, 4.99));
+    Report populatedReport(wh);
+    assert(!populatedReport.isEmpty());
+    assert(populatedReport.summaryLine() == "Main Depot");
+
+    std::cout << "Test test_isEmpty_and_summaryLine: PASS" << std::endl;
+}
+
+void test_source_mutation() {
+    Report report;
+    report.source.label = "Logistics Center";
+
+    assert(report.isEmpty());
+    assert(report.summaryLine() == "empty");
+
+    report.source.addItem(Item("Hammer", 3, 15.00));
+    assert(!report.isEmpty());
+    assert(report.summaryLine() == "Logistics Center");
+    assert(areAlmostEqual(report.averageItemValue(), 45.00));
+    assert(report.outOfStockCount() == 0);
+
+    report.source.addItem(Item("Nails", 0, 0.05));
+    assert(report.outOfStockCount() == 1);
+    assert(areAlmostEqual(report.averageItemValue(), 45.00 / 2.0));
+
+    std::cout << "Test test_source_mutation: PASS" << std::endl;
+}
+
+int main() {
+    test_default_constructor();
+    test_constructor_with_empty_warehouse();
+    test_averageItemValue();
+    test_outOfStockCount();
+    test_isEmpty_and_summaryLine();
+    test_source_mutation();
+
+    std::cout << "All Report tests passed successfully." << std::endl;
+    return 0;
+}

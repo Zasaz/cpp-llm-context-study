@@ -1,0 +1,202 @@
+#include <iostream>
+#include <cassert>
+#include <vector>
+#include "TaskQueue.h"
+
+// Concrete Policy for testing custom acceptance and ranking behaviors
+class CustomTestPolicy : public Policy {
+public:
+    int minAcceptableWeight;
+    bool invertRanking;
+
+    CustomTestPolicy(int minWeight = 0, bool invert = false)
+        : minAcceptableWeight(minWeight), invertRanking(invert) {}
+
+    bool accepts(const Task& task) override {
+        return task.weight() >= minAcceptableWeight;
+    }
+
+    int rank(const Task& task) override {
+        if (invertRanking) {
+            return -task.weight();
+        }
+        return task.weight() * 10;
+    }
+};
+
+void test_constructors_and_capacity() {
+    // Default constructor has capacity 8
+    TaskQueue defaultQueue;
+    assert(defaultQueue.size() == 0);
+    assert(defaultQueue.isEmpty());
+    assert(!defaultQueue.isFull());
+    assert(defaultQueue.rejectedCount() == 0);
+
+    // Custom limit constructor
+    TaskQueue customQueue(3);
+    assert(customQueue.size() == 0);
+    assert(customQueue.isEmpty());
+    assert(!customQueue.isFull());
+    assert(customQueue.rejectedCount() == 0);
+
+    // Non-positive limits should fallback to capacity = 1
+    TaskQueue zeroQueue(0);
+    assert(!zeroQueue.isFull());
+    Task t1;
+    assert(zeroQueue.enqueue(t1) == 1);
+    assert(zeroQueue.isFull());
+    assert(zeroQueue.enqueue(t1) == -1);
+
+    TaskQueue negativeQueue(-5);
+    assert(!negativeQueue.isFull());
+    assert(negativeQueue.enqueue(t1) == 1);
+    assert(negativeQueue.isFull());
+
+    std::cout << "Test test_constructors_and_capacity: PASS" << std::endl;
+}
+
+void test_empty_queue_behavior() {
+    TaskQueue queue;
+    assert(queue.isEmpty());
+    assert(queue.size() == 0);
+    assert(queue.bestIndex() == -1);
+
+    Task bestTask = queue.best();
+    Task dequeuedTask = queue.dequeue();
+
+    assert(queue.totalRemaining() == 0);
+    assert(queue.pendingCount() == 0);
+    assert(queue.advanceAll(5) == 0);
+    assert(queue.purgeComplete() == 0);
+
+    std::cout << "Test test_empty_queue_behavior: PASS" << std::endl;
+}
+
+void test_enqueue_and_capacity_limit() {
+    TaskQueue queue(2);
+
+    Task t1;
+    Task t2;
+    Task t3;
+
+    int res1 = queue.enqueue(t1);
+    assert(res1 == 1);
+    assert(queue.size() == 1);
+    assert(!queue.isEmpty());
+    assert(!queue.isFull());
+    assert(queue.rejectedCount() == 0);
+
+    int res2 = queue.enqueue(t2);
+    assert(res2 == 2);
+    assert(queue.size() == 2);
+    assert(queue.isFull());
+    assert(queue.rejectedCount() == 0);
+
+    // Enqueue when full should fail and increase rejectedCount
+    int res3 = queue.enqueue(t3);
+    assert(res3 == -1);
+    assert(queue.size() == 2);
+    assert(queue.rejectedCount() == 1);
+
+    int res4 = queue.enqueue(t3);
+    assert(res4 == -1);
+    assert(queue.rejectedCount() == 2);
+
+    std::cout << "Test test_enqueue_and_capacity_limit: PASS" << std::endl;
+}
+
+void test_selection_and_dequeue_default_weight() {
+    TaskQueue queue(5);
+
+    // Tasks with different weights/durations if constructible, or default tasks
+    Task t1;
+    Task t2;
+    Task t3;
+
+    queue.enqueue(t1);
+    queue.enqueue(t2);
+    queue.enqueue(t3);
+
+    assert(queue.size() == 3);
+    int bestIdx = queue.bestIndex();
+    assert(bestIdx >= 0 && bestIdx < 3);
+
+    Task chosen = queue.best();
+    Task dequeued = queue.dequeue();
+    assert(queue.size() == 2);
+
+    // Dequeue remaining elements
+    queue.dequeue();
+    queue.dequeue();
+    assert(queue.isEmpty());
+    assert(queue.size() == 0);
+    assert(queue.bestIndex() == -1);
+
+    std::cout << "Test test_selection_and_dequeue_default_weight: PASS" << std::endl;
+}
+
+void test_policy_filtering_and_ranking() {
+    TaskQueue queue(5);
+    CustomTestPolicy policy(10, false);
+
+    queue.usePolicy(&policy);
+
+    // Create a task that might have weight < 10 by default
+    Task tDefault;
+    if (tDefault.weight() < 10) {
+        int res = queue.enqueue(tDefault);
+        assert(res == -1);
+        assert(queue.rejectedCount() == 1);
+        assert(queue.isEmpty());
+    }
+
+    // Reset to an accepting policy
+    CustomTestPolicy acceptingPolicy(0, false);
+    queue.usePolicy(&acceptingPolicy);
+    int res = queue.enqueue(tDefault);
+    assert(res == 1);
+    assert(queue.size() == 1);
+    assert(queue.bestIndex() == 0);
+
+    std::cout << "Test test_policy_filtering_and_ranking: PASS" << std::endl;
+}
+
+void test_advance_and_purge() {
+    TaskQueue queue(5);
+
+    Task t1;
+    Task t2;
+    queue.enqueue(t1);
+    queue.enqueue(t2);
+
+    int initialRemaining = queue.totalRemaining();
+    assert(initialRemaining >= 0);
+
+    int initialPending = queue.pendingCount();
+    assert(initialPending >= 0);
+
+    // Advance by some units
+    int completed = queue.advanceAll(1000);
+    assert(completed >= 0);
+
+    // Purge completed tasks
+    int purged = queue.purgeComplete();
+    assert(purged == completed);
+    assert(queue.size() == 2 - purged);
+
+    std::cout << "Test test_advance_and_purge: PASS" << std::endl;
+}
+
+int main() {
+    std::cout << "Running TaskQueue test suite..." << std::endl;
+
+    test_constructors_and_capacity();
+    test_empty_queue_behavior();
+    test_enqueue_and_capacity_limit();
+    test_selection_and_dequeue_default_weight();
+    test_policy_filtering_and_ranking();
+    test_advance_and_purge();
+
+    std::cout << "All TaskQueue tests passed successfully!" << std::endl;
+    return 0;
+}

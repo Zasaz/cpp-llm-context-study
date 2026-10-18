@@ -1,0 +1,13 @@
+--- Running SamplePipeline Unit Tests ---
+Test test_constructors: PASS
+Test test_filter_management: PASS
+Test test_process_and_stage: PASS
+Test test_would_reject: PASS
+Test test_ingest_and_rejections: PASS
+Test test_ingest_batch: PASS
+Test test_require_quality: PASS
+Test test_channel_statistics_and_latest: PASS
+Test test_normalised_and_denormalised: PASS
+Test test_flush: PASS
+Test test_describe: PASS
+--- All SamplePipeline Tests Passed Successfully ---

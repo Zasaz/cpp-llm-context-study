@@ -1,0 +1,144 @@
+#include <iostream>
+#include <cassert>
+#include <cmath>
+#include <string>
+
+// Include project headers
+#include "Report.h"
+#include "Warehouse.h"
+#include "Item.h"
+
+// Helper function for floating point comparisons
+bool isClose(double a, double b, double epsilon = 1e-6) {
+    return std::abs(a - b) < epsilon;
+}
+
+// Test default constructor and its default values/states
+void test_Report_defaultConstructor() {
+    Report report;
+    
+    assert(report.isEmpty() == true);
+    assert(isClose(report.averageItemValue(), 0.0));
+    assert(report.outOfStockCount() == 0);
+    assert(report.summaryLine() == "empty");
+    
+    std::cout << "Test test_Report_defaultConstructor: PASS" << std::endl;
+}
+
+// Test parameterized constructor with an empty warehouse
+void test_Report_emptyWarehouse() {
+    Warehouse warehouse;
+    warehouse.label = "Empty Storage";
+    
+    Report report(warehouse);
+    
+    assert(report.isEmpty() == true);
+    assert(isClose(report.averageItemValue(), 0.0));
+    assert(report.outOfStockCount() == 0);
+    assert(report.summaryLine() == "empty");
+    
+    std::cout << "Test test_Report_emptyWarehouse: PASS" << std::endl;
+}
+
+// Test warehouse with items that are all in stock
+void test_Report_allInStockItems() {
+    Warehouse warehouse;
+    warehouse.label = "Central Hub";
+    
+    // Add items (price, quantity, name, etc., depending on Item definition)
+    Item item1;
+    item1.price = 10.0;
+    item1.quantity = 2; // In stock (value: 20.0)
+
+    Item item2;
+    item2.price = 25.0;
+    item2.quantity = 4; // In stock (value: 100.0)
+
+    warehouse.items.push_back(item1);
+    warehouse.items.push_back(item2);
+
+    Report report(warehouse);
+    
+    assert(report.isEmpty() == false);
+    assert(report.outOfStockCount() == 0);
+    assert(report.summaryLine() == "Central Hub");
+    // Expected average = total inventory value / total items count
+    // Using warehouse.inventoryValue() and warehouse.itemCount()
+    double expectedAvg = warehouse.inventoryValue() / static_cast<double>(warehouse.itemCount());
+    assert(isClose(report.averageItemValue(), expectedAvg));
+
+    std::cout << "Test test_Report_allInStockItems: PASS" << std::endl;
+}
+
+// Test warehouse with items that are all out of stock
+void test_Report_allOutOfStockItems() {
+    Warehouse warehouse;
+    warehouse.label = "Depleted Depot";
+    
+    Item item1;
+    item1.price = 15.0;
+    item1.quantity = 0; // Out of stock
+
+    Item item2;
+    item2.price = 50.0;
+    item2.quantity = 0; // Out of stock
+
+    warehouse.items.push_back(item1);
+    warehouse.items.push_back(item2);
+
+    Report report(warehouse);
+
+    assert(report.isEmpty() == false);
+    assert(report.outOfStockCount() == 2);
+    assert(report.summaryLine() == "Depleted Depot");
+    assert(isClose(report.averageItemValue(), 0.0));
+
+    std::cout << "Test test_Report_allOutOfStockItems: PASS" << std::endl;
+}
+
+// Test warehouse with a mix of in-stock and out-of-stock items
+void test_Report_mixedStockItems() {
+    Warehouse warehouse;
+    warehouse.label = "Main Warehouse";
+
+    Item item1;
+    item1.price = 20.0;
+    item1.quantity = 5; // In stock
+
+    Item item2;
+    item2.price = 30.0;
+    item2.quantity = 0; // Out of stock
+
+    Item item3;
+    item3.price = 100.0;
+    item3.quantity = 1; // In stock
+
+    warehouse.items.push_back(item1);
+    warehouse.items.push_back(item2);
+    warehouse.items.push_back(item3);
+
+    Report report(warehouse);
+
+    assert(!report.isEmpty());
+    assert(report.outOfStockCount() == 1);
+    assert(report.summaryLine() == "Main Warehouse");
+    
+    double expectedAvg = warehouse.inventoryValue() / static_cast<double>(warehouse.itemCount());
+    assert(isClose(report.averageItemValue(), expectedAvg));
+
+    std::cout << "Test test_Report_mixedStockItems: PASS" << std::endl;
+}
+
+// Main function to run all test functions
+int main() {
+    std::cout << "Running Report test suite..." << std::endl;
+
+    test_Report_defaultConstructor();
+    test_Report_emptyWarehouse();
+    test_Report_allInStockItems();
+    test_Report_allOutOfStockItems();
+    test_Report_mixedStockItems();
+
+    std::cout << "All Report tests passed successfully!" << std::endl;
+    return 0;
+}

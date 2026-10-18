@@ -1,0 +1,21 @@
+--- Preparing user code (renaming main() to user_code_main) ---
+10 source files: AlertRule.cpp, Channel.cpp, Dashboard.cpp, Filter.cpp, QueryEngine.cpp, RingBuffer.cpp, Sample.cpp, SamplePipeline.cpp, SeriesStore.cpp, UnitScale.cpp
+
+--- Test Suite Compilation & Linking ---
+Command: g++ -I /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp60ucjblw/build /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp60ucjblw/build/AlertRule.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp60ucjblw/build/Channel.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp60ucjblw/build/Dashboard.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp60ucjblw/build/Filter.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp60ucjblw/build/QueryEngine.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp60ucjblw/build/RingBuffer.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp60ucjblw/build/Sample.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp60ucjblw/build/SamplePipeline.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp60ucjblw/build/SeriesStore.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp60ucjblw/build/UnitScale.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp60ucjblw/build/test_suite.cpp -o /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp60ucjblw/test_executable -std=c++17 -Wall
+STDOUT:
+
+STDERR:
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp60ucjblw/build/test_suite.cpp:20:20: warning: 'TestFilter::apply' hides overloaded virtual function [-Woverloaded-virtual]
+   20 |     virtual double apply(double value) const {
+      |                    ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp60ucjblw/build/Filter.h:14:20: note: hidden overloaded virtual function 'Filter::apply' declared here: different qualifiers (unqualified vs 'const')
+   14 |     virtual double apply(double reading);
+      |                    ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp60ucjblw/build/test_suite.cpp:158:29: error: no member named 'reading' in 'Sample'
+  158 |     assert(std::fabs(newest.reading - 60.0) < 1e-6);
+      |                      ~~~~~~ ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/assert.h:72:25: note: expanded from macro 'assert'
+   72 |     (__builtin_expect(!(e), 0) ? __assert_rtn(__func__, __ASSERT_FILE_NAME, __LINE__, #e) : (void)0)
+      |                         ^
+1 warning and 1 error generated.

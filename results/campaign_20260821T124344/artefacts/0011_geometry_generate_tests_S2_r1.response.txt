@@ -1,0 +1,134 @@
+Here is the complete C++ unit test suite for `Canvas.cpp`.
+
+```cpp
+#include <iostream>
+#include <cassert>
+#include <cmath>
+
+#include "Canvas.h"
+#include "Shape.h"
+
+// Helper function to compare floating point numbers
+bool areClose(double a, double b, double epsilon = 1e-6) {
+    return std::fabs(a - b) < epsilon;
+}
+
+// Concrete mock Shape implementations for testing
+class MockShape : public Shape {
+private:
+    double shapeArea;
+    bool* destructorFlag;
+
+public:
+    explicit MockShape(double areaVal, bool* flag = nullptr) 
+        : shapeArea(areaVal), destructorFlag(flag) {}
+
+    virtual ~MockShape() {
+        if (destructorFlag != nullptr) {
+            *destructorFlag = true;
+        }
+    }
+
+    virtual double area() const {
+        return shapeArea;
+    }
+};
+
+void test_Canvas_initialState() {
+    Canvas canvas;
+    assert(canvas.count() == 0);
+    assert(areClose(canvas.totalArea(), 0.0));
+    assert(areClose(canvas.largestArea(), 0.0));
+
+    std::cout << "Test test_Canvas_initialState: PASS" << std::endl;
+}
+
+void test_Canvas_addNullPointer() {
+    Canvas canvas;
+    canvas.add(nullptr);
+    assert(canvas.count() == 0);
+    assert(areClose(canvas.totalArea(), 0.0));
+    assert(areClose(canvas.largestArea(), 0.0));
+
+    std::cout << "Test test_Canvas_addNullPointer: PASS" << std::endl;
+}
+
+void test_Canvas_addSingleShape() {
+    Canvas canvas;
+    canvas.add(new MockShape(15.5));
+
+    assert(canvas.count() == 1);
+    assert(areClose(canvas.totalArea(), 15.5));
+    assert(areClose(canvas.largestArea(), 15.5));
+
+    std::cout << "Test test_Canvas_addSingleShape: PASS" << std::endl;
+}
+
+void test_Canvas_multipleShapesCalculations() {
+    Canvas canvas;
+    canvas.add(new MockShape(10.0));
+    canvas.add(new MockShape(25.5));
+    canvas.add(new MockShape(5.25));
+
+    assert(canvas.count() == 3);
+    assert(areClose(canvas.totalArea(), 40.75));
+    assert(areClose(canvas.largestArea(), 25.5));
+
+    std::cout << "Test test_Canvas_multipleShapesCalculations: PASS" << std::endl;
+}
+
+void test_Canvas_clearDeallocatesMemory() {
+    Canvas canvas;
+    bool destroyed1 = false;
+    bool destroyed2 = false;
+
+    canvas.add(new MockShape(10.0, &destroyed1));
+    canvas.add(new MockShape(20.0, &destroyed2));
+
+    assert(canvas.count() == 2);
+    assert(!destroyed1);
+    assert(!destroyed2);
+
+    canvas.clear();
+
+    assert(destroyed1);
+    assert(destroyed2);
+    assert(canvas.count() == 0);
+    assert(areClose(canvas.totalArea(), 0.0));
+    assert(areClose(canvas.largestArea(), 0.0));
+
+    std::cout << "Test test_Canvas_clearDeallocatesMemory: PASS" << std::endl;
+}
+
+void test_Canvas_destructorDeallocatesMemory() {
+    bool destroyed1 = false;
+    bool destroyed2 = false;
+
+    {
+        Canvas canvas;
+        canvas.add(new MockShape(12.0, &destroyed1));
+        canvas.add(new MockShape(8.0, &destroyed2));
+        assert(!destroyed1);
+        assert(!destroyed2);
+    } // canvas goes out of scope here, destructor must be called
+
+    assert(destroyed1);
+    assert(destroyed2);
+
+    std::cout << "Test test_Canvas_destructorDeallocatesMemory: PASS" << std::endl;
+}
+
+int main() {
+    std::cout << "=== Running Canvas Unit Tests ===" << std::endl;
+
+    test_Canvas_initialState();
+    test_Canvas_addNullPointer();
+    test_Canvas_addSingleShape();
+    test_Canvas_multipleShapesCalculations();
+    test_Canvas_clearDeallocatesMemory();
+    test_Canvas_destructorDeallocatesMemory();
+
+    std::cout << "=== All Canvas Unit Tests Passed Successfully ===" << std::endl;
+    return 0;
+}
+```

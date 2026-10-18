@@ -1,0 +1,128 @@
+<div class="test-suite-view">
+
+    <!-- Generated Test Suite Editor -->
+    <div class="test-suite-editor-container">
+        <div class="test-suite-header">
+            <h5>Generated Unit Test Suite (Editable)</h5>
+            <button type="submit" form="analysis-form" name="action" value="run_test_suite"
+                class="submit-button button-success" title="Run This Test Suite">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M5.536 21.886a1.004 1.004 0 0 0 1.033-.064l13-9a1 1 0 0 0 0-1.644l-13-9A1 1 0 0 0 5 3v18a1 1 0 0 0 .536.886z">
+                    </path>
+                </svg>
+                <span>Run Tests</span>
+            </button>
+        </div>
+
+        {% if result and result.error and selected_feature == 'generate_tests' and not test_run_result %}
+        <div class="error-message">
+            <strong>Error generating test suite:</strong>
+            <pre>{{ result.error }}</pre>
+        </div>
+        {% endif %}
+
+        <textarea id="test-suite-code-editor"
+            name="test_suite_code_editor_content">{{- generated_test_suite_code if generated_test_suite_code else "// Click 'Go' with 'Generate Tests' selected to create a test suite." -}}</textarea>
+    </div>
+
+    <!-- Test Run Results -->
+    {% if test_run_result %}
+    <div class="test-results-container">
+
+        <!-- Summary Card -->
+        {% if test_summary and test_summary.status %}
+        <div class="test-summary-card status-{{ test_summary.status_class }}">
+            <div class="summary-icon">
+                {% if test_summary.status_class == 'success' %}
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                    stroke="var(--accent-green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                {% elif test_summary.status_class == 'error' %}
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                    stroke="var(--accent-red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" x2="12" y1="8" y2="12"></line>
+                    <line x1="12" x2="12.01" y1="16" y2="16"></line>
+                </svg>
+                {% else %}
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                    stroke="var(--accent-orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+                    <line x1="12" x2="12" y1="9" y2="13"></line>
+                    <line x1="12" x2="12.01" y1="17" y2="17"></line>
+                </svg>
+                {% endif %}
+            </div>
+            <div class="summary-text">{{ test_summary.status }}</div>
+        </div>
+        {% endif %}
+
+        <!-- Passed Tests List -->
+        {% if test_summary and test_summary.passed_tests %}
+        <div class="passed-tests-list">
+            <h6>Passed Tests ({{ test_summary.pass_count }}):</h6>
+            {% for test_name in test_summary.passed_tests %}
+            <div class="passed-test-item">
+                <svg class="pass-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>{{ test_name }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Collapsible Logs -->
+        {% if test_run_result.system_error %}
+        <details class="output-log-section" open>
+            <summary>System Error</summary>
+            <pre class="console-output">{{ test_run_result.system_error }}</pre>
+        </details>
+        {% endif %}
+        {% if test_run_result.execution_error %}
+        <details class="output-log-section" open>
+            <summary>Execution Error Log (stderr)</summary>
+            <pre class="console-output">{{ test_run_result.execution_error }}</pre>
+        </details>
+        {% endif %}
+        {% if test_summary and test_summary.raw_stdout %}
+        <details class="output-log-section">
+            <summary>Full Standard Output (stdout)</summary>
+            <pre class="console-output">{{ test_summary.raw_stdout }}</pre>
+        </details>
+        {% endif %}
+        {% if test_run_result.compilation_log %}
+        <details class="output-log-section">
+            <summary>Compilation Log</summary>
+            <pre class="console-output">{{ test_run_result.compilation_log }}</pre>
+        </details>
+        {% endif %}
+
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    if (!window.testSuiteEditorInitialized && document.getElementById("test-suite-code-editor")) {
+        window.testSuiteEditorInitialized = true;
+        document.addEventListener("DOMContentLoaded", function () {
+            if (!document.getElementById("test-suite-code-editor") || window.testSuiteEditorInstance) return;
+
+            window.testSuiteEditorInstance = CodeMirror.fromTextArea(document.getElementById("test-suite-code-editor"), {
+                lineNumbers: true, mode: "text/x-c++src", theme: "material-darker",
+                matchBrackets: true, indentUnit: 4, smartIndent: true, lineWrapping: true
+            });
+
+            // This is a robust way to ensure the editor refreshes after the layout is stable.
+            setTimeout(() => {
+                if (window.testSuiteEditorInstance) {
+                    window.testSuiteEditorInstance.refresh();
+                }
+            }, 100);
+        });
+    } 
+</script>

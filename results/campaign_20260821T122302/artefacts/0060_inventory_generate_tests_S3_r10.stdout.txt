@@ -1,0 +1,8 @@
+Test test_report_default_constructor: PASS
+Test test_report_parameterized_constructor_empty_warehouse: PASS
+Test test_averageItemValue_calculations: PASS
+Test test_outOfStockCount_variations: PASS
+Test test_isEmpty_states: PASS
+Test test_summaryLine_outputs: PASS
+Test test_report_with_consumed_and_restocked_items: PASS
+All Report tests passed successfully!

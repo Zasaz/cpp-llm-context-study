@@ -1,0 +1,262 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <cassert>
+#include <cmath>
+
+#include "SamplePipeline.h"
+
+// Helper for floating-point comparisons
+static bool approxEqual(double a, double b, double epsilon = 1e-5) {
+    return std::fabs(a - b) < epsilon;
+}
+
+// Custom filter implementation for testing pipeline operations
+class TestMultiplierFilter : public Filter {
+private:
+    double multiplier;
+    double rejectionThreshold;
+
+public:
+    TestMultiplierFilter(double mult = 1.0, double maxAcceptable = 10000.0)
+        : multiplier(mult), rejectionThreshold(maxAcceptable) {}
+
+    double apply(double reading) override {
+        return reading * multiplier;
+    }
+
+    bool rejects(double reading) const override {
+        return reading > rejectionThreshold;
+    }
+};
+
+// Test 1: Default and parameterized constructors and initial state
+void test_constructors_and_defaults() {
+    SamplePipeline defaultPipeline;
+    assert(defaultPipeline.acceptedCount() == 0);
+    assert(defaultPipeline.rejectedCount() == 0);
+    assert(defaultPipeline.filterCount() == 0);
+    assert(defaultPipeline.describe() == "empty");
+
+    SamplePipeline paramPipeline("SensorA", 5);
+    assert(paramPipeline.acceptedCount() == 0);
+    assert(paramPipeline.rejectedCount() == 0);
+    assert(paramPipeline.filterCount() == 0);
+    assert(paramPipeline.describe() == "empty");
+
+    std::cout << "Test test_constructors_and_defaults: PASS" << std::endl;
+}
+
+// Test 2: Filter management (addFilter, filterCount, clearFilters)
+void test_filter_management() {
+    SamplePipeline pipeline("Pressure", 10);
+
+    // Adding null filter should do nothing
+    assert(pipeline.addFilter(nullptr) == 0);
+    assert(pipeline.filterCount() == 0);
+
+    TestMultiplierFilter f1(2.0);
+    TestMultiplierFilter f2(3.0);
+
+    assert(pipeline.addFilter(&f1) == 1);
+    assert(pipeline.filterCount() == 1);
+
+    assert(pipeline.addFilter(&f2) == 2);
+    assert(pipeline.filterCount() == 2);
+
+    // Clearing filters
+    int cleared = pipeline.clearFilters();
+    assert(cleared == 2);
+    assert(pipeline.filterCount() == 0);
+
+    std::cout << "Test test_filter_management: PASS" << std::endl;
+}
+
+// Test 3: Filter processing chain and individual stages
+void test_process_and_stage() {
+    SamplePipeline pipeline("Voltage", 10);
+    TestMultiplierFilter f1(2.0); // multiplies by 2
+    TestMultiplierFilter f2(3.0); // multiplies by 3
+
+    pipeline.addFilter(&f1);
+    pipeline.addFilter(&f2);
+
+    // Stage 0: 5.0 * 2.0 = 10.0
+    assert(approxEqual(pipeline.stage(5.0, 0), 10.0));
+    // Stage 1: 5.0 * 3.0 = 15.0
+    assert(approxEqual(pipeline.stage(5.0, 1), 15.0));
+
+    // Invalid stages should return the input reading unchanged
+    assert(approxEqual(pipeline.stage(5.0, -1), 5.0));
+    assert(approxEqual(pipeline.stage(5.0, 2), 5.0));
+
+    // Full process: (5.0 * 2.0) * 3.0 = 30.0
+    assert(approxEqual(pipeline.process(5.0), 30.0));
+
+    std::cout << "Test test_process_and_stage: PASS" << std::endl;
+}
+
+// Test 4: Filter rejection checking
+void test_would_reject() {
+    SamplePipeline pipeline("Temperature", 10);
+    TestMultiplierFilter f1(1.0, 100.0); // rejects > 100.0
+    TestMultiplierFilter f2(1.0, 50.0);  // rejects > 50.0
+
+    assert(!pipeline.wouldReject(200.0)); // No filters yet
+
+    pipeline.addFilter(&f1);
+    assert(!pipeline.wouldReject(75.0));
+    assert(pipeline.wouldReject(150.0));
+
+    pipeline.addFilter(&f2);
+    assert(pipeline.wouldReject(75.0));   // f2 rejects
+    assert(!pipeline.wouldReject(25.0));  // Neither rejects
+
+    std::cout << "Test test_would_reject: PASS" << std::endl;
+}
+
+// Test 5: Quality requirement modification
+void test_require_quality() {
+    SamplePipeline pipeline("Vibration", 10);
+
+    // Initial quality requirement is 1
+    int prev = pipeline.requireQuality(3);
+    assert(prev == 1);
+
+    // Negative quality value should not change current requirement
+    prev = pipeline.requireQuality(-5);
+    assert(prev == 3);
+
+    // Ingest with quality lower than 3 should be rejected
+    int result = pipeline.ingest(0, 10.0, 2);
+    assert(result == -1);
+    assert(pipeline.rejectedCount() == 1);
+
+    // Ingest with quality >= 3 should be accepted
+    result = pipeline.ingest(1, 10.0, 3);
+    assert(result == 1);
+    assert(pipeline.acceptedCount() == 1);
+
+    std::cout << "Test test_require_quality: PASS" << std::endl;
+}
+
+// Test 6: Ingest single samples with filter and quality logic
+void test_ingest_single_samples() {
+    SamplePipeline pipeline("Current", 5);
+    TestMultiplierFilter filter(2.0, 100.0); // multiplies by 2, rejects raw > 100
+    pipeline.addFilter(&filter);
+
+    // Ingest valid sample: raw = 10.0, filtered = 20.0
+    int res1 = pipeline.ingest(1, 10.0, 2);
+    assert(res1 == 1);
+    assert(pipeline.acceptedCount() == 1);
+    assert(pipeline.rejectedCount() == 0);
+    assert(approxEqual(pipeline.latest().value, 20.0));
+
+    // Ingest sample that filter rejects (raw > 100)
+    int res2 = pipeline.ingest(2, 150.0, 2);
+    assert(res2 == -1);
+    assert(pipeline.acceptedCount() == 1);
+    assert(pipeline.rejectedCount() == 1);
+
+    // Ingest sample with insufficient quality (< 1)
+    int res3 = pipeline.ingest(3, 10.0, 0);
+    assert(res3 == -1);
+    assert(pipeline.acceptedCount() == 1);
+    assert(pipeline.rejectedCount() == 2);
+
+    std::cout << "Test test_ingest_single_samples: PASS" << std::endl;
+}
+
+// Test 7: Batch ingestion
+void test_ingest_batch() {
+    SamplePipeline pipeline("BatchFlow", 10);
+    TestMultiplierFilter filter(1.0, 50.0); // rejects > 50.0
+    pipeline.addFilter(&filter);
+
+    std::vector<double> readings = {10.0, 20.0, 60.0, 30.0, 80.0};
+    int taken = pipeline.ingestBatch(readings, 1);
+
+    // 10.0, 20.0, 30.0 are accepted (3 samples)
+    // 60.0 and 80.0 are rejected
+    assert(taken == 3);
+    assert(pipeline.acceptedCount() == 3);
+    assert(pipeline.rejectedCount() == 2);
+
+    std::cout << "Test test_ingest_batch: PASS" << std::endl;
+}
+
+// Test 8: Channel saturation and metrics (mean, peak, validCount)
+void test_channel_metrics_and_saturation() {
+    SamplePipeline pipeline("Sensors", 2); // capacity of 2
+
+    assert(!pipeline.isSaturated());
+    assert(pipeline.validSamples() == 0);
+
+    pipeline.ingest(1, 10.0, 1);
+    assert(!pipeline.isSaturated());
+    assert(pipeline.validSamples() == 1);
+
+    pipeline.ingest(2, 30.0, 1);
+    assert(pipeline.isSaturated());
+    assert(pipeline.validSamples() == 2);
+
+    assert(approxEqual(pipeline.channelMean(), 20.0));
+    assert(approxEqual(pipeline.channelPeak(), 30.0));
+
+    // Exceeding capacity should reject
+    int res = pipeline.ingest(3, 40.0, 1);
+    assert(res == -1);
+    assert(pipeline.rejectedCount() == 1);
+    assert(pipeline.acceptedCount() == 2);
+
+    std::cout << "Test test_channel_metrics_and_saturation: PASS" << std::endl;
+}
+
+// Test 9: Scaling (normalised and denormalised)
+void test_scaling() {
+    SamplePipeline pipeline("Speed", 5);
+
+    double baseVal = 100.0;
+    double norm = pipeline.normalised(baseVal);
+    double denorm = pipeline.denormalised(norm);
+
+    assert(approxEqual(denorm, baseVal));
+
+    std::cout << "Test test_scaling: PASS" << std::endl;
+}
+
+// Test 10: Flush pipeline and describe
+void test_flush_and_describe() {
+    SamplePipeline pipeline("FlowMeter", 5);
+
+    assert(pipeline.describe() == "empty");
+
+    pipeline.ingest(1, 42.0, 1);
+    assert(pipeline.describe() != "empty");
+    assert(pipeline.describe().find("FlowMeter") != std::string::npos);
+
+    int previousCount = pipeline.flush();
+    assert(previousCount == 1);
+    assert(pipeline.acceptedCount() == 0);
+    assert(pipeline.rejectedCount() == 0);
+    assert(pipeline.describe() == "empty");
+
+    std::cout << "Test test_flush_and_describe: PASS" << std::endl;
+}
+
+int main() {
+    test_constructors_and_defaults();
+    test_filter_management();
+    test_process_and_stage();
+    test_would_reject();
+    test_require_quality();
+    test_ingest_single_samples();
+    test_ingest_batch();
+    test_channel_metrics_and_saturation();
+    test_scaling();
+    test_flush_and_describe();
+
+    std::cout << "\nAll SamplePipeline tests passed successfully!" << std::endl;
+    return 0;
+}

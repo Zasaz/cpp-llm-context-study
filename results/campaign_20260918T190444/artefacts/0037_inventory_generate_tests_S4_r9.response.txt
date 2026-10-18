@@ -1,0 +1,135 @@
+```cpp
+#include <iostream>
+#include <cassert>
+#include <cmath>
+#include <string>
+#include "Report.h"
+#include "Warehouse.h"
+
+// Helper function for floating point comparisons
+bool doubleEquals(double a, double b, double epsilon = 1e-6) {
+    return std::fabs(a - b) < epsilon;
+}
+
+void test_defaultConstructor() {
+    Report report;
+    assert(report.isEmpty());
+    assert(doubleEquals(report.averageItemValue(), 0.0));
+    assert(report.outOfStockCount() == 0);
+    assert(report.summaryLine() == "empty");
+    std::cout << "Test test_defaultConstructor: PASS" << std::endl;
+}
+
+void test_warehouseConstructor_empty() {
+    Warehouse w;
+    w.label = "Main Storage";
+    // itemCount should be 0 for a default/empty warehouse
+    Report report(w);
+    assert(report.isEmpty());
+    assert(doubleEquals(report.averageItemValue(), 0.0));
+    assert(report.outOfStockCount() == 0);
+    assert(report.summaryLine() == "empty");
+    std::cout << "Test test_warehouseConstructor_empty: PASS" << std::endl;
+}
+
+void test_isEmpty() {
+    Warehouse wEmpty;
+    Report rEmpty(wEmpty);
+    assert(rEmpty.isEmpty());
+
+    Warehouse wNonEmpty;
+    // Assuming Warehouse has items or methods to add items
+    // Using default Item if accessible, or manipulating items directly if public
+    Item item1;
+    // Add item to warehouse. Since Report.cpp directly accesses source.items, items is accessible.
+    wNonEmpty.items.push_back(item1);
+    Report rNonEmpty(wNonEmpty);
+    // Depending on itemCount implementation, items in the vector should indicate non-empty
+    if (wNonEmpty.itemCount() > 0) {
+        assert(!rNonEmpty.isEmpty());
+    }
+
+    std::cout << "Test test_isEmpty: PASS" << std::endl;
+}
+
+void test_summaryLine() {
+    Warehouse wEmpty;
+    wEmpty.label = "Warehouse Alpha";
+    Report rEmpty(wEmpty);
+    assert(rEmpty.summaryLine() == "empty");
+
+    Warehouse wWithItems;
+    wWithItems.label = "Warehouse Beta";
+    Item item;
+    wWithItems.items.push_back(item);
+
+    if (wWithItems.itemCount() > 0) {
+        Report rWithItems(wWithItems);
+        assert(rWithItems.summaryLine() == "Warehouse Beta");
+    }
+
+    std::cout << "Test test_summaryLine: PASS" << std::endl;
+}
+
+void test_averageItemValue() {
+    Warehouse w;
+    Report rEmpty(w);
+    assert(doubleEquals(rEmpty.averageItemValue(), 0.0));
+
+    Warehouse wPopulated;
+    Item item1;
+    Item item2;
+    wPopulated.items.push_back(item1);
+    wPopulated.items.push_back(item2);
+
+    int count = wPopulated.itemCount();
+    if (count > 0) {
+        Report rPopulated(wPopulated);
+        double expectedAvg = wPopulated.inventoryValue() / static_cast<double>(count);
+        assert(doubleEquals(rPopulated.averageItemValue(), expectedAvg));
+    }
+
+    std::cout << "Test test_averageItemValue: PASS" << std::endl;
+}
+
+void test_outOfStockCount() {
+    Warehouse w;
+    Report rEmpty(w);
+    assert(rEmpty.outOfStockCount() == 0);
+
+    // Test with all items in stock / out of stock based on Item behavior
+    Warehouse wStock;
+    Item item1;
+    Item item2;
+    Item item3;
+    wStock.items.push_back(item1);
+    wStock.items.push_back(item2);
+    wStock.items.push_back(item3);
+
+    int expectedOutOfStock = 0;
+    for (const auto& item : wStock.items) {
+        if (!item.isInStock()) {
+            expectedOutOfStock++;
+        }
+    }
+
+    Report rStock(wStock);
+    assert(rStock.outOfStockCount() == expectedOutOfStock);
+
+    std::cout << "Test test_outOfStockCount: PASS" << std::endl;
+}
+
+int main() {
+    std::cout << "Running Report test suite..." << std::endl;
+
+    test_defaultConstructor();
+    test_warehouseConstructor_empty();
+    test_isEmpty();
+    test_summaryLine();
+    test_averageItemValue();
+    test_outOfStockCount();
+
+    std::cout << "All Report tests passed successfully!" << std::endl;
+    return 0;
+}
+```

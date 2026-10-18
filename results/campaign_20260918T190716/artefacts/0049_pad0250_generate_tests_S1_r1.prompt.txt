@@ -1,0 +1,551 @@
+
+    You are an expert C++ unit testing assistant.
+    Given the following C++ code project, generate a complete, compilable C++ unit test suite in a single code block.
+    Your primary goal is to generate comprehensive tests for the functions and classes defined in the file `Canvas.cpp`. Use the other provided files for context to understand dependencies and usage.
+
+    The test suite you generate MUST:
+    1.  Include necessary standard headers (like `<cassert>`, `<iostream>`, `<vector>`, `<string>`, etc., as needed for the tests).
+    2.  Create several distinct test functions. Each test function should focus on testing a specific aspect, function, or edge case. Name test functions clearly (e.g., `test_functionName_caseDescription()`).
+    3.  Each test function MUST use `assert()` for checks.
+    4.  Each test function should print a distinct success message to `std::cout` if all its assertions pass (e.g., `std::cout << "Test test_functionName_caseDescription: PASS" << std::endl;`).
+    5.  Include YOUR OWN `main()` function in the test suite. This `main()` function will be the ONLY entry point for the test executable. It should call all the individual test functions you defined.
+    6.  The test suite should be self-contained in terms of test logic.
+
+    **Important for Compilation & Usability:**
+    -   The user's C++ code (provided below) will be compiled first, and then this test suite will be compiled and linked against it. The test suite is compiled inside the project directory, so the project's own headers are on the include path.
+    -   Therefore, you MUST obtain the declarations you need by including the project's own headers by name, for example `#include "Canvas.h"`.
+    -   Do NOT re-declare or re-define any class, struct or function that the project's own headers already declare. A hand-written declaration that does not match the real one compiles and links without any diagnostic and then corrupts memory at run time.
+    -   Do NOT attempt to call or interact with any `main()` function that might be present in the User's C++ Code.
+
+    User's C++ Project Code:
+    ```cpp
+    //--- file: Canvas.h ---
+#ifndef CANVAS_H
+#define CANVAS_H
+
+#include "Shape.h"
+#include <vector>
+
+class Canvas {
+public:
+    std::vector<Shape*> shapes;
+
+    Canvas();
+    ~Canvas();
+
+    void add(Shape* shape);
+    int count() const;
+    double totalArea() const;
+    double largestArea() const;
+    void clear();
+};
+
+#endif
+
+
+//--- file: Pad1.h ---
+#ifndef PAD_1_H
+#define PAD_1_H
+
+namespace pad1 {
+
+class Unit1 {
+public:
+    Unit1();
+    explicit Unit1(int seed);
+    int value() const;
+    int combine(int other) const;
+    int scale(int factor) const;
+    void reset();
+private:
+    int state;
+};
+
+}
+
+#endif
+
+
+//--- file: Pad2.h ---
+#ifndef PAD_2_H
+#define PAD_2_H
+
+namespace pad2 {
+
+class Unit2 {
+public:
+    Unit2();
+    explicit Unit2(int seed);
+    int value() const;
+    int combine(int other) const;
+    int scale(int factor) const;
+    void reset();
+private:
+    int state;
+};
+
+}
+
+#endif
+
+
+//--- file: Pad3.h ---
+#ifndef PAD_3_H
+#define PAD_3_H
+
+namespace pad3 {
+
+class Unit3 {
+public:
+    Unit3();
+    explicit Unit3(int seed);
+    int value() const;
+    int combine(int other) const;
+    int scale(int factor) const;
+    void reset();
+private:
+    int state;
+};
+
+}
+
+#endif
+
+
+//--- file: Pad4.h ---
+#ifndef PAD_4_H
+#define PAD_4_H
+
+namespace pad4 {
+
+class Unit4 {
+public:
+    Unit4();
+    explicit Unit4(int seed);
+    int value() const;
+    int combine(int other) const;
+    int scale(int factor) const;
+    void reset();
+private:
+    int state;
+};
+
+}
+
+#endif
+
+
+//--- file: Pad5.h ---
+#ifndef PAD_5_H
+#define PAD_5_H
+
+namespace pad5 {
+
+class Unit5 {
+public:
+    Unit5();
+    explicit Unit5(int seed);
+    int value() const;
+    int combine(int other) const;
+    int scale(int factor) const;
+    void reset();
+private:
+    int state;
+};
+
+}
+
+#endif
+
+
+//--- file: Shape.h ---
+#ifndef SHAPE_H
+#define SHAPE_H
+
+#include "Vector2.h"
+
+class Shape {
+public:
+    Vector2 origin;
+
+    Shape();
+    virtual ~Shape();
+    virtual double area() const;
+    virtual double perimeter() const;
+    Vector2 centre() const;
+};
+
+class Rectangle : public Shape {
+public:
+    double width;
+    double height;
+
+    Rectangle(double w, double h);
+    double area() const;
+    double perimeter() const;
+};
+
+class Circle : public Shape {
+public:
+    double radius;
+
+    Circle(double r);
+    double area() const;
+    double perimeter() const;
+};
+
+#endif
+
+
+//--- file: Vector2.h ---
+#ifndef VECTOR2_H
+#define VECTOR2_H
+
+class Vector2 {
+public:
+    double x;
+    double y;
+
+    Vector2();
+    Vector2(double px, double py);
+
+    double length() const;
+    double lengthSquared() const;
+    Vector2 scaled(double factor) const;
+    Vector2 added(const Vector2& other) const;
+};
+
+#endif
+
+
+//--- file: Canvas.cpp ---
+#include "Canvas.h"
+
+Canvas::Canvas() {
+}
+
+Canvas::~Canvas() {
+    clear();
+}
+
+void Canvas::add(Shape* shape) {
+    if (shape != 0) {
+        shapes.push_back(shape);
+    }
+}
+
+int Canvas::count() const {
+    return static_cast<int>(shapes.size());
+}
+
+double Canvas::totalArea() const {
+    double sum = 0.0;
+    for (unsigned int i = 0; i < shapes.size(); ++i) {
+        sum = sum + shapes[i]->area();
+    }
+    return sum;
+}
+
+double Canvas::largestArea() const {
+    double best = 0.0;
+    for (unsigned int i = 0; i < shapes.size(); ++i) {
+        double current = shapes[i]->area();
+        if (current > best) {
+            best = current;
+        }
+    }
+    return best;
+}
+
+void Canvas::clear() {
+    for (unsigned int i = 0; i < shapes.size(); ++i) {
+        delete shapes[i];
+    }
+    shapes.clear();
+}
+
+
+//--- file: Pad1.cpp ---
+#include "Pad1.h"
+
+namespace pad1 {
+
+Unit1::Unit1() {
+    state = 1;
+}
+
+Unit1::Unit1(int seed) {
+    state = seed + 1;
+}
+
+int Unit1::value() const {
+    return state;
+}
+
+int Unit1::combine(int other) const {
+    int total = state;
+    for (int i = 0; i < 3; ++i) {
+        total = total + other;
+    }
+    return total;
+}
+
+int Unit1::scale(int factor) const {
+    int total = 0;
+    for (int i = 0; i < factor; ++i) {
+        total = total + state;
+    }
+    return total;
+}
+
+void Unit1::reset() {
+    state = 1;
+}
+
+}
+
+
+//--- file: Pad2.cpp ---
+#include "Pad2.h"
+
+namespace pad2 {
+
+Unit2::Unit2() {
+    state = 2;
+}
+
+Unit2::Unit2(int seed) {
+    state = seed + 2;
+}
+
+int Unit2::value() const {
+    return state;
+}
+
+int Unit2::combine(int other) const {
+    int total = state;
+    for (int i = 0; i < 3; ++i) {
+        total = total + other;
+    }
+    return total;
+}
+
+int Unit2::scale(int factor) const {
+    int total = 0;
+    for (int i = 0; i < factor; ++i) {
+        total = total + state;
+    }
+    return total;
+}
+
+void Unit2::reset() {
+    state = 2;
+}
+
+}
+
+
+//--- file: Pad3.cpp ---
+#include "Pad3.h"
+
+namespace pad3 {
+
+Unit3::Unit3() {
+    state = 3;
+}
+
+Unit3::Unit3(int seed) {
+    state = seed + 3;
+}
+
+int Unit3::value() const {
+    return state;
+}
+
+int Unit3::combine(int other) const {
+    int total = state;
+    for (int i = 0; i < 3; ++i) {
+        total = total + other;
+    }
+    return total;
+}
+
+int Unit3::scale(int factor) const {
+    int total = 0;
+    for (int i = 0; i < factor; ++i) {
+        total = total + state;
+    }
+    return total;
+}
+
+void Unit3::reset() {
+    state = 3;
+}
+
+}
+
+
+//--- file: Pad4.cpp ---
+#include "Pad4.h"
+
+namespace pad4 {
+
+Unit4::Unit4() {
+    state = 4;
+}
+
+Unit4::Unit4(int seed) {
+    state = seed + 4;
+}
+
+int Unit4::value() const {
+    return state;
+}
+
+int Unit4::combine(int other) const {
+    int total = state;
+    for (int i = 0; i < 3; ++i) {
+        total = total + other;
+    }
+    return total;
+}
+
+int Unit4::scale(int factor) const {
+    int total = 0;
+    for (int i = 0; i < factor; ++i) {
+        total = total + state;
+    }
+    return total;
+}
+
+void Unit4::reset() {
+    state = 4;
+}
+
+}
+
+
+//--- file: Pad5.cpp ---
+#include "Pad5.h"
+
+namespace pad5 {
+
+Unit5::Unit5() {
+    state = 5;
+}
+
+Unit5::Unit5(int seed) {
+    state = seed + 5;
+}
+
+int Unit5::value() const {
+    return state;
+}
+
+int Unit5::combine(int other) const {
+    int total = state;
+    for (int i = 0; i < 3; ++i) {
+        total = total + other;
+    }
+    return total;
+}
+
+int Unit5::scale(int factor) const {
+    int total = 0;
+    for (int i = 0; i < factor; ++i) {
+        total = total + state;
+    }
+    return total;
+}
+
+void Unit5::reset() {
+    state = 5;
+}
+
+}
+
+
+//--- file: Shape.cpp ---
+#include "Shape.h"
+
+static const double PI = 3.14159265358979323846;
+
+Shape::Shape() {
+    origin = Vector2(0.0, 0.0);
+}
+
+Shape::~Shape() {
+}
+
+double Shape::area() const {
+    return 0.0;
+}
+
+double Shape::perimeter() const {
+    return 0.0;
+}
+
+Vector2 Shape::centre() const {
+    return origin;
+}
+
+Rectangle::Rectangle(double w, double h) {
+    width = w;
+    height = h;
+}
+
+double Rectangle::area() const {
+    return width * height;
+}
+
+double Rectangle::perimeter() const {
+    return 2.0 * (width + height);
+}
+
+Circle::Circle(double r) {
+    radius = r;
+}
+
+double Circle::area() const {
+    return PI * radius * radius;
+}
+
+double Circle::perimeter() const {
+    return 2.0 * PI * radius;
+}
+
+
+//--- file: Vector2.cpp ---
+#include "Vector2.h"
+#include <cmath>
+
+Vector2::Vector2() {
+    x = 0.0;
+    y = 0.0;
+}
+
+Vector2::Vector2(double px, double py) {
+    x = px;
+    y = py;
+}
+
+double Vector2::lengthSquared() const {
+    return x * x + y * y;
+}
+
+double Vector2::length() const {
+    return std::sqrt(lengthSquared());
+}
+
+Vector2 Vector2::scaled(double factor) const {
+    return Vector2(x * factor, y * factor);
+}
+
+Vector2 Vector2::added(const Vector2& other) const {
+    return Vector2(x + other.x, y + other.y);
+}
+
+    ```
+
+    Generate the complete C++ unit test suite now as a single C++ code block.
+    

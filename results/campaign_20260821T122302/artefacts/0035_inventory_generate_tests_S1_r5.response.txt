@@ -1,0 +1,160 @@
+```cpp
+#include <iostream>
+#include <cassert>
+#include <cmath>
+#include <string>
+#include <vector>
+
+#include "Item.h"
+#include "Warehouse.h"
+#include "Report.h"
+
+// Helper function for floating point comparisons
+bool doubleEquals(double a, double b, double epsilon = 1e-6) {
+    return std::abs(a - b) < epsilon;
+}
+
+void test_default_constructor() {
+    Report report;
+    
+    assert(report.isEmpty() == true);
+    assert(report.outOfStockCount() == 0);
+    assert(doubleEquals(report.averageItemValue(), 0.0));
+    assert(report.summaryLine() == "empty");
+    assert(report.source.label == "unnamed");
+    assert(report.source.itemCount() == 0);
+
+    std::cout << "Test test_default_constructor: PASS" << std::endl;
+}
+
+void test_constructor_with_warehouse() {
+    Warehouse wh("North Depot");
+    wh.addItem(Item("Widget", 10, 2.50));
+    
+    Report report(wh);
+    
+    assert(report.isEmpty() == false);
+    assert(report.source.label == "North Depot");
+    assert(report.source.itemCount() == 1);
+
+    std::cout << "Test test_constructor_with_warehouse: PASS" << std::endl;
+}
+
+void test_isEmpty() {
+    Warehouse emptyWh("Empty Depot");
+    Report emptyReport(emptyWh);
+    assert(emptyReport.isEmpty() == true);
+
+    Warehouse nonPropWh("Filled Depot");
+    nonPropWh.addItem(Item("Gadget", 0, 15.0)); // item present even if 0 quantity
+    Report nonPropReport(nonPropWh);
+    assert(nonPropReport.isEmpty() == false);
+
+    std::cout << "Test test_isEmpty: PASS" << std::endl;
+}
+
+void test_summaryLine() {
+    Warehouse emptyWh("Central Station");
+    Report emptyReport(emptyWh);
+    assert(emptyReport.summaryLine() == "empty");
+
+    Warehouse activeWh("Central Station");
+    activeWh.addItem(Item("Bolts", 100, 0.05));
+    Report activeReport(activeWh);
+    assert(activeReport.summaryLine() == "Central Station");
+
+    std::cout << "Test test_summaryLine: PASS" << std::endl;
+}
+
+void test_averageItemValue_empty() {
+    Report defaultReport;
+    assert(doubleEquals(defaultReport.averageItemValue(), 0.0));
+
+    Warehouse emptyWh("Empty Yard");
+    Report report(emptyWh);
+    assert(doubleEquals(report.averageItemValue(), 0.0));
+
+    std::cout << "Test test_averageItemValue_empty: PASS" << std::endl;
+}
+
+void test_averageItemValue_variousItems() {
+    Warehouse wh("Electronics");
+    // Item 1: 2 * 50.0 = 100.0
+    wh.addItem(Item("Keyboard", 2, 50.0));
+    // Item 2: 4 * 25.0 = 100.0
+    wh.addItem(Item("Mouse", 4, 25.0));
+    // Item 3: 1 * 100.0 = 100.0
+    wh.addItem(Item("Headset", 1, 100.0));
+    // Total Inventory Value = 300.0, Total distinct items = 3
+    // Expected average item value = 300.0 / 3 = 100.0
+
+    Report report(wh);
+    assert(doubleEquals(report.averageItemValue(), 100.0));
+
+    // Add an item with 0 quantity: 0 * 500.0 = 0.0
+    // Total inventory value = 300.0, Total distinct items = 4
+    // Expected average item value = 300.0 / 4 = 75.0
+    wh.addItem(Item("Monitor", 0, 500.0));
+    Report report2(wh);
+    assert(doubleEquals(report2.averageItemValue(), 75.0));
+
+    std::cout << "Test test_averageItemValue_variousItems: PASS" << std::endl;
+}
+
+void test_outOfStockCount() {
+    Warehouse wh("Grocery");
+    wh.addItem(Item("Apples", 10, 0.50));
+    wh.addItem(Item("Bananas", 0, 0.30));   // Out of stock
+    wh.addItem(Item("Oranges", 5, 0.80));
+    wh.addItem(Item("Pears", 0, 0.60));     // Out of stock
+    wh.addItem(Item("Grapes", -1, 1.20));   // Non-positive is out of stock
+
+    Report report(wh);
+    assert(report.outOfStockCount() == 3);
+
+    Warehouse allInStockWh("Pantry");
+    allInStockWh.addItem(Item("Flour", 5, 2.0));
+    allInStockWh.addItem(Item("Sugar", 3, 1.5));
+    Report allInStockReport(allInStockWh);
+    assert(allInStockReport.outOfStockCount() == 0);
+
+    Warehouse emptyWh("Empty Pantry");
+    Report emptyReport(emptyWh);
+    assert(emptyReport.outOfStockCount() == 0);
+
+    std::cout << "Test test_outOfStockCount: PASS" << std::endl;
+}
+
+void test_report_after_inventory_mutations() {
+    Warehouse wh("Hardware");
+    wh.addItem(Item("Hammer", 2, 15.0));
+    wh.addItem(Item("Nails", 100, 0.10));
+
+    Report report(wh);
+    assert(report.outOfStockCount() == 0);
+    assert(doubleEquals(report.averageItemValue(), 20.0)); // (30 + 10) / 2 = 20.0
+
+    // Consume all hammers
+    report.source.withdraw("Hammer", 2);
+    assert(report.outOfStockCount() == 1);
+    assert(doubleEquals(report.averageItemValue(), 5.0)); // (0 + 10) / 2 = 5.0
+
+    std::cout << "Test test_report_after_inventory_mutations: PASS" << std::endl;
+}
+
+int main() {
+    std::cout << "Starting Report test suite..." << std::endl;
+
+    test_default_constructor();
+    test_constructor_with_warehouse();
+    test_isEmpty();
+    test_summaryLine();
+    test_averageItemValue_empty();
+    test_averageItemValue_variousItems();
+    test_outOfStockCount();
+    test_report_after_inventory_mutations();
+
+    std::cout << "All Report tests passed successfully!" << std::endl;
+    return 0;
+}
+```

@@ -1,0 +1,110 @@
+[
+  {
+    "project": "geometry",
+    "extractor_files": [
+      "Canvas.cpp",
+      "Canvas.h",
+      "Shape.cpp",
+      "Shape.h"
+    ],
+    "reference_files": [
+      "Canvas.cpp",
+      "Canvas.h",
+      "Shape.cpp",
+      "Shape.h"
+    ],
+    "identical": true,
+    "only_reference": [],
+    "only_extractor": [],
+    "extractor_chars": 2469,
+    "reference_chars": 2469,
+    "extractor_reached": 10,
+    "reference_reached": 10
+  },
+  {
+    "project": "inventory",
+    "extractor_files": [
+      "Item.cpp",
+      "Item.h",
+      "Report.cpp",
+      "Report.h",
+      "Warehouse.cpp",
+      "Warehouse.h"
+    ],
+    "reference_files": [
+      "Item.cpp",
+      "Item.h",
+      "Report.cpp",
+      "Report.h",
+      "Warehouse.cpp",
+      "Warehouse.h"
+    ],
+    "identical": true,
+    "only_reference": [],
+    "only_extractor": [],
+    "extractor_chars": 3935,
+    "reference_chars": 3935,
+    "extractor_reached": 12,
+    "reference_reached": 12
+  },
+  {
+    "project": "scheduler",
+    "extractor_files": [
+      "Policy.cpp",
+      "Policy.h",
+      "Task.cpp",
+      "Task.h",
+      "TaskQueue.cpp",
+      "TaskQueue.h"
+    ],
+    "reference_files": [
+      "Policy.cpp",
+      "Policy.h",
+      "Task.cpp",
+      "Task.h",
+      "TaskQueue.cpp",
+      "TaskQueue.h"
+    ],
+    "identical": true,
+    "only_reference": [],
+    "only_extractor": [],
+    "extractor_chars": 8380,
+    "reference_chars": 8380,
+    "extractor_reached": 25,
+    "reference_reached": 26
+  },
+  {
+    "project": "telemetry",
+    "extractor_files": [
+      "Channel.cpp",
+      "Channel.h",
+      "Filter.cpp",
+      "Filter.h",
+      "Sample.cpp",
+      "Sample.h",
+      "SamplePipeline.cpp",
+      "SamplePipeline.h",
+      "UnitScale.cpp",
+      "UnitScale.h"
+    ],
+    "reference_files": [
+      "Channel.cpp",
+      "Channel.h",
+      "Filter.cpp",
+      "Filter.h",
+      "Sample.cpp",
+      "Sample.h",
+      "SamplePipeline.cpp",
+      "SamplePipeline.h",
+      "UnitScale.cpp",
+      "UnitScale.h"
+    ],
+    "identical": true,
+    "only_reference": [],
+    "only_extractor": [],
+    "extractor_chars": 15482,
+    "reference_chars": 15482,
+    "extractor_reached": 44,
+    "reference_reached": 46
+  }
+]

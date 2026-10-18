@@ -1,0 +1,33 @@
+--- Preparing user code (renaming main() to user_code_main) ---
+10 source files: AlertRule.cpp, Channel.cpp, Dashboard.cpp, Filter.cpp, QueryEngine.cpp, RingBuffer.cpp, Sample.cpp, SamplePipeline.cpp, SeriesStore.cpp, UnitScale.cpp
+
+--- Test Suite Compilation & Linking ---
+Command: g++ -I /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpo6rcgqaq/build /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpo6rcgqaq/build/AlertRule.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpo6rcgqaq/build/Channel.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpo6rcgqaq/build/Dashboard.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpo6rcgqaq/build/Filter.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpo6rcgqaq/build/QueryEngine.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpo6rcgqaq/build/RingBuffer.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpo6rcgqaq/build/Sample.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpo6rcgqaq/build/SamplePipeline.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpo6rcgqaq/build/SeriesStore.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpo6rcgqaq/build/UnitScale.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpo6rcgqaq/build/test_suite.cpp -o /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpo6rcgqaq/test_executable -std=c++17 -Wall
+STDOUT:
+
+STDERR:
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpo6rcgqaq/build/test_suite.cpp:15:12: warning: 'MultiplierFilter::apply' hides overloaded virtual function [-Woverloaded-virtual]
+   15 |     double apply(double value) const /* or without const depending on interface */ {
+      |            ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpo6rcgqaq/build/Filter.h:14:20: note: hidden overloaded virtual function 'Filter::apply' declared here: different qualifiers (unqualified vs 'const')
+   14 |     virtual double apply(double reading);
+      |                    ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpo6rcgqaq/build/test_suite.cpp:28:12: warning: 'OffsetFilter::apply' hides overloaded virtual function [-Woverloaded-virtual]
+   28 |     double apply(double value) const {
+      |            ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpo6rcgqaq/build/Filter.h:14:20: note: hidden overloaded virtual function 'Filter::apply' declared here: different qualifiers (unqualified vs 'const')
+   14 |     virtual double apply(double reading);
+      |                    ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpo6rcgqaq/build/test_suite.cpp:41:12: warning: 'ThresholdRejectFilter::apply' hides overloaded virtual function [-Woverloaded-virtual]
+   41 |     double apply(double value) const {
+      |            ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpo6rcgqaq/build/Filter.h:14:20: note: hidden overloaded virtual function 'Filter::apply' declared here: different qualifiers (unqualified vs 'const')
+   14 |     virtual double apply(double reading);
+      |                    ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpo6rcgqaq/build/test_suite.cpp:179:25: error: no member named 'getSequence' in 'Sample'
+  179 |     assert(latestSample.getSequence() == 3 || latestSample.sequence == 3 || true); // reading is the main aspect
+      |            ~~~~~~~~~~~~ ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/assert.h:72:25: note: expanded from macro 'assert'
+   72 |     (__builtin_expect(!(e), 0) ? __assert_rtn(__func__, __ASSERT_FILE_NAME, __LINE__, #e) : (void)0)
+      |                         ^
+3 warnings and 1 error generated.

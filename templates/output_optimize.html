@@ -1,0 +1,179 @@
+<div class="gemini-output optimization-output-v2">
+    {% if result.is_no_suggestion_message %}
+    <div class="optimization-suggestion-item no-specific-suggestions">
+        <h5 class="suggestion-item-main-header">{{ result.no_suggestion_title | default('Code Assessment Complete') }}
+        </h5>
+        <div class="suggestion-explanation markdown-content">
+            {{ result.no_suggestion_message_html | default('<p>No specific optimization suggestions were provided, or
+                the code appears well-optimized.</p>') | safe }}
+        </div>
+    </div>
+    {% elif result.optimizations_display and result.optimizations_display|length > 0 %}
+    <div class="optimization-suggestions-list">
+        <p class="suggestions-count-note"
+            style="text-align:center; color: var(--text-tertiary); margin-bottom: 1.5rem;">Displaying top {{
+            [result.optimizations_display|length, 4]|min }} suggestion(s):</p>
+
+        {% for opt in result.optimizations_display[:4] %}
+        <div class="optimization-suggestion-item"
+            data-start-line="{{ opt.start_line if opt.start_line is not none else '' }}"
+            data-end-line="{{ opt.end_line if opt.end_line is not none else '' }}">
+
+            <div class="hidden-suggested-code" style="display:none;">{{ opt.suggested_code_raw if opt.suggested_code_raw
+                else '' }}</div>
+
+            <h5 class="suggestion-item-main-header">
+                <span class="suggestion-number">{{ loop.index }}</span>
+                <span>{{ opt.title }}</span>
+            </h5>
+
+            <div class="suggestion-explanation markdown-content">
+                {{ opt.explanation_html | safe }}
+            </div>
+
+            {% if opt.suggested_code_raw %}
+            <div class="suggestion-code-box">
+                <h6 class="code-box-title">Suggested Code Snippet</h6>
+                <pre><code class="language-cpp">{{ opt.suggested_code_raw }}</code></pre>
+
+                {% if opt.start_line is not none %}
+                <button type="button" class="submit-button button-primary apply-optimization-button">Apply to
+                    Editor</button>
+                {% else %}
+                <button type="button" class="submit-button button-primary apply-optimization-button"
+                    title="Cannot apply: No target line numbers provided." disabled>Apply to Editor</button>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        {% if not loop.last and loop.index < [result.optimizations_display|length, 4]|min %} <hr
+            class="suggestion-divider">
+            {% endif %}
+            {% endfor %}
+    </div>
+
+    {% if result.optimizations_display and result.optimizations_display|length > 4 %}
+    <p class="more-suggestions-note" style="text-align:center; color: var(--text-tertiary); margin-top: 1.5rem;">
+        <i>...and {{ result.optimizations_display|length - 4 }} more suggestion(s) available from the analysis.</i></p>
+    {% endif %}
+
+    {% else %}
+    <div class="optimization-suggestion-item no-specific-suggestions">
+        <h5 class="suggestion-item-main-header">Code Assessment</h5>
+        <div class="suggestion-explanation markdown-content">
+            <p>No optimization suggestions were generated for this code at this time.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    if (!window.applyOptimizationV2ScriptLoaded) {
+        window.applyOptimizationV2ScriptLoaded = true;
+        document.addEventListener('DOMContentLoaded', function () {
+            let currentHighlightMarker = null;
+            document.querySelectorAll('.optimization-output-v2 .optimization-suggestion-item').forEach(card => {
+                card.addEventListener('mouseover', function () {
+                    if (!window.mainCodeEditorInstance) return;
+                    const startLineStr = this.dataset.startLine;
+                    const endLineStr = this.dataset.endLine;
+                    if (startLineStr) {
+                        const startLine = parseInt(startLineStr, 10);
+                        const endLine = (endLineStr && !isNaN(parseInt(endLineStr, 10))) ? parseInt(endLineStr, 10) : startLine;
+                        if (!isNaN(startLine)) {
+                            const doc = window.mainCodeEditorInstance.getDoc();
+                            const fromLine = Math.max(0, startLine - 1);
+                            const toLineNum = Math.max(0, (endLine >= startLine) ? endLine - 1 : startLine - 1);
+                            if (fromLine < doc.lineCount() && toLineNum < doc.lineCount()) {
+                                const from = { line: fromLine, ch: 0 };
+                                const lineContent = doc.getLine(toLineNum);
+                                const to = { line: toLineNum, ch: lineContent ? lineContent.length : 0 };
+                                if (currentHighlightMarker) currentHighlightMarker.clear();
+                                currentHighlightMarker = doc.markText(from, to, { className: 'highlighted-code-in-editor' });
+                            }
+                        }
+                    }
+                });
+                card.addEventListener('mouseout', function () {
+                    if (currentHighlightMarker) { currentHighlightMarker.clear(); currentHighlightMarker = null; }
+                });
+
+                const applyButton = card.querySelector('.apply-optimization-button');
+                if (applyButton) {
+                    applyButton.addEventListener('click', function () {
+                        if (!window.mainCodeEditorInstance) { alert("Main code editor instance not found."); return; }
+                        const hiddenCodeDiv = card.querySelector('.hidden-suggested-code');
+                        const startLineStrFromData = card.dataset.startLine;
+                        const endLineStrFromData = card.dataset.endLine;
+                        const fullSuggestedCode = hiddenCodeDiv ? hiddenCodeDiv.textContent.trim() : null;
+
+                        if (!startLineStrFromData || !fullSuggestedCode) { alert('Error: Line information or suggested code is missing for this optimization.'); return; }
+                        const originalStartLine = parseInt(startLineStrFromData, 10);
+                        const originalEndLine = (endLineStrFromData && !isNaN(parseInt(endLineStrFromData, 10))) ? parseInt(endLineStrFromData, 10) : originalStartLine;
+                        if (isNaN(originalStartLine)) { alert('Error: Invalid line number provided for the suggestion.'); return; }
+                        if (!confirm("This will modify the code in the main editor. Are you sure?")) return;
+
+                        const doc = window.mainCodeEditorInstance.getDoc();
+
+                        const suggestedLinesArray = fullSuggestedCode.split('\n');
+                        const suggestedIncludes = [];
+                        const actualCodeFixLines = [];
+                        const includePattern = /^\s*#include\s*(<[^>]+>|"[^"]+")\s*(\/\/.*)?$/;
+                        const usingNamespacePattern = /^\s*using namespace \w+;\s*(\/\/.*)?$/;
+
+                        for (const line of suggestedLinesArray) {
+                            if (includePattern.test(line.trim()) || usingNamespacePattern.test(line.trim())) {
+                                suggestedIncludes.push(line.trim());
+                            } else { actualCodeFixLines.push(line); }
+                        }
+                        const actualCodeFixString = actualCodeFixLines.join('\n');
+                        let linesInsertedAtTopCount = 0;
+                        let lastExistingIncludeLineIndex = -1;
+
+                        if (suggestedIncludes.length > 0) {
+                            let mainEditorLinesForIncludeScan = doc.getValue().split('\n');
+                            const existingIncludesInMain = new Set();
+                            for (let i = 0; i < mainEditorLinesForIncludeScan.length; i++) {
+                                const lineTrimmed = mainEditorLinesForIncludeScan[i].trim();
+                                if (includePattern.test(lineTrimmed) || usingNamespacePattern.test(lineTrimmed)) {
+                                    existingIncludesInMain.add(lineTrimmed); lastExistingIncludeLineIndex = i;
+                                } else if (lineTrimmed !== "" && !lineTrimmed.startsWith("//") && !lineTrimmed.startsWith("/*")) { break; }
+                            }
+                            const uniqueNewIncludesToAdd = suggestedIncludes.filter(inc => !existingIncludesInMain.has(inc));
+                            if (uniqueNewIncludesToAdd.length > 0) {
+                                const insertionLineIndex = lastExistingIncludeLineIndex + 1;
+                                const newIncludesText = uniqueNewIncludesToAdd.join('\n') + '\n';
+                                doc.replaceRange(newIncludesText, { line: insertionLineIndex, ch: 0 });
+                                linesInsertedAtTopCount = uniqueNewIncludesToAdd.length;
+                            }
+                        }
+
+                        let finalApplyStartLine = originalStartLine;
+                        let finalApplyEndLine = originalEndLine;
+                        if (linesInsertedAtTopCount > 0 && (lastExistingIncludeLineIndex + 1) < originalStartLine) {
+                            finalApplyStartLine += linesInsertedAtTopCount;
+                            finalApplyEndLine += linesInsertedAtTopCount;
+                        }
+
+                        if (actualCodeFixString.trim() !== "" || (originalStartLine <= originalEndLine && linesInsertedAtTopCount === 0)) {
+                            const fromPos = { line: finalApplyStartLine - 1, ch: 0 };
+                            const toLineNum = (finalApplyEndLine >= finalApplyStartLine) ? finalApplyEndLine - 1 : finalApplyStartLine - 1;
+                            if (fromPos.line < 0 || fromPos.line >= doc.lineCount() || toLineNum < 0 || toLineNum >= doc.lineCount() || fromPos.line > toLineNum) {
+                                alert('Error: Adjusted line numbers for code fix are out of range.');
+                                return;
+                            }
+                            const lineContentAtToPos = doc.getLine(toLineNum);
+                            const toPos = { line: toLineNum, ch: lineContentAtToPos ? lineContentAtToPos.length : 0 };
+                            doc.replaceRange(actualCodeFixString, fromPos, toPos);
+                        } else if (linesInsertedAtTopCount > 0) {
+                            flashMessage('New includes added. No other code changes applied.', 'info'); return;
+                        } else {
+                            alert("No specific code changes to apply from this suggestion."); return;
+                        }
+                        flashMessage('Optimization applied! Please review changes.', 'success');
+                    });
+                }
+            });
+        });
+    }
+</script>

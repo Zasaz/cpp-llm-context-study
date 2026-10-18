@@ -1,0 +1,33 @@
+--- Preparing user code (renaming main() to user_code_main) ---
+3 source files: Item.cpp, Report.cpp, Warehouse.cpp
+
+--- Test Suite Compilation & Linking ---
+Command: g++ -I /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpi3izeffd/build /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpi3izeffd/build/Item.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpi3izeffd/build/Report.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpi3izeffd/build/Warehouse.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpi3izeffd/build/test_suite.cpp -o /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpi3izeffd/test_executable -std=c++17 -Wall
+STDOUT:
+
+STDERR:
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpi3izeffd/build/test_suite.cpp:44:11: error: no member named 'price' in 'Item'
+   44 |     item1.price = 10.0;
+      |     ~~~~~ ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpi3izeffd/build/test_suite.cpp:48:11: error: no member named 'price' in 'Item'
+   48 |     item2.price = 20.0;
+      |     ~~~~~ ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpi3izeffd/build/test_suite.cpp:72:11: error: no member named 'price' in 'Item'
+   72 |     item1.price = 15.0;
+      |     ~~~~~ ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpi3izeffd/build/test_suite.cpp:76:11: error: no member named 'price' in 'Item'
+   76 |     item2.price = 25.0;
+      |     ~~~~~ ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpi3izeffd/build/test_suite.cpp:80:11: error: no member named 'price' in 'Item'
+   80 |     item3.price = 5.0;
+      |     ~~~~~ ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpi3izeffd/build/test_suite.cpp:102:11: error: no member named 'price' in 'Item'
+  102 |     item1.price = 50.0;
+      |     ~~~~~ ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpi3izeffd/build/test_suite.cpp:106:11: error: no member named 'price' in 'Item'
+  106 |     item2.price = 100.0;
+      |     ~~~~~ ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpi3izeffd/build/test_suite.cpp:128:10: error: no member named 'price' in 'Item'
+  128 |     item.price = 12.5;
+      |     ~~~~ ^
+8 errors generated.

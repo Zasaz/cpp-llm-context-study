@@ -1,0 +1,42 @@
+--- Preparing user code (renaming main() to user_code_main) ---
+10 source files: AlertRule.cpp, Channel.cpp, Dashboard.cpp, Filter.cpp, QueryEngine.cpp, RingBuffer.cpp, Sample.cpp, SamplePipeline.cpp, SeriesStore.cpp, UnitScale.cpp
+
+--- Test Suite Compilation & Linking ---
+Command: g++ -I /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp084_ua4e/build /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp084_ua4e/build/AlertRule.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp084_ua4e/build/Channel.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp084_ua4e/build/Dashboard.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp084_ua4e/build/Filter.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp084_ua4e/build/QueryEngine.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp084_ua4e/build/RingBuffer.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp084_ua4e/build/Sample.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp084_ua4e/build/SamplePipeline.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp084_ua4e/build/SeriesStore.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp084_ua4e/build/UnitScale.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp084_ua4e/build/test_suite.cpp -o /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp084_ua4e/test_executable -std=c++17 -Wall
+STDOUT:
+
+STDERR:
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp084_ua4e/build/test_suite.cpp:22:12: warning: 'OffsetFilter::apply' hides overloaded virtual function [-Woverloaded-virtual]
+   22 |     double apply(double value) const {
+      |            ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp084_ua4e/build/Filter.h:14:20: note: hidden overloaded virtual function 'Filter::apply' declared here: different qualifiers (unqualified vs 'const')
+   14 |     virtual double apply(double reading);
+      |                    ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp084_ua4e/build/test_suite.cpp:37:12: warning: 'ScaleFilter::apply' hides overloaded virtual function [-Woverloaded-virtual]
+   37 |     double apply(double value) const {
+      |            ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp084_ua4e/build/Filter.h:14:20: note: hidden overloaded virtual function 'Filter::apply' declared here: different qualifiers (unqualified vs 'const')
+   14 |     virtual double apply(double reading);
+      |                    ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp084_ua4e/build/test_suite.cpp:162:25: error: reference to non-static member function must be called; did you mean to call it with no arguments?
+  162 |     assert(latestSample.value == 20.0);
+      |            ~~~~~~~~~~~~~^~~~~
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/assert.h:72:25: note: expanded from macro 'assert'
+   72 |     (__builtin_expect(!(e), 0) ? __assert_rtn(__func__, __ASSERT_FILE_NAME, __LINE__, #e) : (void)0)
+      |                         ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp084_ua4e/build/test_suite.cpp:186:18: error: no matching constructor for initialization of 'UnitScale'
+  186 |     pipe.scale = UnitScale("Celsius", 1.0, 0.0);
+      |                  ^         ~~~~~~~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp084_ua4e/build/UnitScale.h:13:5: note: candidate constructor not viable: no known conversion from 'const char[8]' to 'double' for 1st argument
+   13 |     UnitScale(double scaleFactor, double scaleOffset, const std::string& unitName);
+      |     ^         ~~~~~~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp084_ua4e/build/UnitScale.h:6:7: note: candidate constructor (the implicit copy constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class UnitScale {
+      |       ^~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp084_ua4e/build/UnitScale.h:6:7: note: candidate constructor (the implicit move constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class UnitScale {
+      |       ^~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp084_ua4e/build/UnitScale.h:12:5: note: candidate constructor not viable: requires 0 arguments, but 3 were provided
+   12 |     UnitScale();
+      |     ^
+2 warnings and 2 errors generated.

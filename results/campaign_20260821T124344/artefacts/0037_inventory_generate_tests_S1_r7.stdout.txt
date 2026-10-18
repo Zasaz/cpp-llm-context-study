@@ -1,0 +1,10 @@
+Test test_defaultConstructor: PASS
+Test test_parameterizedConstructor: PASS
+Test test_isEmpty: PASS
+Test test_averageItemValue_empty: PASS
+Test test_averageItemValue_populated: PASS
+Test test_outOfStockCount: PASS
+Test test_summaryLine: PASS
+Test test_reportAfterModifyingSource: PASS
+
+All Report unit tests passed successfully!

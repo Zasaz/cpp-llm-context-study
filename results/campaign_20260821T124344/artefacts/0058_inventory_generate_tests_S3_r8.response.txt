@@ -1,0 +1,155 @@
+Here is the complete C++ unit test suite covering the `Report` class and its functionality.
+
+```cpp
+#include <iostream>
+#include <cassert>
+#include <cmath>
+#include <string>
+#include "Report.h"
+#include "Warehouse.h"
+#include "Item.h"
+
+// Helper function for floating point comparisons
+bool areAlmostEqual(double a, double b, double epsilon = 1e-6) {
+    return std::fabs(a - b) < epsilon;
+}
+
+// Test default constructor behavior
+void test_report_default_constructor() {
+    Report report;
+    assert(report.isEmpty() == true);
+    assert(report.source.label == "unnamed");
+    assert(report.source.itemCount() == 0);
+    assert(areAlmostEqual(report.averageItemValue(), 0.0));
+    assert(report.outOfStockCount() == 0);
+    assert(report.summaryLine() == "empty");
+    std::cout << "Test test_report_default_constructor: PASS" << std::endl;
+}
+
+// Test parameterized constructor
+void test_report_parameterized_constructor() {
+    Warehouse wh("Main Warehouse");
+    wh.addItem(Item("Widget", 10, 2.5));
+    
+    Report report(wh);
+    assert(report.isEmpty() == false);
+    assert(report.source.label == "Main Warehouse");
+    assert(report.source.itemCount() == 1);
+    std::cout << "Test test_report_parameterized_constructor: PASS" << std::endl;
+}
+
+// Test isEmpty method
+void test_report_isEmpty() {
+    Warehouse emptyWh("Empty Depot");
+    Report emptyReport(emptyWh);
+    assert(emptyReport.isEmpty() == true);
+
+    Warehouse populatedWh("Active Depot");
+    populatedWh.addItem(Item("Gadget", 5, 12.0));
+    Report populatedReport(populatedWh);
+    assert(populatedReport.isEmpty() == false);
+
+    // Item with 0 quantity is still an item in the warehouse
+    Warehouse zeroQtyWh("Depleted Depot");
+    zeroQtyWh.addItem(Item("ZeroStock", 0, 15.0));
+    Report zeroQtyReport(zeroQtyWh);
+    assert(zeroQtyReport.isEmpty() == false);
+    std::cout << "Test test_report_isEmpty: PASS" << std::endl;
+}
+
+// Test summaryLine method
+void test_report_summaryLine() {
+    // Empty warehouse should return "empty"
+    Warehouse emptyWh("Distribution Center 1");
+    Report emptyReport(emptyWh);
+    assert(emptyReport.summaryLine() == "empty");
+
+    // Non-empty warehouse should return warehouse label
+    Warehouse wh("North Facility");
+    wh.addItem(Item("Screws", 100, 0.05));
+    Report activeReport(wh);
+    assert(activeReport.summaryLine() == "North Facility");
+    std::cout << "Test test_report_summaryLine: PASS" << std::endl;
+}
+
+// Test averageItemValue method
+void test_report_averageItemValue() {
+    // Case 1: Empty report
+    Report emptyReport;
+    assert(areAlmostEqual(emptyReport.averageItemValue(), 0.0));
+
+    // Case 2: Single item
+    Warehouse whSingle("Single");
+    whSingle.addItem(Item("Box", 4, 10.0)); // totalValue = 40.0
+    Report reportSingle(whSingle);
+    assert(areAlmostEqual(reportSingle.averageItemValue(), 40.0));
+
+    // Case 3: Multiple items
+    Warehouse whMulti("Multiple");
+    whMulti.addItem(Item("Apple", 10, 1.50)); // totalValue = 15.0
+    whMulti.addItem(Item("Banana", 20, 0.50)); // totalValue = 10.0
+    whMulti.addItem(Item("Orange", 5, 2.00));  // totalValue = 10.0
+    // Total inventory value = 35.0, Item count = 3 -> Average = 35.0 / 3 = 11.666667
+    Report reportMulti(whMulti);
+    assert(areAlmostEqual(reportMulti.averageItemValue(), 35.0 / 3.0));
+    std::cout << "Test test_report_averageItemValue: PASS" << std::endl;
+}
+
+// Test outOfStockCount method
+void test_report_outOfStockCount() {
+    // Case 1: Empty warehouse has 0 out-of-stock items
+    Report emptyReport;
+    assert(emptyReport.outOfStockCount() == 0);
+
+    // Case 2: All in stock
+    Warehouse whAllIn("All In Stock");
+    whAllIn.addItem(Item("ItemA", 5, 1.0));
+    whAllIn.addItem(Item("ItemB", 1, 2.0));
+    Report reportAllIn(whAllIn);
+    assert(reportAllIn.outOfStockCount() == 0);
+
+    // Case 3: Mixed stock statuses
+    Warehouse whMixed("Mixed Stock");
+    whMixed.addItem(Item("InStock1", 10, 2.0));
+    whMixed.addItem(Item("OutOfStock1", 0, 5.0));
+    whMixed.addItem(Item("OutOfStock2", -1, 3.0)); // Negative quantities are treated as not in stock
+    whMixed.addItem(Item("InStock2", 3, 10.0));
+    whMixed.addItem(Item("OutOfStock3", 0, 0.0));
+    Report reportMixed(whMixed);
+    assert(reportMixed.outOfStockCount() == 3);
+    std::cout << "Test test_report_outOfStockCount: PASS" << std::endl;
+}
+
+// Test report behavior reflecting state changes in source
+void test_report_source_mutation() {
+    Warehouse wh("Dynamic Hub");
+    wh.addItem(Item("Laptop", 2, 1000.0));
+    
+    Report report(wh);
+    assert(report.outOfStockCount() == 0);
+    assert(areAlmostEqual(report.averageItemValue(), 2000.0));
+
+    // Consume items through warehouse operations on source
+    bool withdrawn = report.source.withdraw("Laptop", 2);
+    assert(withdrawn == true);
+    assert(report.source.items[0].quantity == 0);
+    assert(report.outOfStockCount() == 1);
+    assert(areAlmostEqual(report.averageItemValue(), 0.0));
+    std::cout << "Test test_report_source_mutation: PASS" << std::endl;
+}
+
+int main() {
+    std::cout << "Starting Report test suite..." << std::endl;
+
+    test_report_default_constructor();
+    test_report_parameterized_constructor();
+    test_report_isEmpty();
+    test_report_summaryLine();
+    test_report_averageItemValue();
+    test_report_outOfStockCount();
+    test_report_source_mutation();
+
+    std::cout << "All Report tests passed successfully!" << std::endl;
+    return 0;
+}
+```

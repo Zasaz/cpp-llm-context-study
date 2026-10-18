@@ -1,0 +1,10 @@
+{
+  "correction_recorded": "2026-09-18",
+  "applies_to": "manifest.json, key uncontrolled_params.thinking_level",
+  "recorded_value": "on by default at medium, not settable via google-genai 1.47.0",
+  "finding": "The clause 'not settable via google-genai 1.47.0' is false. The reasoning budget is settable through types.ThinkingConfig(thinking_budget=N), and the suppressed arm of this experiment, campaign_20260821T124344, sets it to zero and records zero reasoning tokens across all 120 runs.",
+  "what_remains_true": "The budget applied by the provider when none is requested is neither reported by the API nor documented, so for this campaign the reasoning level is an uncontrolled parameter. That is why the parameter sits under uncontrolled_params and why a second arm was run.",
+  "effect_on_results": "None. No recorded token count, cost, latency or grade derives from this field; it is descriptive metadata only.",
+  "action_taken": "The original manifest is left byte-for-byte unchanged so the archived record stays what the run wrote. This file is the correction and travels with it.",
+  "corrected_in": ["harness/run.py", "chapters/04-system.tex", "chapters/05-evaluation.tex"]
+}

@@ -1,0 +1,159 @@
+Here is the complete C++ unit test suite covering the `Report` class and its interactions with the `Warehouse` and `Item` classes.
+
+```cpp
+#include <iostream>
+#include <cassert>
+#include <cmath>
+#include <string>
+
+#include "Report.h"
+#include "Warehouse.h"
+#include "Item.h"
+
+// Helper function to compare floating point numbers
+bool isClose(double a, double b, double epsilon = 1e-6) {
+    return std::fabs(a - b) < epsilon;
+}
+
+void test_defaultConstructor() {
+    Report report;
+    assert(report.isEmpty() == true);
+    assert(report.summaryLine() == "empty");
+    assert(isClose(report.averageItemValue(), 0.0));
+    assert(report.outOfStockCount() == 0);
+    assert(report.source.label == "unnamed");
+    assert(report.source.itemCount() == 0);
+
+    std::cout << "Test test_defaultConstructor: PASS" << std::endl;
+}
+
+void test_parameterizedConstructor() {
+    Warehouse wh("North Facility");
+    wh.addItem(Item("Widget", 10, 2.50));
+    
+    Report report(wh);
+    assert(report.isEmpty() == false);
+    assert(report.source.label == "North Facility");
+    assert(report.source.itemCount() == 1);
+    assert(report.summaryLine() == "North Facility");
+
+    std::cout << "Test test_parameterizedConstructor: PASS" << std::endl;
+}
+
+void test_isEmpty() {
+    Warehouse emptyWh("Empty Depot");
+    Report emptyReport(emptyWh);
+    assert(emptyReport.isEmpty() == true);
+
+    Warehouse nonEmptyWh("Active Depot");
+    nonEmptyWh.addItem(Item("Screw", 100, 0.05));
+    Report activeReport(nonEmptyWh);
+    assert(activeReport.isEmpty() == false);
+
+    std::cout << "Test test_isEmpty: PASS" << std::endl;
+}
+
+void test_summaryLine() {
+    // Case 1: Empty warehouse reports "empty" regardless of label
+    Warehouse emptyWh("Central Storage");
+    Report emptyReport(emptyWh);
+    assert(emptyReport.summaryLine() == "empty");
+
+    // Case 2: Non-empty warehouse reports its label
+    Warehouse activeWh("Central Storage");
+    activeWh.addItem(Item("Hammer", 5, 12.99));
+    Report activeReport(activeWh);
+    assert(activeReport.summaryLine() == "Central Storage");
+
+    // Case 3: Default constructed report
+    Report defaultReport;
+    assert(defaultReport.summaryLine() == "empty");
+
+    std::cout << "Test test_summaryLine: PASS" << std::endl;
+}
+
+void test_averageItemValue_empty() {
+    Warehouse emptyWh("Empty Dock");
+    Report report(emptyWh);
+    
+    // Average item value on empty warehouse should be 0.0 (no division by zero)
+    assert(isClose(report.averageItemValue(), 0.0));
+
+    std::cout << "Test test_averageItemValue_empty: PASS" << std::endl;
+}
+
+void test_averageItemValue_multipleItems() {
+    Warehouse wh("Parts Hub");
+    // Item 1: 10 * 5.00 = 50.00
+    wh.addItem(Item("Gear", 10, 5.00));
+    // Item 2: 20 * 2.50 = 50.00
+    wh.addItem(Item("Bearing", 20, 2.50));
+    // Item 3: 0 * 100.00 = 0.00
+    wh.addItem(Item("Motor", 0, 100.00));
+    // Total inventory value = 100.00, Item types count = 3
+    // Average value per item type = 100.00 / 3 = 33.333333...
+
+    Report report(wh);
+    double expectedAvg = 100.0 / 3.0;
+    assert(isClose(report.averageItemValue(), expectedAvg));
+
+    std::cout << "Test test_averageItemValue_multipleItems: PASS" << std::endl;
+}
+
+void test_outOfStockCount() {
+    Warehouse wh("Retail Store");
+    assert(Report(wh).outOfStockCount() == 0);
+
+    // Add in-stock items
+    wh.addItem(Item("Apples", 15, 0.50));
+    wh.addItem(Item("Bananas", 20, 0.30));
+    Report report1(wh);
+    assert(report1.outOfStockCount() == 0);
+
+    // Add out-of-stock items (quantity = 0)
+    wh.addItem(Item("Oranges", 0, 0.80));
+    wh.addItem(Item("Grapes", 0, 2.00));
+    Report report2(wh);
+    assert(report2.outOfStockCount() == 2);
+
+    // Add another in-stock item
+    wh.addItem(Item("Pineapple", 3, 3.50));
+    Report report3(wh);
+    assert(report3.outOfStockCount() == 2);
+
+    std::cout << "Test test_outOfStockCount: PASS" << std::endl;
+}
+
+void test_stateModification_independentCopy() {
+    Warehouse wh("Logistics Core");
+    wh.addItem(Item("Pallet", 10, 50.0));
+
+    Report report(wh);
+
+    // Modifying the original warehouse should not alter the report's snapshot
+    wh.addItem(Item("Box", 5, 2.0));
+    wh.withdraw("Pallet", 10);
+
+    assert(report.source.itemCount() == 1);
+    assert(report.outOfStockCount() == 0);
+    assert(isClose(report.averageItemValue(), 500.0));
+
+    std::cout << "Test test_stateModification_independentCopy: PASS" << std::endl;
+}
+
+int main() {
+    std::cout << "--- Running Report Class Unit Tests ---" << std::endl;
+
+    test_defaultConstructor();
+    test_parameterizedConstructor();
+    test_isEmpty();
+    test_summaryLine();
+    test_averageItemValue_empty();
+    test_averageItemValue_multipleItems();
+    test_outOfStockCount();
+    test_stateModification_independentCopy();
+
+    std::cout << "--- All Unit Tests Passed Successfully ---" << std::endl;
+    return 0;
+}
+```

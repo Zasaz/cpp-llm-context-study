@@ -1,0 +1,27 @@
+--- Preparing user code (renaming main() to user_code_main) ---
+10 source files: AlertRule.cpp, Channel.cpp, Dashboard.cpp, Filter.cpp, QueryEngine.cpp, RingBuffer.cpp, Sample.cpp, SamplePipeline.cpp, SeriesStore.cpp, UnitScale.cpp
+
+--- Test Suite Compilation & Linking ---
+Command: g++ -I /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp_ng2p04m/build /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp_ng2p04m/build/AlertRule.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp_ng2p04m/build/Channel.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp_ng2p04m/build/Dashboard.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp_ng2p04m/build/Filter.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp_ng2p04m/build/QueryEngine.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp_ng2p04m/build/RingBuffer.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp_ng2p04m/build/Sample.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp_ng2p04m/build/SamplePipeline.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp_ng2p04m/build/SeriesStore.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp_ng2p04m/build/UnitScale.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp_ng2p04m/build/test_suite.cpp -o /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp_ng2p04m/test_executable -std=c++17 -Wall
+STDOUT:
+
+STDERR:
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp_ng2p04m/build/test_suite.cpp:26:18: warning: 'OffsetFilter::rejects' hides overloaded virtual function [-Woverloaded-virtual]
+   26 |     virtual bool rejects(double reading) /* const / override */ {
+      |                  ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp_ng2p04m/build/Filter.h:16:18: note: hidden overloaded virtual function 'Filter::rejects' declared here: different qualifiers ('const' vs unqualified)
+   16 |     virtual bool rejects(double reading) const;
+      |                  ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp_ng2p04m/build/test_suite.cpp:41:18: warning: 'ScaleFilter::rejects' hides overloaded virtual function [-Woverloaded-virtual]
+   41 |     virtual bool rejects(double reading) /* const / override */ {
+      |                  ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp_ng2p04m/build/Filter.h:16:18: note: hidden overloaded virtual function 'Filter::rejects' declared here: different qualifiers ('const' vs unqualified)
+   16 |     virtual bool rejects(double reading) const;
+      |                  ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp_ng2p04m/build/test_suite.cpp:176:24: error: reference to non-static member function must be called; did you mean to call it with no arguments?
+  176 |     assert(std::abs(s1.value - 12.0) < 1e-6); // 10.0 + 2.0 = 12.0
+      |                     ~~~^~~~~
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/assert.h:72:25: note: expanded from macro 'assert'
+   72 |     (__builtin_expect(!(e), 0) ? __assert_rtn(__func__, __ASSERT_FILE_NAME, __LINE__, #e) : (void)0)
+      |                         ^
+2 warnings and 1 error generated.

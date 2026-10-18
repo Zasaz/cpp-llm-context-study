@@ -1,0 +1,8 @@
+Test test_report_defaultConstructor: PASS
+Test test_report_emptyWarehouse: PASS
+Test test_report_summaryLineAndEmptyState: PASS
+Test test_report_averageItemValue: PASS
+Test test_report_outOfStockCount_noneOutOfStock: PASS
+Test test_report_outOfStockCount_mixedStock: PASS
+Test test_report_outOfStockCount_afterWithdraw: PASS
+All Report unit tests passed successfully!

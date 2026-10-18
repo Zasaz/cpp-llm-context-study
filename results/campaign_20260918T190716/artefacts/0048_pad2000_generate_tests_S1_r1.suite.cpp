@@ -1,0 +1,143 @@
+#include <iostream>
+#include <cassert>
+#include <cmath>
+#include "Canvas.h"
+#include "Shape.h"
+
+// Helper function for floating point comparisons
+static bool isClose(double a, double b, double epsilon = 1e-6) {
+    return std::fabs(a - b) < epsilon;
+}
+
+// Custom derived Shape for additional polymorphic testing
+class CustomTestShape : public Shape {
+public:
+    double customArea;
+    explicit CustomTestShape(double a) : customArea(a) {}
+    double area() const {
+        return customArea;
+    }
+};
+
+void test_Canvas_initialState() {
+    Canvas canvas;
+    assert(canvas.count() == 0);
+    assert(canvas.shapes.empty());
+    assert(isClose(canvas.totalArea(), 0.0));
+    assert(isClose(canvas.largestArea(), 0.0));
+    std::cout << "Test test_Canvas_initialState: PASS" << std::endl;
+}
+
+void test_Canvas_addNullShape() {
+    Canvas canvas;
+    canvas.add(0);
+    assert(canvas.count() == 0);
+    assert(canvas.shapes.empty());
+    assert(isClose(canvas.totalArea(), 0.0));
+    assert(isClose(canvas.largestArea(), 0.0));
+    std::cout << "Test test_Canvas_addNullShape: PASS" << std::endl;
+}
+
+void test_Canvas_addValidShapesAndCount() {
+    Canvas canvas;
+    canvas.add(new Rectangle(4.0, 5.0)); // Area = 20.0
+    assert(canvas.count() == 1);
+    assert(canvas.shapes.size() == 1);
+
+    canvas.add(new Circle(3.0));          // Area = PI * 9.0 ≈ 28.2743338823
+    assert(canvas.count() == 2);
+    assert(canvas.shapes.size() == 2);
+
+    canvas.add(new CustomTestShape(15.0));
+    assert(canvas.count() == 3);
+    assert(canvas.shapes.size() == 3);
+
+    std::cout << "Test test_Canvas_addValidShapesAndCount: PASS" << std::endl;
+}
+
+void test_Canvas_totalArea() {
+    Canvas canvas;
+    canvas.add(new Rectangle(2.0, 5.0));  // Area = 10.0
+    canvas.add(new Rectangle(3.0, 4.0));  // Area = 12.0
+    canvas.add(new Circle(1.0));          // Area = PI * 1 * 1 ≈ 3.14159265
+    canvas.add(new Shape());              // Area = 0.0
+
+    double expectedTotal = 10.0 + 12.0 + (3.14159265358979323846 * 1.0) + 0.0;
+    assert(isClose(canvas.totalArea(), expectedTotal));
+
+    std::cout << "Test test_Canvas_totalArea: PASS" << std::endl;
+}
+
+void test_Canvas_largestArea() {
+    Canvas canvas;
+    // When canvas is empty
+    assert(isClose(canvas.largestArea(), 0.0));
+
+    // Adding first shape
+    canvas.add(new Rectangle(3.0, 4.0)); // Area = 12.0
+    assert(isClose(canvas.largestArea(), 12.0));
+
+    // Adding a larger shape
+    canvas.add(new Circle(3.0));         // Area = PI * 9.0 ≈ 28.27433
+    assert(isClose(canvas.largestArea(), 3.14159265358979323846 * 9.0));
+
+    // Adding a smaller shape
+    canvas.add(new Rectangle(1.0, 1.0)); // Area = 1.0
+    assert(isClose(canvas.largestArea(), 3.14159265358979323846 * 9.0));
+
+    // Adding an even larger shape
+    canvas.add(new Rectangle(10.0, 10.0)); // Area = 100.0
+    assert(isClose(canvas.largestArea(), 100.0));
+
+    std::cout << "Test test_Canvas_largestArea: PASS" << std::endl;
+}
+
+void test_Canvas_clear() {
+    Canvas canvas;
+    canvas.add(new Rectangle(5.0, 5.0));
+    canvas.add(new Circle(2.0));
+    assert(canvas.count() == 2);
+
+    canvas.clear();
+    assert(canvas.count() == 0);
+    assert(canvas.shapes.empty());
+    assert(isClose(canvas.totalArea(), 0.0));
+    assert(isClose(canvas.largestArea(), 0.0));
+
+    // Clearing an already empty canvas should be safe
+    canvas.clear();
+    assert(canvas.count() == 0);
+
+    // Adding new shapes after clearing should work normally
+    canvas.add(new Rectangle(2.0, 3.0));
+    assert(canvas.count() == 1);
+    assert(isClose(canvas.totalArea(), 6.0));
+
+    std::cout << "Test test_Canvas_clear: PASS" << std::endl;
+}
+
+void test_Canvas_destructorCleanup() {
+    // Verifies that dynamically allocated Canvas cleans up properly via destructor
+    Canvas* dynamicCanvas = new Canvas();
+    dynamicCanvas->add(new Rectangle(10.0, 2.0));
+    dynamicCanvas->add(new Circle(5.0));
+    assert(dynamicCanvas->count() == 2);
+    delete dynamicCanvas; // Calls destructor which in turn calls clear()
+
+    std::cout << "Test test_Canvas_destructorCleanup: PASS" << std::endl;
+}
+
+int main() {
+    std::cout << "--- Starting Canvas Unit Tests ---" << std::endl;
+
+    test_Canvas_initialState();
+    test_Canvas_addNullShape();
+    test_Canvas_addValidShapesAndCount();
+    test_Canvas_totalArea();
+    test_Canvas_largestArea();
+    test_Canvas_clear();
+    test_Canvas_destructorCleanup();
+
+    std::cout << "--- All Canvas Unit Tests Passed Successfully ---" << std::endl;
+    return 0;
+}

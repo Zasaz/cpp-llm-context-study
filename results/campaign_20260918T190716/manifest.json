@@ -1,0 +1,114 @@
+{
+  "started": "20260918T190716",
+  "harness_version": "1.0",
+  "strategy_version": "1.0",
+  "extractor_version": "2.1-typed",
+  "model_requested": "gemini-3.7-flash",
+  "environment": {
+    "python": "3.9.6",
+    "platform": "macOS-27.0-arm64-arm-64bit",
+    "machine": "arm64",
+    "google_genai": "1.47.0",
+    "flask": "3.1.3",
+    "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+    "compile_flags": [
+      "-std=c++17",
+      "-Wall"
+    ]
+  },
+  "generation_params": {
+    "temperature": 1.0,
+    "top_p": 0.95,
+    "candidate_count": 1,
+    "thinking_config": {
+      "thinking_budget": 0
+    }
+  },
+  "thinking": "suppressed",
+  "uncontrolled_params": {},
+  "pricing": {
+    "model": "gemini-3.7-flash",
+    "input_per_million_usd": 0.75,
+    "output_per_million_usd": 3.75,
+    "note": "output rate includes thinking tokens",
+    "read_on": "2026-08-20",
+    "valid_until": "2026-12-31"
+  },
+  "repetitions": 5,
+  "run_order": "shuffled, seed 33",
+  "strategies": [
+    "S1",
+    "S3"
+  ],
+  "tasks": [
+    "generate_tests"
+  ],
+  "dry_run": false,
+  "projects": [
+    {
+      "name": "pad0000",
+      "active_file": "Canvas.cpp",
+      "metrics": {
+        "files": 6,
+        "loc": 152,
+        "chars": 3158,
+        "symbols": 28,
+        "classes": 5,
+        "functions": 23,
+        "call_edges": 4
+      }
+    },
+    {
+      "name": "pad0250",
+      "active_file": "Canvas.cpp",
+      "metrics": {
+        "files": 16,
+        "loc": 377,
+        "chars": 7058,
+        "symbols": 58,
+        "classes": 10,
+        "functions": 48,
+        "call_edges": 4
+      }
+    },
+    {
+      "name": "pad0500",
+      "active_file": "Canvas.cpp",
+      "metrics": {
+        "files": 24,
+        "loc": 557,
+        "chars": 10178,
+        "symbols": 82,
+        "classes": 14,
+        "functions": 68,
+        "call_edges": 4
+      }
+    },
+    {
+      "name": "pad1000",
+      "active_file": "Canvas.cpp",
+      "metrics": {
+        "files": 40,
+        "loc": 917,
+        "chars": 16570,
+        "symbols": 130,
+        "classes": 22,
+        "functions": 108,
+        "call_edges": 4
+      }
+    },
+    {
+      "name": "pad2000",
+      "active_file": "Canvas.cpp",
+      "metrics": {
+        "files": 74,
+        "loc": 1682,
+        "chars": 30153,
+        "symbols": 232,
+        "classes": 39,
+        "functions": 193,
+        "call_edges": 4
+      }
+    }
+  ]
+}

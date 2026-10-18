@@ -1,0 +1,10 @@
+Running Canvas unit tests...
+Test test_canvas_default_constructor: PASS
+Test test_canvas_add_null: PASS
+Test test_canvas_add_and_count: PASS
+Test test_canvas_totalArea: PASS
+Test test_canvas_largestArea: PASS
+Test test_canvas_clear: PASS
+Test test_canvas_destructor: PASS
+Test test_canvas_mixed_shapes: PASS
+All Canvas unit tests passed successfully!

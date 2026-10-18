@@ -1,0 +1,4 @@
+Starting Report class unit tests...
+Test test_defaultConstructor: PASS
+Test test_constructor_emptyWarehouse: PASS
+Test test_averageItemValue: PASS

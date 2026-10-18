@@ -1,0 +1,8 @@
+=== Starting Canvas Test Suite ===
+Test test_canvas_initialState: PASS
+Test test_canvas_add: PASS
+Test test_canvas_totalArea: PASS
+Test test_canvas_largestArea: PASS
+Test test_canvas_clear: PASS
+Test test_canvas_destructor: PASS
+=== All Canvas Tests Passed Successfully ===

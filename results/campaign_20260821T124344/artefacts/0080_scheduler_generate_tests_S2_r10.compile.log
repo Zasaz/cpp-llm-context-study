@@ -1,0 +1,279 @@
+--- Preparing user code (renaming main() to user_code_main) ---
+6 source files: Policy.cpp, ResourceLedger.cpp, RunStatistics.cpp, Scheduler.cpp, Task.cpp, TaskQueue.cpp
+
+--- Test Suite Compilation & Linking ---
+Command: g++ -I /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Policy.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/ResourceLedger.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/RunStatistics.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Scheduler.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/TaskQueue.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/test_suite.cpp -o /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/test_executable -std=c++17 -Wall
+STDOUT:
+
+STDERR:
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/test_suite.cpp:52:10: error: no matching constructor for initialization of 'Task'
+   52 |     Task t1("T1", 5, 2);
+      |          ^  ~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:18:5: note: candidate constructor not viable: requires 4 arguments, but 3 were provided
+   18 |     Task(int taskId, const std::string& taskName, int taskPriority, int taskDuration);
+      |     ^    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit copy constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit move constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:17:5: note: candidate constructor not viable: requires 0 arguments, but 3 were provided
+   17 |     Task();
+      |     ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/test_suite.cpp:66:10: error: no matching constructor for initialization of 'Task'
+   66 |     Task t1("Task1", 10, 5);
+      |          ^  ~~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:18:5: note: candidate constructor not viable: requires 4 arguments, but 3 were provided
+   18 |     Task(int taskId, const std::string& taskName, int taskPriority, int taskDuration);
+      |     ^    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit copy constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit move constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:17:5: note: candidate constructor not viable: requires 0 arguments, but 3 were provided
+   17 |     Task();
+      |     ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/test_suite.cpp:67:10: error: no matching constructor for initialization of 'Task'
+   67 |     Task t2("Task2", 8, 3);
+      |          ^  ~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:18:5: note: candidate constructor not viable: requires 4 arguments, but 3 were provided
+   18 |     Task(int taskId, const std::string& taskName, int taskPriority, int taskDuration);
+      |     ^    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit copy constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit move constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:17:5: note: candidate constructor not viable: requires 0 arguments, but 3 were provided
+   17 |     Task();
+      |     ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/test_suite.cpp:68:10: error: no matching constructor for initialization of 'Task'
+   68 |     Task t3("Task3", 6, 1);
+      |          ^  ~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:18:5: note: candidate constructor not viable: requires 4 arguments, but 3 were provided
+   18 |     Task(int taskId, const std::string& taskName, int taskPriority, int taskDuration);
+      |     ^    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit copy constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit move constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:17:5: note: candidate constructor not viable: requires 0 arguments, but 3 were provided
+   17 |     Task();
+      |     ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/test_suite.cpp:101:10: error: no matching constructor for initialization of 'Task'
+  101 |     Task smallTask("Small", 5, 2);  // remaining = 5 < 10
+      |          ^         ~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:18:5: note: candidate constructor not viable: requires 4 arguments, but 3 were provided
+   18 |     Task(int taskId, const std::string& taskName, int taskPriority, int taskDuration);
+      |     ^    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit copy constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit move constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:17:5: note: candidate constructor not viable: requires 0 arguments, but 3 were provided
+   17 |     Task();
+      |     ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/test_suite.cpp:102:10: error: no matching constructor for initialization of 'Task'
+  102 |     Task largeTask("Large", 15, 3); // remaining = 15 >= 10
+      |          ^         ~~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:18:5: note: candidate constructor not viable: requires 4 arguments, but 3 were provided
+   18 |     Task(int taskId, const std::string& taskName, int taskPriority, int taskDuration);
+      |     ^    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit copy constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit move constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:17:5: note: candidate constructor not viable: requires 0 arguments, but 3 were provided
+   17 |     Task();
+      |     ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/test_suite.cpp:134:10: error: no matching constructor for initialization of 'Task'
+  134 |     Task t1("LowWeight", 10, 2);
+      |          ^  ~~~~~~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:18:5: note: candidate constructor not viable: requires 4 arguments, but 3 were provided
+   18 |     Task(int taskId, const std::string& taskName, int taskPriority, int taskDuration);
+      |     ^    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit copy constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit move constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:17:5: note: candidate constructor not viable: requires 0 arguments, but 3 were provided
+   17 |     Task();
+      |     ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/test_suite.cpp:135:10: error: no matching constructor for initialization of 'Task'
+  135 |     Task t2("HighWeight", 10, 10);
+      |          ^  ~~~~~~~~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:18:5: note: candidate constructor not viable: requires 4 arguments, but 3 were provided
+   18 |     Task(int taskId, const std::string& taskName, int taskPriority, int taskDuration);
+      |     ^    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit copy constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit move constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:17:5: note: candidate constructor not viable: requires 0 arguments, but 3 were provided
+   17 |     Task();
+      |     ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/test_suite.cpp:136:10: error: no matching constructor for initialization of 'Task'
+  136 |     Task t3("MidWeight", 10, 5);
+      |          ^  ~~~~~~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:18:5: note: candidate constructor not viable: requires 4 arguments, but 3 were provided
+   18 |     Task(int taskId, const std::string& taskName, int taskPriority, int taskDuration);
+      |     ^    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit copy constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit move constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:17:5: note: candidate constructor not viable: requires 0 arguments, but 3 were provided
+   17 |     Task();
+      |     ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/test_suite.cpp:174:10: error: no matching constructor for initialization of 'Task'
+  174 |     Task t1("T1", 20, 10); // remaining: 20, weight: 10
+      |          ^  ~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:18:5: note: candidate constructor not viable: requires 4 arguments, but 3 were provided
+   18 |     Task(int taskId, const std::string& taskName, int taskPriority, int taskDuration);
+      |     ^    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit copy constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit move constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:17:5: note: candidate constructor not viable: requires 0 arguments, but 3 were provided
+   17 |     Task();
+      |     ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/test_suite.cpp:175:10: error: no matching constructor for initialization of 'Task'
+  175 |     Task t2("T2", 50, 1);  // remaining: 50, weight: 1
+      |          ^  ~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:18:5: note: candidate constructor not viable: requires 4 arguments, but 3 were provided
+   18 |     Task(int taskId, const std::string& taskName, int taskPriority, int taskDuration);
+      |     ^    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit copy constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit move constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:17:5: note: candidate constructor not viable: requires 0 arguments, but 3 were provided
+   17 |     Task();
+      |     ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/test_suite.cpp:176:10: error: no matching constructor for initialization of 'Task'
+  176 |     Task t3("T3", 30, 5);  // remaining: 30, weight: 5
+      |          ^  ~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:18:5: note: candidate constructor not viable: requires 4 arguments, but 3 were provided
+   18 |     Task(int taskId, const std::string& taskName, int taskPriority, int taskDuration);
+      |     ^    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit copy constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit move constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:17:5: note: candidate constructor not viable: requires 0 arguments, but 3 were provided
+   17 |     Task();
+      |     ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/test_suite.cpp:207:10: error: no matching constructor for initialization of 'Task'
+  207 |     Task t1("Task1", 10, 1);
+      |          ^  ~~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:18:5: note: candidate constructor not viable: requires 4 arguments, but 3 were provided
+   18 |     Task(int taskId, const std::string& taskName, int taskPriority, int taskDuration);
+      |     ^    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit copy constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit move constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:17:5: note: candidate constructor not viable: requires 0 arguments, but 3 were provided
+   17 |     Task();
+      |     ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/test_suite.cpp:208:10: error: no matching constructor for initialization of 'Task'
+  208 |     Task t2("Task2", 20, 1);
+      |          ^  ~~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:18:5: note: candidate constructor not viable: requires 4 arguments, but 3 were provided
+   18 |     Task(int taskId, const std::string& taskName, int taskPriority, int taskDuration);
+      |     ^    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit copy constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit move constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:17:5: note: candidate constructor not viable: requires 0 arguments, but 3 were provided
+   17 |     Task();
+      |     ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/test_suite.cpp:209:10: error: no matching constructor for initialization of 'Task'
+  209 |     Task t3("Task3", 15, 1);
+      |          ^  ~~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:18:5: note: candidate constructor not viable: requires 4 arguments, but 3 were provided
+   18 |     Task(int taskId, const std::string& taskName, int taskPriority, int taskDuration);
+      |     ^    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit copy constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit move constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:17:5: note: candidate constructor not viable: requires 0 arguments, but 3 were provided
+   17 |     Task();
+      |     ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/test_suite.cpp:230:10: error: no matching constructor for initialization of 'Task'
+  230 |     Task t1("Quick", 5, 1);
+      |          ^  ~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:18:5: note: candidate constructor not viable: requires 4 arguments, but 3 were provided
+   18 |     Task(int taskId, const std::string& taskName, int taskPriority, int taskDuration);
+      |     ^    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit copy constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit move constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:17:5: note: candidate constructor not viable: requires 0 arguments, but 3 were provided
+   17 |     Task();
+      |     ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/test_suite.cpp:231:10: error: no matching constructor for initialization of 'Task'
+  231 |     Task t2("Medium", 10, 2);
+      |          ^  ~~~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:18:5: note: candidate constructor not viable: requires 4 arguments, but 3 were provided
+   18 |     Task(int taskId, const std::string& taskName, int taskPriority, int taskDuration);
+      |     ^    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit copy constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit move constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:17:5: note: candidate constructor not viable: requires 0 arguments, but 3 were provided
+   17 |     Task();
+      |     ^
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/test_suite.cpp:232:10: error: no matching constructor for initialization of 'Task'
+  232 |     Task t3("Long", 15, 3);
+      |          ^  ~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:18:5: note: candidate constructor not viable: requires 4 arguments, but 3 were provided
+   18 |     Task(int taskId, const std::string& taskName, int taskPriority, int taskDuration);
+      |     ^    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit copy constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:6:7: note: candidate constructor (the implicit move constructor) not viable: requires 1 argument, but 3 were provided
+    6 | class Task {
+      |       ^~~~
+/var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmp6bh2cxxf/build/Task.h:17:5: note: candidate constructor not viable: requires 0 arguments, but 3 were provided
+   17 |     Task();
+      |     ^
+18 errors generated.

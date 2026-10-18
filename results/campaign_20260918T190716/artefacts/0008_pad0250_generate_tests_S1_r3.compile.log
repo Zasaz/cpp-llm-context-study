@@ -1,0 +1,8 @@
+--- Preparing user code (renaming main() to user_code_main) ---
+8 source files: Canvas.cpp, Pad1.cpp, Pad2.cpp, Pad3.cpp, Pad4.cpp, Pad5.cpp, Shape.cpp, Vector2.cpp
+
+--- Test Suite Compilation & Linking ---
+Command: g++ -I /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpyankfico/build /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpyankfico/build/Canvas.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpyankfico/build/Pad1.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpyankfico/build/Pad2.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpyankfico/build/Pad3.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpyankfico/build/Pad4.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpyankfico/build/Pad5.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpyankfico/build/Shape.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpyankfico/build/Vector2.cpp /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpyankfico/build/test_suite.cpp -o /var/folders/mg/6ppjzw857zq025gyz5ypy28h0000gq/T/tmpyankfico/test_executable -std=c++17 -Wall
+STDOUT:
+
+STDERR:

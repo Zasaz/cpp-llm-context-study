@@ -1,0 +1,1 @@
+console.log("C++ Code Analyzer script loaded.");

@@ -1,0 +1,176 @@
+#include <iostream>
+#include <cassert>
+#include <cmath>
+#include <string>
+#include <vector>
+
+#include "Report.h"
+#include "Warehouse.h"
+#include "Item.h"
+
+// Helper function for floating point comparisons
+bool doubleEquals(double a, double b, double epsilon = 1e-6) {
+    return std::abs(a - b) < epsilon;
+}
+
+void test_default_constructor() {
+    Report report;
+
+    assert(report.isEmpty() == true);
+    assert(report.summaryLine() == "empty");
+    assert(doubleEquals(report.averageItemValue(), 0.0));
+    assert(report.outOfStockCount() == 0);
+    assert(report.source.label == "unnamed");
+    assert(report.source.itemCount() == 0);
+
+    std::cout << "Test test_default_constructor: PASS" << std::endl;
+}
+
+void test_parameterized_constructor_empty_warehouse() {
+    Warehouse wh("North Facility");
+    Report report(wh);
+
+    assert(report.isEmpty() == true);
+    assert(report.summaryLine() == "empty");
+    assert(doubleEquals(report.averageItemValue(), 0.0));
+    assert(report.outOfStockCount() == 0);
+    assert(report.source.label == "North Facility");
+
+    std::cout << "Test test_parameterized_constructor_empty_warehouse: PASS" << std::endl;
+}
+
+void test_parameterized_constructor_with_items() {
+    Warehouse wh("Central Hub");
+    wh.addItem(Item("Widget", 10, 2.50));
+    wh.addItem(Item("Gadget", 5, 10.00));
+
+    Report report(wh);
+
+    assert(report.isEmpty() == false);
+    assert(report.summaryLine() == "Central Hub");
+    assert(report.source.itemCount() == 2);
+
+    std::cout << "Test test_parameterized_constructor_with_items: PASS" << std::endl;
+}
+
+void test_averageItemValue_empty_warehouse() {
+    Warehouse wh;
+    Report report(wh);
+
+    assert(doubleEquals(report.averageItemValue(), 0.0));
+
+    std::cout << "Test test_averageItemValue_empty_warehouse: PASS" << std::endl;
+}
+
+void test_averageItemValue_multiple_items() {
+    Warehouse wh("South Depot");
+    // Item 1: 10 * 3.0 = 30.0
+    wh.addItem(Item("Hammer", 10, 3.0));
+    // Item 2: 5 * 8.0 = 40.0
+    wh.addItem(Item("Saw", 5, 8.0));
+    // Item 3: 2 * 10.0 = 20.0
+    wh.addItem(Item("Drill", 2, 10.0));
+    // Total value = 30 + 40 + 20 = 90.0
+    // Total item kinds = 3
+    // Average item value = 90.0 / 3 = 30.0
+
+    Report report(wh);
+
+    assert(doubleEquals(report.averageItemValue(), 30.0));
+
+    std::cout << "Test test_averageItemValue_multiple_items: PASS" << std::endl;
+}
+
+void test_averageItemValue_zero_quantity_items() {
+    Warehouse wh("West Outlet");
+    wh.addItem(Item("OutA", 0, 15.0)); // value: 0
+    wh.addItem(Item("OutB", 0, 25.0)); // value: 0
+
+    Report report(wh);
+
+    assert(report.source.itemCount() == 2);
+    assert(doubleEquals(report.averageItemValue(), 0.0));
+
+    std::cout << "Test test_averageItemValue_zero_quantity_items: PASS" << std::endl;
+}
+
+void test_outOfStockCount_all_in_stock() {
+    Warehouse wh("Stocked Warehouse");
+    wh.addItem(Item("Pen", 100, 0.50));
+    wh.addItem(Item("Notebook", 20, 2.00));
+    wh.addItem(Item("Eraser", 1, 0.25));
+
+    Report report(wh);
+
+    assert(report.outOfStockCount() == 0);
+
+    std::cout << "Test test_outOfStockCount_all_in_stock: PASS" << std::endl;
+}
+
+void test_outOfStockCount_mixed_stock() {
+    Warehouse wh("Mixed Warehouse");
+    wh.addItem(Item("Apples", 10, 1.0)); // in stock
+    wh.addItem(Item("Bananas", 0, 0.5)); // out of stock (0 quantity)
+    wh.addItem(Item("Cherries", -3, 2.0)); // out of stock (negative quantity)
+    wh.addItem(Item("Dates", 1, 3.0)); // in stock
+
+    Report report(wh);
+
+    assert(report.outOfStockCount() == 2);
+
+    std::cout << "Test test_outOfStockCount_mixed_stock: PASS" << std::endl;
+}
+
+void test_outOfStockCount_all_out_of_stock() {
+    Warehouse wh("Empty Stock");
+    wh.addItem(Item("ItemA", 0, 5.0));
+    wh.addItem(Item("ItemB", 0, 10.0));
+    wh.addItem(Item("ItemC", 0, 15.0));
+
+    Report report(wh);
+
+    assert(report.outOfStockCount() == 3);
+
+    std::cout << "Test test_outOfStockCount_all_out_of_stock: PASS" << std::endl;
+}
+
+void test_summaryLine_empty_and_non_empty() {
+    Warehouse wh("Downtown Storage");
+    Report reportEmpty(wh);
+    assert(reportEmpty.summaryLine() == "empty");
+
+    wh.addItem(Item("Bolt", 50, 0.10));
+    Report reportFilled(wh);
+    assert(reportFilled.summaryLine() == "Downtown Storage");
+
+    std::cout << "Test test_summaryLine_empty_and_non_empty: PASS" << std::endl;
+}
+
+void test_isEmpty_variations() {
+    Warehouse wh("Test WH");
+    Report rep1(wh);
+    assert(rep1.isEmpty() == true);
+
+    wh.addItem(Item("Nail", 0, 0.05)); // 0 quantity still counts as an item entry
+    Report rep2(wh);
+    assert(rep2.isEmpty() == false);
+
+    std::cout << "Test test_isEmpty_variations: PASS" << std::endl;
+}
+
+int main() {
+    test_default_constructor();
+    test_parameterized_constructor_empty_warehouse();
+    test_parameterized_constructor_with_items();
+    test_averageItemValue_empty_warehouse();
+    test_averageItemValue_multiple_items();
+    test_averageItemValue_zero_quantity_items();
+    test_outOfStockCount_all_in_stock();
+    test_outOfStockCount_mixed_stock();
+    test_outOfStockCount_all_out_of_stock();
+    test_summaryLine_empty_and_non_empty();
+    test_isEmpty_variations();
+
+    std::cout << "\nAll Report tests passed successfully!" << std::endl;
+    return 0;
+}

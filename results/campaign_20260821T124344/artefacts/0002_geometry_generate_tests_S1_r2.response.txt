@@ -1,0 +1,134 @@
+Here is the complete C++ unit test suite covering the `Canvas` class and its functionality.
+
+```cpp
+#include <iostream>
+#include <cassert>
+#include <cmath>
+#include "Canvas.h"
+#include "Shape.h"
+
+// Helper function for floating point comparisons
+static bool isClose(double a, double b, double epsilon = 1e-6) {
+    return std::abs(a - b) < epsilon;
+}
+
+void test_Canvas_initialState() {
+    Canvas canvas;
+    assert(canvas.count() == 0);
+    assert(isClose(canvas.totalArea(), 0.0));
+    assert(isClose(canvas.largestArea(), 0.0));
+    assert(canvas.shapes.empty());
+
+    std::cout << "Test test_Canvas_initialState: PASS" << std::endl;
+}
+
+void test_Canvas_addNullShape() {
+    Canvas canvas;
+    canvas.add(nullptr);
+    assert(canvas.count() == 0);
+    assert(canvas.shapes.empty());
+
+    std::cout << "Test test_Canvas_addNullShape: PASS" << std::endl;
+}
+
+void test_Canvas_addValidShapesAndCount() {
+    Canvas canvas;
+    canvas.add(new Rectangle(4.0, 5.0)); // Area = 20.0
+    assert(canvas.count() == 1);
+
+    canvas.add(new Circle(3.0));          // Area ~ 28.27433
+    assert(canvas.count() == 2);
+
+    canvas.add(new Rectangle(2.0, 3.0)); // Area = 6.0
+    assert(canvas.count() == 3);
+
+    std::cout << "Test test_Canvas_addValidShapesAndCount: PASS" << std::endl;
+}
+
+void test_Canvas_totalArea() {
+    Canvas canvas;
+    // Rectangle 1: 5 * 10 = 50
+    canvas.add(new Rectangle(5.0, 10.0));
+    // Circle 1: PI * 2 * 2 = 4 * PI (~12.5663706)
+    canvas.add(new Circle(2.0));
+    // Generic base Shape: area = 0
+    canvas.add(new Shape());
+
+    double expectedTotal = 50.0 + (3.14159265358979323846 * 4.0) + 0.0;
+    assert(isClose(canvas.totalArea(), expectedTotal));
+
+    std::cout << "Test test_Canvas_totalArea: PASS" << std::endl;
+}
+
+void test_Canvas_largestArea() {
+    Canvas canvas;
+    
+    // Add first shape (area 10.0)
+    canvas.add(new Rectangle(2.0, 5.0));
+    assert(isClose(canvas.largestArea(), 10.0));
+
+    // Add smaller shape (area 6.0) -> largest still 10.0
+    canvas.add(new Rectangle(2.0, 3.0));
+    assert(isClose(canvas.largestArea(), 10.0));
+
+    // Add larger shape: Circle radius 2 -> area ~ 12.56637 -> new largest
+    canvas.add(new Circle(2.0));
+    double expectedCircleArea = 3.14159265358979323846 * 4.0;
+    assert(isClose(canvas.largestArea(), expectedCircleArea));
+
+    // Add an even larger shape: Rectangle 5 * 5 = 25.0
+    canvas.add(new Rectangle(5.0, 5.0));
+    assert(isClose(canvas.largestArea(), 25.0));
+
+    std::cout << "Test test_Canvas_largestArea: PASS" << std::endl;
+}
+
+void test_Canvas_clear() {
+    Canvas canvas;
+    canvas.add(new Rectangle(10.0, 10.0));
+    canvas.add(new Circle(5.0));
+    assert(canvas.count() == 2);
+
+    canvas.clear();
+    assert(canvas.count() == 0);
+    assert(canvas.shapes.empty());
+    assert(isClose(canvas.totalArea(), 0.0));
+    assert(isClose(canvas.largestArea(), 0.0));
+
+    // Ensure we can still add shapes after clear
+    canvas.add(new Rectangle(3.0, 4.0));
+    assert(canvas.count() == 1);
+    assert(isClose(canvas.totalArea(), 12.0));
+    assert(isClose(canvas.largestArea(), 12.0));
+
+    std::cout << "Test test_Canvas_clear: PASS" << std::endl;
+}
+
+void test_Canvas_destructor() {
+    // Tests that creating and destroying a canvas with heap shapes runs without memory issues/crashes
+    {
+        Canvas canvas;
+        canvas.add(new Rectangle(2.0, 2.0));
+        canvas.add(new Circle(1.0));
+        canvas.add(new Shape());
+    }
+    // Destruction happens cleanly on exit of scope
+
+    std::cout << "Test test_Canvas_destructor: PASS" << std::endl;
+}
+
+int main() {
+    std::cout << "=== Starting Canvas Test Suite ===" << std::endl;
+
+    test_Canvas_initialState();
+    test_Canvas_addNullShape();
+    test_Canvas_addValidShapesAndCount();
+    test_Canvas_totalArea();
+    test_Canvas_largestArea();
+    test_Canvas_clear();
+    test_Canvas_destructor();
+
+    std::cout << "=== All Canvas tests passed successfully! ===" << std::endl;
+    return 0;
+}
+```

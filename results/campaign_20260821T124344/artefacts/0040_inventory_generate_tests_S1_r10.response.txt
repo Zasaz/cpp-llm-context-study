@@ -1,0 +1,148 @@
+Here is the complete, self-contained unit test suite for testing `Report.cpp` and related functionality.
+
+```cpp
+#include <iostream>
+#include <cassert>
+#include <cmath>
+#include <string>
+#include "Report.h"
+#include "Warehouse.h"
+#include "Item.h"
+
+// Helper function to compare floating point values
+bool areAlmostEqual(double a, double b, double epsilon = 1e-6) {
+    return std::fabs(a - b) < epsilon;
+}
+
+// Test Default Constructor
+void test_report_defaultConstructor() {
+    Report report;
+
+    assert(report.isEmpty() == true);
+    assert(report.source.label == "unnamed");
+    assert(report.source.itemCount() == 0);
+    assert(areAlmostEqual(report.averageItemValue(), 0.0));
+    assert(report.outOfStockCount() == 0);
+    assert(report.summaryLine() == "empty");
+
+    std::cout << "Test test_report_defaultConstructor: PASS" << std::endl;
+}
+
+// Test Parameterized Constructor with Empty Warehouse
+void test_report_paramConstructor_emptyWarehouse() {
+    Warehouse wh("North Depot");
+    Report report(wh);
+
+    assert(report.isEmpty() == true);
+    assert(report.source.label == "North Depot");
+    assert(report.source.itemCount() == 0);
+    assert(areAlmostEqual(report.averageItemValue(), 0.0));
+    assert(report.outOfStockCount() == 0);
+    assert(report.summaryLine() == "empty");
+
+    std::cout << "Test test_report_paramConstructor_emptyWarehouse: PASS" << std::endl;
+}
+
+// Test Parameterized Constructor with Populated Warehouse
+void test_report_paramConstructor_populatedWarehouse() {
+    Warehouse wh("Central Hub");
+    wh.addItem(Item("Laptop", 10, 500.0)); // Value = 5000.0
+    wh.addItem(Item("Mouse", 50, 20.0));   // Value = 1000.0
+
+    Report report(wh);
+
+    assert(report.isEmpty() == false);
+    assert(report.source.label == "Central Hub");
+    assert(report.source.itemCount() == 2);
+    // Total Inventory Value = 6000.0; Average per item type = 6000.0 / 2 = 3000.0
+    assert(areAlmostEqual(report.averageItemValue(), 3000.0));
+    assert(report.outOfStockCount() == 0);
+    assert(report.summaryLine() == "Central Hub");
+
+    std::cout << "Test test_report_paramConstructor_populatedWarehouse: PASS" << std::endl;
+}
+
+// Test averageItemValue with various values and counts
+void test_report_averageItemValue_calculation() {
+    Warehouse wh("Electronics");
+    wh.addItem(Item("Resistor", 100, 0.50));  // 50.0
+    wh.addItem(Item("Capacitor", 200, 0.25)); // 50.0
+    wh.addItem(Item("Inductor", 50, 2.00));   // 100.0
+    wh.addItem(Item("Microchip", 10, 10.00)); // 100.0
+    // Total Value = 300.0; Item Count = 4; Average = 75.0
+
+    Report report(wh);
+    assert(areAlmostEqual(report.averageItemValue(), 75.0));
+
+    std::cout << "Test test_report_averageItemValue_calculation: PASS" << std::endl;
+}
+
+// Test outOfStockCount with all in-stock, some out-of-stock, and all out-of-stock
+void test_report_outOfStockCount() {
+    Warehouse wh("Stock Check");
+    wh.addItem(Item("ItemA", 5, 10.0));
+    wh.addItem(Item("ItemB", 0, 15.0)); // Out of stock
+    wh.addItem(Item("ItemC", 2, 25.0));
+    wh.addItem(Item("ItemD", 0, 5.0));  // Out of stock
+    wh.addItem(Item("ItemE", -1, 1.0)); // Non-positive is out of stock per Item::isInStock()
+
+    Report report(wh);
+    assert(report.outOfStockCount() == 3);
+
+    // Consume items from the warehouse and check updated report
+    wh.withdraw("ItemA", 5); // Now quantity is 0
+    Report updatedReport(wh);
+    assert(updatedReport.outOfStockCount() == 4);
+
+    std::cout << "Test test_report_outOfStockCount: PASS" << std::endl;
+}
+
+// Test isEmpty method
+void test_report_isEmpty() {
+    Warehouse emptyWh("EmptyWh");
+    Report emptyReport(emptyWh);
+    assert(emptyReport.isEmpty() == true);
+
+    Warehouse nonEmptyWh("NonEmptyWh");
+    nonEmptyWh.addItem(Item("Widget", 0, 1.0)); // Even with quantity 0, the item entry exists
+    Report nonEmptyReport(nonEmptyWh);
+    assert(nonEmptyReport.isEmpty() == false);
+
+    std::cout << "Test test_report_isEmpty: PASS" << std::endl;
+}
+
+// Test summaryLine method under different conditions
+void test_report_summaryLine() {
+    // 1. Truly empty report
+    Report r1;
+    assert(r1.summaryLine() == "empty");
+
+    // 2. Custom labeled empty warehouse report
+    Warehouse wh1("Storage-99");
+    Report r2(wh1);
+    assert(r2.summaryLine() == "empty");
+
+    // 3. Populated warehouse report
+    Warehouse wh2("South Facility");
+    wh2.addItem(Item("Forklift", 1, 15000.0));
+    Report r3(wh2);
+    assert(r3.summaryLine() == "South Facility");
+
+    std::cout << "Test test_report_summaryLine: PASS" << std::endl;
+}
+
+int main() {
+    std::cout << "--- Running Report Unit Tests ---" << std::endl;
+
+    test_report_defaultConstructor();
+    test_report_paramConstructor_emptyWarehouse();
+    test_report_paramConstructor_populatedWarehouse();
+    test_report_averageItemValue_calculation();
+    test_report_outOfStockCount();
+    test_report_isEmpty();
+    test_report_summaryLine();
+
+    std::cout << "--- All Tests Passed Successfully ---" << std::endl;
+    return 0;
+}
+```

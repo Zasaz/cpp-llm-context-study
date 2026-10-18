@@ -1,0 +1,129 @@
+#include <iostream>
+#include <cassert>
+#include <cmath>
+#include <string>
+
+// Include necessary headers from the project
+#include "Report.h"
+#include "Warehouse.h"
+#include "Item.h"
+
+// Helper function to compare floating point values
+bool areAlmostEqual(double a, double b, double epsilon = 1e-6) {
+    return std::abs(a - b) < epsilon;
+}
+
+// Test default constructor behavior
+void test_defaultConstructor() {
+    Report report;
+    
+    assert(report.isEmpty() == true);
+    assert(areAlmostEqual(report.averageItemValue(), 0.0));
+    assert(report.outOfStockCount() == 0);
+    assert(report.summaryLine() == "empty");
+
+    std::cout << "Test test_defaultConstructor: PASS" << std::endl;
+}
+
+// Test parameterized constructor with an empty warehouse
+void test_constructor_emptyWarehouse() {
+    Warehouse wh;
+    wh.label = "Central Hub";
+    Report report(wh);
+
+    assert(report.isEmpty() == true);
+    assert(areAlmostEqual(report.averageItemValue(), 0.0));
+    assert(report.outOfStockCount() == 0);
+    assert(report.summaryLine() == "empty");
+
+    std::cout << "Test test_constructor_emptyWarehouse: PASS" << std::endl;
+}
+
+// Test averageItemValue with various populated warehouses
+void test_averageItemValue() {
+    Warehouse wh;
+    wh.label = "Electronics Dept";
+    
+    // Add items: Item(name, price, quantity) or equivalent standard constructor/members
+    Item item1("Laptop", 1000.0, 5);
+    Item item2("Mouse", 50.0, 10);
+    wh.addItem(item1);
+    wh.addItem(item2);
+
+    Report report(wh);
+    assert(report.isEmpty() == false);
+    
+    // Check average item value: Total inventory value / Total item count
+    double expectedAvg = wh.inventoryValue() / static_cast<double>(wh.itemCount());
+    assert(wh.itemCount() > 0);
+    assert(areAlmostEqual(report.averageItemValue(), expectedAvg));
+
+    std::cout << "Test test_averageItemValue: PASS" << std::endl;
+}
+
+// Test outOfStockCount function
+void test_outOfStockCount() {
+    Warehouse wh;
+    wh.label = "Grocery Dept";
+
+    Item inStock1("Apple", 1.5, 10);
+    Item inStock2("Banana", 0.75, 25);
+    Item outOfStock1("Orange", 2.0, 0);
+    Item outOfStock2("Pear", 3.0, 0);
+
+    wh.addItem(inStock1);
+    wh.addItem(outOfStock1);
+    wh.addItem(inStock2);
+    wh.addItem(outOfStock2);
+
+    Report report(wh);
+    assert(report.outOfStockCount() == 2);
+
+    std::cout << "Test test_outOfStockCount: PASS" << std::endl;
+}
+
+// Test summaryLine function for both empty and non-empty warehouses
+void test_summaryLine() {
+    Warehouse emptyWh;
+    emptyWh.label = "Empty Storage";
+    Report emptyReport(emptyWh);
+    assert(emptyReport.summaryLine() == "empty");
+
+    Warehouse activeWh;
+    activeWh.label = "Main Depot";
+    Item item("Widget", 10.0, 5);
+    activeWh.addItem(item);
+
+    Report activeReport(activeWh);
+    assert(activeReport.summaryLine() == "Main Depot");
+
+    std::cout << "Test test_summaryLine: PASS" << std::endl;
+}
+
+// Test isEmpty method
+void test_isEmpty() {
+    Warehouse wh;
+    Report report1(wh);
+    assert(report1.isEmpty() == true);
+
+    Item item("Tool", 15.0, 1);
+    wh.addItem(item);
+    Report report2(wh);
+    assert(report2.isEmpty() == false);
+
+    std::cout << "Test test_isEmpty: PASS" << std::endl;
+}
+
+int main() {
+    std::cout << "Starting Report class unit tests..." << std::endl;
+
+    test_defaultConstructor();
+    test_constructor_emptyWarehouse();
+    test_averageItemValue();
+    test_outOfStockCount();
+    test_summaryLine();
+    test_isEmpty();
+
+    std::cout << "All Report tests passed successfully!" << std::endl;
+    return 0;
+}

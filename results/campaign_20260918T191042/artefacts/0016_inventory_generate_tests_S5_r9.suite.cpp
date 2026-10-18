@@ -1,0 +1,137 @@
+#include <iostream>
+#include <cassert>
+#include <cmath>
+#include <string>
+#include "Item.h"
+#include "Warehouse.h"
+#include "Report.h"
+
+// Helper function for floating point comparisons
+bool isClose(double a, double b, double epsilon = 1e-6) {
+    return std::fabs(a - b) < epsilon;
+}
+
+void test_defaultConstructor() {
+    Report report;
+    
+    assert(report.isEmpty() == true);
+    assert(report.source.label == "unnamed");
+    assert(report.source.itemCount() == 0);
+    assert(isClose(report.averageItemValue(), 0.0));
+    assert(report.outOfStockCount() == 0);
+    assert(report.summaryLine() == "empty");
+    
+    std::cout << "Test test_defaultConstructor: PASS" << std::endl;
+}
+
+void test_parameterizedConstructor() {
+    Warehouse wh("Main Warehouse");
+    wh.addItem(Item("Widget", 10, 2.5));
+    
+    Report report(wh);
+    
+    assert(report.isEmpty() == false);
+    assert(report.source.label == "Main Warehouse");
+    assert(report.source.itemCount() == 1);
+    
+    std::cout << "Test test_parameterizedConstructor: PASS" << std::endl;
+}
+
+void test_isEmpty() {
+    Warehouse emptyWh("Empty Store");
+    Report emptyReport(emptyWh);
+    assert(emptyReport.isEmpty() == true);
+
+    Warehouse nonEmptyWh("Non-Empty Store");
+    nonEmptyWh.addItem(Item("Book", 1, 15.0));
+    Report nonEmptyReport(nonEmptyWh);
+    assert(nonEmptyReport.isEmpty() == false);
+
+    std::cout << "Test test_isEmpty: PASS" << std::endl;
+}
+
+void test_summaryLine() {
+    // Empty warehouse should yield "empty" regardless of label
+    Warehouse emptyWh("Distribution Center Alpha");
+    Report emptyReport(emptyWh);
+    assert(emptyReport.summaryLine() == "empty");
+
+    // Warehouse with items should yield its label
+    Warehouse populatedWh("Distribution Center Alpha");
+    populatedWh.addItem(Item("Box", 100, 0.5));
+    Report populatedReport(populatedWh);
+    assert(populatedReport.summaryLine() == "Distribution Center Alpha");
+
+    std::cout << "Test test_summaryLine: PASS" << std::endl;
+}
+
+void test_averageItemValue_empty() {
+    Report emptyReport;
+    assert(isClose(emptyReport.averageItemValue(), 0.0));
+
+    Warehouse wh("Empty");
+    Report reportWh(wh);
+    assert(isClose(reportWh.averageItemValue(), 0.0));
+
+    std::cout << "Test test_averageItemValue_empty: PASS" << std::endl;
+}
+
+void test_averageItemValue_populated() {
+    Warehouse wh("Electronics");
+    // Item 1: 2 * 100.0 = 200.0
+    wh.addItem(Item("Laptop", 2, 100.0));
+    // Item 2: 5 * 20.0 = 100.0
+    wh.addItem(Item("Mouse", 5, 20.0));
+    // Item 3: 0 * 50.0 = 0.0
+    wh.addItem(Item("Keyboard", 0, 50.0));
+    
+    // Total inventory value = 200.0 + 100.0 + 0.0 = 300.0
+    // Total item count (distinct items) = 3
+    // Average item value = 300.0 / 3 = 100.0
+    Report report(wh);
+    assert(isClose(report.averageItemValue(), 100.0));
+
+    std::cout << "Test test_averageItemValue_populated: PASS" << std::endl;
+}
+
+void test_outOfStockCount() {
+    Warehouse wh("Grocery");
+    
+    // Empty warehouse has 0 out of stock items
+    Report emptyReport(wh);
+    assert(emptyReport.outOfStockCount() == 0);
+
+    // Add items with positive stock
+    wh.addItem(Item("Apples", 50, 0.5));
+    wh.addItem(Item("Oranges", 30, 0.8));
+    Report inStockReport(wh);
+    assert(inStockReport.outOfStockCount() == 0);
+
+    // Add items with zero stock
+    wh.addItem(Item("Bananas", 0, 0.3));
+    wh.addItem(Item("Pears", 0, 0.6));
+    Report mixedReport(wh);
+    assert(mixedReport.outOfStockCount() == 2);
+
+    // Consume stock until empty to check dynamic state reflection
+    wh.withdraw("Apples", 50); // Now Apples has quantity 0
+    Report updatedReport(wh);
+    assert(updatedReport.outOfStockCount() == 3);
+
+    std::cout << "Test test_outOfStockCount: PASS" << std::endl;
+}
+
+int main() {
+    std::cout << "=== Running Report Test Suite ===" << std::endl;
+
+    test_defaultConstructor();
+    test_parameterizedConstructor();
+    test_isEmpty();
+    test_summaryLine();
+    test_averageItemValue_empty();
+    test_averageItemValue_populated();
+    test_outOfStockCount();
+
+    std::cout << "=== All Report Tests Passed Successfully ===" << std::endl;
+    return 0;
+}

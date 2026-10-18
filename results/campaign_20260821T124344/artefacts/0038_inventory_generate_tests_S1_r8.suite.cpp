@@ -1,0 +1,182 @@
+#include <iostream>
+#include <cassert>
+#include <cmath>
+#include <string>
+
+#include "Item.h"
+#include "Warehouse.h"
+#include "Report.h"
+
+// Helper function for floating point comparisons
+bool areAlmostEqual(double a, double b, double epsilon = 1e-6) {
+    return std::fabs(a - b) < epsilon;
+}
+
+// Test default constructor and its default behavior on Report methods
+void test_report_defaultConstructor() {
+    Report report;
+    
+    assert(report.isEmpty() == true);
+    assert(report.summaryLine() == "empty");
+    assert(areAlmostEqual(report.averageItemValue(), 0.0));
+    assert(report.outOfStockCount() == 0);
+    assert(report.source.label == "unnamed");
+    assert(report.source.itemCount() == 0);
+
+    std::cout << "Test test_report_defaultConstructor: PASS" << std::endl;
+}
+
+// Test parameterized constructor initializing from a Warehouse
+void test_report_parameterizedConstructor() {
+    Warehouse wh("NorthHub");
+    wh.addItem(Item("Widget", 10, 5.0));
+
+    Report report(wh);
+
+    assert(report.isEmpty() == false);
+    assert(report.source.label == "NorthHub");
+    assert(report.source.itemCount() == 1);
+    assert(report.summaryLine() == "NorthHub");
+
+    std::cout << "Test test_report_parameterizedConstructor: PASS" << std::endl;
+}
+
+// Test isEmpty method for both empty and non-empty warehouses
+void test_report_isEmpty() {
+    Warehouse emptyWh("EmptyWarehouse");
+    Report emptyReport(emptyWh);
+    assert(emptyReport.isEmpty() == true);
+
+    Warehouse nonEmptyWh("StockedWarehouse");
+    nonEmptyWh.addItem(Item("Gizmo", 1, 2.50));
+    Report nonEmptyReport(nonEmptyWh);
+    assert(nonEmptyReport.isEmpty() == false);
+
+    // After adding another item
+    nonEmptyWh.addItem(Item("Gadget", 0, 10.0));
+    Report multiItemReport(nonEmptyWh);
+    assert(multiItemReport.isEmpty() == false);
+
+    std::cout << "Test test_report_isEmpty: PASS" << std::endl;
+}
+
+// Test summaryLine method behavior
+void test_report_summaryLine() {
+    // Empty warehouse should return "empty"
+    Warehouse wh1("Main Storage");
+    Report report1(wh1);
+    assert(report1.summaryLine() == "empty");
+
+    // Default constructed report should also return "empty"
+    Report reportDefault;
+    assert(reportDefault.summaryLine() == "empty");
+
+    // Warehouse with at least one item should return its label
+    wh1.addItem(Item("Screw", 100, 0.05));
+    Report report2(wh1);
+    assert(report2.summaryLine() == "Main Storage");
+
+    // Warehouse with custom label and out-of-stock item
+    Warehouse wh2("Custom Depot");
+    wh2.addItem(Item("Bolt", 0, 0.10));
+    Report report3(wh2);
+    assert(report3.summaryLine() == "Custom Depot");
+
+    std::cout << "Test test_report_summaryLine: PASS" << std::endl;
+}
+
+// Test averageItemValue method with various item counts and values
+void test_report_averageItemValue() {
+    // Empty report/warehouse: average must be 0.0
+    Report emptyReport;
+    assert(areAlmostEqual(emptyReport.averageItemValue(), 0.0));
+
+    Warehouse wh("Depot");
+    Report reportEmptyWh(wh);
+    assert(areAlmostEqual(reportEmptyWh.averageItemValue(), 0.0));
+
+    // Single item: quantity 5 * price 10.0 = total value 50.0; avg = 50.0 / 1 = 50.0
+    wh.addItem(Item("ItemA", 5, 10.0));
+    Report reportSingle(wh);
+    assert(areAlmostEqual(reportSingle.averageItemValue(), 50.0));
+
+    // Two items:
+    // ItemA: 5 * 10.0 = 50.0
+    // ItemB: 10 * 20.0 = 200.0
+    // Total Inventory Value = 250.0, Item Count = 2 => Avg = 125.0
+    wh.addItem(Item("ItemB", 10, 20.0));
+    Report reportTwo(wh);
+    assert(areAlmostEqual(reportTwo.averageItemValue(), 125.0));
+
+    // Three items (including one with 0 quantity):
+    // ItemC: 0 * 15.0 = 0.0
+    // Total Inventory Value = 250.0, Item Count = 3 => Avg = 250.0 / 3.0
+    wh.addItem(Item("ItemC", 0, 15.0));
+    Report reportThree(wh);
+    assert(areAlmostEqual(reportThree.averageItemValue(), 250.0 / 3.0));
+
+    std::cout << "Test test_report_averageItemValue: PASS" << std::endl;
+}
+
+// Test outOfStockCount method
+void test_report_outOfStockCount() {
+    Warehouse wh("Central");
+    Report reportEmpty(wh);
+    assert(reportEmpty.outOfStockCount() == 0);
+
+    // Add items that are in stock
+    wh.addItem(Item("Apples", 10, 1.0));
+    wh.addItem(Item("Oranges", 5, 2.0));
+    Report reportInStock(wh);
+    assert(reportInStock.outOfStockCount() == 0);
+
+    // Add items that are out of stock (quantity <= 0)
+    wh.addItem(Item("Bananas", 0, 0.5));
+    Report reportOneOut(wh);
+    assert(reportOneOut.outOfStockCount() == 1);
+
+    wh.addItem(Item("Grapes", 0, 3.0));
+    Report reportTwoOut(wh);
+    assert(reportTwoOut.outOfStockCount() == 2);
+
+    std::cout << "Test test_report_outOfStockCount: PASS" << std::endl;
+}
+
+// Test edge cases: changes to warehouse before report creation and zero unit prices
+void test_report_edgeCases() {
+    Warehouse wh("EdgeWh");
+    wh.addItem(Item("FreeItem", 100, 0.0)); // totalValue = 0.0
+    wh.addItem(Item("ZeroQtyZeroPrice", 0, 0.0));
+
+    Report report(wh);
+    assert(report.isEmpty() == false);
+    assert(report.outOfStockCount() == 1);
+    assert(areAlmostEqual(report.averageItemValue(), 0.0));
+    assert(report.summaryLine() == "EdgeWh");
+
+    // Warehouse state copied by value into Report
+    wh.addItem(Item("NewItem", 50, 10.0));
+    // The previously created report should still reflect the state at construction time
+    assert(report.source.itemCount() == 2);
+    assert(report.source.inventoryValue() == 0.0);
+
+    // A newly created report reflects updated state
+    Report updatedReport(wh);
+    assert(updatedReport.source.itemCount() == 3);
+    assert(areAlmostEqual(updatedReport.averageItemValue(), 500.0 / 3.0));
+
+    std::cout << "Test test_report_edgeCases: PASS" << std::endl;
+}
+
+int main() {
+    test_report_defaultConstructor();
+    test_report_parameterizedConstructor();
+    test_report_isEmpty();
+    test_report_summaryLine();
+    test_report_averageItemValue();
+    test_report_outOfStockCount();
+    test_report_edgeCases();
+
+    std::cout << "\nAll Report unit tests passed successfully!" << std::endl;
+    return 0;
+}

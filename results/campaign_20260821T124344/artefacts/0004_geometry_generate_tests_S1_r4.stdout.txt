@@ -1,0 +1,8 @@
+Test test_Canvas_initialState: PASS
+Test test_Canvas_addShapes: PASS
+Test test_Canvas_addNullptr: PASS
+Test test_Canvas_totalArea: PASS
+Test test_Canvas_largestArea: PASS
+Test test_Canvas_clear: PASS
+Test test_Canvas_destructor: PASS
+All Canvas tests passed successfully!

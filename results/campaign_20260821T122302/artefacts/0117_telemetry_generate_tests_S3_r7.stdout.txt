@@ -1,0 +1,13 @@
+Running SamplePipeline unit tests...
+Test test_constructors_and_defaults: PASS
+Test test_filter_management_and_stage: PASS
+Test test_process_pipeline_filtering: PASS
+Test test_wouldReject: PASS
+Test test_ingest_quality_and_rejections: PASS
+Test test_ingest_invalid_sample_score: PASS
+Test test_ingestBatch: PASS
+Test test_channel_stats_and_latest: PASS
+Test test_normalised_and_denormalised: PASS
+Test test_requireQuality_negative_ignore: PASS
+Test test_flush_and_describe: PASS
+All SamplePipeline tests passed successfully!
