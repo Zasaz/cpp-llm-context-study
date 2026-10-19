@@ -9,13 +9,15 @@ Research artefact for the Master's thesis submitted to the Faculty of Computer S
 
 ## Overview
 
-This repository contains the full source code, evaluation harness, corpus, and campaign results for a study comparing three context-selection strategies for an LLM-based C++ code assistant:
+This repository contains the full source code, evaluation harness, corpus, and campaign results for a study comparing context-selection strategies for an LLM-based C++ code assistant:
 
 - **S1** – Whole-project concatenation  
 - **S2** – Active file only  
 - **S3** – Structural selection via a symbol-graph traversal  
+- **S4** – Active file plus directly included headers (one hop)  
+- **S5** – Include closure (S4 followed to closure, adding matching implementations)  
 
-The assistant is a Visual Studio Code extension backed by a Flask analysis service. Two measurement campaigns (120 runs each) compared the strategies on four purpose-built C++ projects, using unit-test generation as the task and compilation and execution of generated suites as the oracle.
+S1–S3 are the three main strategies evaluated in two campaigns of 120 runs each. S4 and S5 are supplementary baselines for the include-closure experiment (E2). The assistant is a Visual Studio Code extension backed by a Flask analysis service. Four purpose-built C++ projects serve as the evaluation corpus, with unit-test generation as the task and compilation and execution of generated suites as the oracle.
 
 ---
 
@@ -25,6 +27,7 @@ The assistant is a Visual Studio Code extension backed by a Flask analysis servi
 ├── analyzer/           # Context strategies, symbol extractor, architecture view
 │   ├── context_strategies.py   # S1/S2/S3/S4/S5 selection logic
 │   └── symbol_extractor.py     # Regex-based C++ symbol extractor
+├── vscode-extension/   # Visual Studio Code client (TypeScript)
 ├── harness/            # Measurement and analysis modules
 │   ├── run.py          # Campaign runner
 │   ├── blocked.py      # Friedman/Wilcoxon inference
